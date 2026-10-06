@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hawa — Hardware Intelligence & Web Serial Flasher</title>
-  <meta name="description" content="Unlock the power of native Web Serial to flash, provision, and control your ESP32 or ESP8266 boards directly from your browser.">
+  <title>Hawa (हावा) — Web Serial Flasher & Global OTA Platform</title>
+  <meta name="description" content="Connect, flash, and remotely program ESP32 and ESP8266 microcontrollers directly from your browser. Zero software or driver installation needed.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -12,31 +12,35 @@
 </head>
 <body>
 
-  <!-- Minimalist SaaS Navigation Bar (Exact match to reference) -->
+  <!-- Minimalist SaaS Navigation Bar -->
   <header class="site-header">
     <div class="nav-container">
       <a href="/" class="brand-wrapper">
-        <div class="brand-badge">AI</div>
-        <span class="brand-title">CallAnalytics</span>
+        <div class="brand-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"></path>
+          </svg>
+        </div>
+        <span class="brand-title">HAWA</span>
       </a>
 
       <nav>
         <ul class="nav-links">
-          <li><a href="#flasher" class="nav-link">Features</a></li>
-          <li><a href="#supported-boards" class="nav-link">Pricing</a></li>
-          <li><a href="#excel-features" class="nav-link">Testimonials</a></li>
-          <li><a href="/" class="nav-link">FAQ</a></li>
+          <li><a href="#flasher" class="nav-link">Web Flasher</a></li>
+          <li><a href="#excel-features" class="nav-link">Features</a></li>
+          <li><a href="#excel-features" class="nav-link">Supported Hardware</a></li>
+          <li><a href="/" class="nav-link">Fleet Dashboard</a></li>
         </ul>
       </nav>
 
       <div class="nav-actions">
-        <a href="/" class="nav-text-btn">Sign In</a>
-        <a href="#flasher" class="nav-cta-btn">Start Free Trial</a>
+        <a href="/" class="nav-text-btn">Command Center</a>
+        <a href="#flasher" class="nav-cta-btn">Connect Device</a>
       </div>
     </div>
   </header>
 
-  <!-- Hero Header Section (Pixel-accurate to reference image) -->
+  <!-- Hero Header Section -->
   <section class="hero-section">
     <!-- Announcement Pill Badge -->
     <div class="hero-pill-badge">
@@ -46,18 +50,18 @@
           <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
         </svg>
       </span>
-      <span>AI-Powered Call Intelligence</span>
+      <span>Zero Drivers Needed · Native Web Serial</span>
     </div>
 
     <!-- 2-Line Headline -->
     <h1 class="hero-headline">
-      Transform Your Calls Into<br>
-      Actionable Insights
+      Transform Your Hardware Into<br>
+      A Global Wireless Fleet
     </h1>
 
     <!-- Hero Subtitle -->
     <p class="hero-subhead">
-      Unlock the power of AI to analyze every customer conversation, identify opportunities, and boost your team's performance with real-time insights and automated coaching.
+      Zero software, Arduino IDE, or driver installations needed. Plug your ESP32 or ESP8266 into your browser via USB, enter your Wi-Fi credentials, and unlock frictionless over-the-air programming anywhere in the world.
     </p>
 
     <!-- Dual Hero Buttons -->
@@ -66,13 +70,13 @@
         <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
           <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
         </svg>
-        Start Free Trial
+        Connect USB & Flash
       </a>
       <a href="/" class="btn-hero-secondary">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <polygon points="5 3 19 12 5 21 5 3"></polygon>
         </svg>
-        Watch Demo
+        Open Fleet Dashboard
       </a>
     </div>
 
@@ -80,20 +84,20 @@
     <div class="hero-trust-bullets">
       <div class="trust-bullet-item">
         <span class="trust-bullet-dot"></span>
-        <span>No setup required</span>
+        <span>Zero driver installation</span>
       </div>
       <div class="trust-bullet-item">
         <span class="trust-bullet-dot"></span>
-        <span>14-day free trial</span>
+        <span>Native Web Serial API</span>
       </div>
       <div class="trust-bullet-item">
         <span class="trust-bullet-dot"></span>
-        <span>Cancel anytime</span>
+        <span>Anti-brick dual partition</span>
       </div>
     </div>
   </section>
 
-  <!-- Interactive Device Flasher Card Frame (The Display Bezel from Reference) -->
+  <!-- Interactive Device Flasher Card Frame -->
   <main class="flasher-wrapper" id="flasher">
     <div class="device-preview-frame">
       <!-- Window Title Bar -->
@@ -112,7 +116,14 @@
       <div class="card-body">
         <!-- Browser Support Warning -->
         <div id="browserWarning" class="browser-alert">
-          ⚠️ <strong>Web Serial API Not Supported:</strong> Your current browser does not support Web Serial. Please open this page in <strong>Google Chrome</strong>, <strong>Microsoft Edge</strong>, or <strong>Brave</strong> on a laptop or desktop computer with a USB port.
+          <svg class="alert-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+          <div>
+            <strong>Web Serial API Not Supported:</strong> Your current browser does not support Web Serial. Please open this page in <strong>Google Chrome</strong>, <strong>Microsoft Edge</strong>, or <strong>Brave</strong> on a laptop or desktop computer with a USB port.
+          </div>
         </div>
 
         <!-- 3-Step Progress Indicator -->
@@ -128,7 +139,7 @@
             <div class="step-bubble" id="bubble2">2</div>
             <div class="step-meta">
               <span class="step-label">Step 02</span>
-              <span class="step-name">Configure Wi-Fi</span>
+              <span class="step-name">Wi-Fi & Config</span>
             </div>
           </div>
           <div class="step-card" id="stepCard3">
@@ -142,57 +153,37 @@
 
         <form id="flasherForm" onsubmit="return false;">
           <!-- 1. Board Selection Section -->
-          <div class="form-section-header">
-            <span class="section-label">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
-                <rect x="9" y="9" width="6" height="6"></rect>
-                <line x1="9" y1="1" x2="9" y2="4"></line>
-                <line x1="15" y1="1" x2="15" y2="4"></line>
-                <line x1="9" y1="20" x2="9" y2="23"></line>
-                <line x1="15" y1="20" x2="15" y2="23"></line>
-                <line x1="20" y1="9" x2="23" y2="9"></line>
-                <line x1="20" y1="14" x2="23" y2="14"></line>
-                <line x1="1" y1="9" x2="4" y2="9"></line>
-                <line x1="1" y1="14" x2="4" y2="14"></line>
+          <div class="form-group" style="margin-bottom: 1.5rem;">
+            <div class="form-section-header">
+              <span class="section-label">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                  <rect x="9" y="9" width="6" height="6"></rect>
+                  <line x1="9" y1="1" x2="9" y2="4"></line>
+                  <line x1="15" y1="1" x2="15" y2="4"></line>
+                  <line x1="9" y1="20" x2="9" y2="23"></line>
+                  <line x1="15" y1="20" x2="15" y2="23"></line>
+                  <line x1="20" y1="9" x2="23" y2="9"></line>
+                  <line x1="20" y1="14" x2="23" y2="14"></line>
+                  <line x1="1" y1="9" x2="4" y2="9"></line>
+                  <line x1="1" y1="14" x2="4" y2="14"></line>
+                </svg>
+                Target Microcontroller
+              </span>
+              <span class="section-hint">Select your hardware model</span>
+            </div>
+
+            <div class="select-wrapper">
+              <select id="boardType" class="form-select">
+                <option value="esp32" selected>ESP32 (Standard DevKit / NodeMCU-32S / WROOM)</option>
+                <option value="esp8266">ESP8266 (NodeMCU / Wemos D1 Mini / ESP-12)</option>
+                <option value="esp32s3">ESP32-S3 (Dual-Core LX7 + Native USB)</option>
+                <option value="esp32c3">ESP32-C3 (RISC-V 160MHz Single-Core)</option>
+              </select>
+              <svg class="select-chevron" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
               </svg>
-              Select Target Board
-            </span>
-            <span class="section-hint">Choose your microcontroller model</span>
-          </div>
-
-          <!-- Interactive Board Cards -->
-          <div class="board-grid" id="boardGrid">
-            <div class="board-card-select selected" data-value="esp32">
-              <span class="board-badge-icon">⚡</span>
-              <span class="board-model-name">ESP32</span>
-              <span class="board-desc">DevKit / WROOM</span>
             </div>
-            <div class="board-card-select" data-value="esp8266">
-              <span class="board-badge-icon">📡</span>
-              <span class="board-model-name">ESP8266</span>
-              <span class="board-desc">NodeMCU / D1 Mini</span>
-            </div>
-            <div class="board-card-select" data-value="esp32s3">
-              <span class="board-badge-icon">🚀</span>
-              <span class="board-model-name">ESP32-S3</span>
-              <span class="board-desc">Dual Core + USB</span>
-            </div>
-            <div class="board-card-select" data-value="esp32c3">
-              <span class="board-badge-icon">🔬</span>
-              <span class="board-model-name">ESP32-C3</span>
-              <span class="board-desc">RISC-V 160MHz</span>
-            </div>
-          </div>
-
-          <!-- Hidden Native Select (Used by flasher.js) -->
-          <div style="display: none;">
-            <select id="boardType">
-              <option value="esp32" selected>ESP32 (Standard DevKit / NodeMCU-32S / WROOM)</option>
-              <option value="esp8266">ESP8266 (NodeMCU / Wemos D1 Mini / ESP-12)</option>
-              <option value="esp32s3">ESP32-S3</option>
-              <option value="esp32c3">ESP32-C3</option>
-            </select>
           </div>
 
           <!-- 2. Wi-Fi Credentials Section -->
@@ -211,15 +202,18 @@
 
           <div class="form-row">
             <div class="form-group" style="margin-bottom: 0;">
-              <label class="form-label" for="wifiSsid">Wi-Fi Name (SSID) *</label>
+              <label class="form-label" for="wifiSsid">Wi-Fi / Hotspot Name (SSID) *</label>
               <input type="text" id="wifiSsid" class="form-input" placeholder="e.g. Home_WiFi or Phone_Hotspot" required>
             </div>
             <div class="form-group" style="margin-bottom: 0;">
               <label class="form-label" for="wifiPass">Wi-Fi Password</label>
               <div class="input-container">
                 <input type="password" id="wifiPass" class="form-input" placeholder="Password (leave blank if open)">
-                <button type="button" class="input-icon-btn" id="togglePasswordBtn" title="Toggle password visibility">
-                  👁️
+                <button type="button" class="input-icon-btn" id="togglePasswordBtn" title="Toggle password visibility" aria-label="Toggle password visibility">
+                  <svg id="eyeIconSvg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                  </svg>
                 </button>
               </div>
             </div>
@@ -275,7 +269,7 @@
           <div class="terminal-header">
             <div class="terminal-title-area">
               <span class="status-dot-pulse" style="width: 6px; height: 6px;"></span>
-              <span>Serial Monitor (115200 baud)</span>
+              <span>Live Serial Monitor (115200 baud)</span>
             </div>
             <div class="terminal-actions">
               <button type="button" class="terminal-mini-btn" id="copyConsoleBtn">Copy Logs</button>
@@ -291,18 +285,18 @@
 
   <!-- =========================================================
        FEATURES SECTION: "Everything You Need to Excel"
-       Exact Match to Reference Image 1 (3x3 Grid)
+       Tailored specifically for HAWA IoT & OTA Platform
        ========================================================= -->
   <section class="excel-features-section" id="excel-features">
     <div class="excel-header-group">
       <h2 class="excel-main-title">Everything You Need to Excel</h2>
       <p class="excel-subtitle">
-        Our AI-powered platform provides comprehensive call analytics to help you understand, optimize, and scale your customer conversations.
+        Our end-to-end platform makes remote microcontroller programming, telemetry monitoring, and firmware deployments completely frictionless.
       </p>
     </div>
 
     <div class="excel-grid">
-      <!-- 1. AI-Powered Transcription -->
+      <!-- 1. In-Browser Web Serial Flasher -->
       <div class="excel-card">
         <div class="excel-icon-box">
           <svg viewBox="0 0 24 24">
@@ -310,22 +304,22 @@
             <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.04z"></path>
           </svg>
         </div>
-        <h3 class="excel-card-title">AI-Powered Transcription</h3>
-        <p class="excel-card-desc">Convert speech to text with 99.5% accuracy using advanced machine learning models.</p>
+        <h3 class="excel-card-title">In-Browser ROM Flasher</h3>
+        <p class="excel-card-desc">Write ESP ROM bootloader directly from Chrome or Edge at up to 921,600 baud with zero software or driver installs.</p>
       </div>
 
-      <!-- 2. Sentiment Analysis -->
+      <!-- 2. Zero-Touch Wi-Fi Provisioning -->
       <div class="excel-card">
         <div class="excel-icon-box">
           <svg viewBox="0 0 24 24">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
           </svg>
         </div>
-        <h3 class="excel-card-title">Sentiment Analysis</h3>
-        <p class="excel-card-desc">Understand customer emotions and satisfaction levels throughout every conversation.</p>
+        <h3 class="excel-card-title">Zero-Touch Wi-Fi Provisioning</h3>
+        <p class="excel-card-desc">Inject Wi-Fi credentials and gateway server endpoints directly over serial without cumbersome captive portals.</p>
       </div>
 
-      <!-- 3. Performance Insights -->
+      <!-- 3. Live Hardware Telemetry -->
       <div class="excel-card">
         <div class="excel-icon-box">
           <svg viewBox="0 0 24 24">
@@ -333,11 +327,11 @@
             <polyline points="17 6 23 6 23 12"></polyline>
           </svg>
         </div>
-        <h3 class="excel-card-title">Performance Insights</h3>
-        <p class="excel-card-desc">Track team performance with detailed analytics on talk time, conversion rates, and more.</p>
+        <h3 class="excel-card-title">Live Hardware Telemetry</h3>
+        <p class="excel-card-desc">Track real-time Wi-Fi signal strength (RSSI), free heap memory, device uptime, and heartbeat ping latency.</p>
       </div>
 
-      <!-- 4. Keyword Tracking -->
+      <!-- 4. Multi-Chip Architecture -->
       <div class="excel-card">
         <div class="excel-icon-box">
           <svg viewBox="0 0 24 24">
@@ -346,33 +340,33 @@
             <circle cx="12" cy="12" r="2"></circle>
           </svg>
         </div>
-        <h3 class="excel-card-title">Keyword Tracking</h3>
-        <p class="excel-card-desc">Monitor competitor mentions, objections, and key topics automatically.</p>
+        <h3 class="excel-card-title">Multi-Chip Architecture</h3>
+        <p class="excel-card-desc">Plug-and-play identification for ESP32 DevKit, WROOM, ESP8266 NodeMCU, ESP32-S3, and RISC-V ESP32-C3.</p>
       </div>
 
-      <!-- 5. Compliance Monitoring -->
+      <!-- 5. Anti-Brick Fail-Safe -->
       <div class="excel-card">
         <div class="excel-icon-box">
           <svg viewBox="0 0 24 24">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
           </svg>
         </div>
-        <h3 class="excel-card-title">Compliance Monitoring</h3>
-        <p class="excel-card-desc">Ensure regulatory compliance with automated script adherence and flagging.</p>
+        <h3 class="excel-card-title">Anti-Brick Fail-Safe</h3>
+        <p class="excel-card-desc">Automatic dual-partition rollback and cryptographic MD5 integrity verification protect your boards from faulty builds.</p>
       </div>
 
-      <!-- 6. Real-time Coaching -->
+      <!-- 6. Remote Serial Debugging -->
       <div class="excel-card">
         <div class="excel-icon-box">
           <svg viewBox="0 0 24 24">
             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
           </svg>
         </div>
-        <h3 class="excel-card-title">Real-time Coaching</h3>
-        <p class="excel-card-desc">Get live suggestions and prompts during calls to improve outcomes.</p>
+        <h3 class="excel-card-title">Remote Serial Debugging</h3>
+        <p class="excel-card-desc">Stream live serial logs, sensor values, and remote debug traces straight to your browser console across the globe.</p>
       </div>
 
-      <!-- 7. Custom Dashboards -->
+      <!-- 7. Centralized Fleet Dashboard -->
       <div class="excel-card">
         <div class="excel-icon-box">
           <svg viewBox="0 0 24 24">
@@ -381,11 +375,11 @@
             <line x1="6" y1="20" x2="6" y2="14"></line>
           </svg>
         </div>
-        <h3 class="excel-card-title">Custom Dashboards</h3>
-        <p class="excel-card-desc">Create personalized views and metrics tailored to your unique business requirements.</p>
+        <h3 class="excel-card-title">Centralized Fleet Cockpit</h3>
+        <p class="excel-card-desc">Monitor all registered boards, deploy updates, and remotely reboot microcontrollers or test LEDs in one unified view.</p>
       </div>
 
-      <!-- 8. Team Collaboration -->
+      <!-- 8. Frictionless Friend Sharing -->
       <div class="excel-card">
         <div class="excel-icon-box">
           <svg viewBox="0 0 24 24">
@@ -395,11 +389,11 @@
             <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
           </svg>
         </div>
-        <h3 class="excel-card-title">Team Collaboration</h3>
-        <p class="excel-card-desc">Share call snippets, leave notes, and coach teammates directly within the platform.</p>
+        <h3 class="excel-card-title">Frictionless Friend Sharing</h3>
+        <p class="excel-card-desc">Send a simple web link to friends or collaborators so they can link their hardware into your fleet in under 60 seconds.</p>
       </div>
 
-      <!-- 9. Automated Summaries -->
+      <!-- 9. Global Cloudflare Edge Tunnel -->
       <div class="excel-card">
         <div class="excel-icon-box">
           <svg viewBox="0 0 24 24">
@@ -407,15 +401,15 @@
             <polyline points="12 6 12 12 16 14"></polyline>
           </svg>
         </div>
-        <h3 class="excel-card-title">Automated Summaries</h3>
-        <p class="excel-card-desc">Generate concise call summaries and action items instantly with AI assistance.</p>
+        <h3 class="excel-card-title">Zero-Config Edge Tunnel</h3>
+        <p class="excel-card-desc">Built-in encrypted edge tunnels eliminate port-forwarding, static IPs, and router firewall headaches completely.</p>
       </div>
     </div>
   </section>
 
   <!-- =========================================================
        SLEEK DARK FOOTER
-       Exact Match to Reference Image 2
+       Tailored specifically for HAWA Global OTA Platform
        ========================================================= -->
   <footer class="dark-site-footer">
     <div class="footer-inner-container">
@@ -423,80 +417,86 @@
         <!-- Col 1: Brand Info -->
         <div class="footer-brand-col">
           <a href="/" class="footer-brand-badge-group">
-            <div class="footer-brand-badge">AI</div>
-            <span class="footer-brand-name">CallAnalytics</span>
+            <div class="footer-brand-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"></path>
+              </svg>
+            </div>
+            <span class="footer-brand-name">HAWA (हावा)</span>
           </a>
           <p class="footer-brand-desc">
-            Transform your customer conversations with AI-powered call analytics and real-time insights.
+            The end-to-end Over-The-Air IoT platform that makes remote microcontroller programming, telemetry monitoring, and firmware deployments frictionless.
           </p>
           <div class="footer-social-row">
-            <!-- LinkedIn -->
-            <a href="https://linkedin.com" target="_blank" class="footer-social-link" title="LinkedIn">
+            <!-- GitHub -->
+            <a href="https://github.com/sakshyambastakoti/HAWA" target="_blank" class="footer-social-link" title="HAWA on GitHub">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 8.76a1.53 1.53 0 1 0 0-3.06 1.53 1.53 0 0 0 0 3.06m1.39 9.74v-8.37H5.07v8.37h2.78z"/>
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"></path>
               </svg>
             </a>
-            <!-- Twitter/X -->
-            <a href="https://twitter.com" target="_blank" class="footer-social-link" title="Twitter / X">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            <!-- Terminal / Code -->
+            <a href="/" class="footer-social-link" title="Fleet Dashboard">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="4 17 10 11 4 5"></polyline>
+                <line x1="12" y1="19" x2="20" y2="19"></line>
               </svg>
             </a>
           </div>
         </div>
 
-        <!-- Col 2: Product -->
+        <!-- Col 2: Platform -->
         <div>
-          <h4 class="footer-col-title">Product</h4>
+          <h4 class="footer-col-title">Platform</h4>
           <ul class="footer-links-list">
-            <li><a href="#excel-features" class="footer-text-link">Features</a></li>
-            <li><a href="#flasher" class="footer-text-link">Pricing</a></li>
-            <li><a href="#supported-boards" class="footer-text-link">Integrations</a></li>
-            <li><a href="/" class="footer-text-link">API</a></li>
-            <li><a href="/" class="footer-text-link">Security</a></li>
+            <li><a href="#flasher" class="footer-text-link">Web Serial Flasher</a></li>
+            <li><a href="/" class="footer-text-link">Fleet Dashboard</a></li>
+            <li><a href="/" class="footer-text-link">OTA Binary Deployer</a></li>
+            <li><a href="/" class="footer-text-link">Live Remote Logs</a></li>
+            <li><a href="#excel-features" class="footer-text-link">Anti-Brick Rollback</a></li>
           </ul>
         </div>
 
-        <!-- Col 3: Company -->
+        <!-- Col 3: Hardware Support -->
         <div>
-          <h4 class="footer-col-title">Company</h4>
+          <h4 class="footer-col-title">Hardware</h4>
           <ul class="footer-links-list">
-            <li><a href="/" class="footer-text-link">About</a></li>
-            <li><a href="/" class="footer-text-link">Blog</a></li>
-            <li><a href="/" class="footer-text-link">Careers</a></li>
-            <li><a href="/" class="footer-text-link">Press</a></li>
-            <li><a href="/" class="footer-text-link">Partners</a></li>
+            <li><a href="#flasher" class="footer-text-link">ESP32 (Standard DevKit)</a></li>
+            <li><a href="#flasher" class="footer-text-link">ESP8266 (NodeMCU / D1)</a></li>
+            <li><a href="#flasher" class="footer-text-link">ESP32-S3 (Dual-Core LX7)</a></li>
+            <li><a href="#flasher" class="footer-text-link">ESP32-C3 (RISC-V 160MHz)</a></li>
+            <li><a href="https://github.com/sakshyambastakoti/HAWA" target="_blank" class="footer-text-link">Firmware Source (.ino)</a></li>
           </ul>
         </div>
 
-        <!-- Col 4: Contact -->
+        <!-- Col 4: Gateway Info -->
         <div>
-          <h4 class="footer-col-title">Contact</h4>
+          <h4 class="footer-col-title">Connection Gateway</h4>
           <ul class="footer-links-list">
             <li>
-              <a href="mailto:hello@callanalytics.com" class="footer-contact-item">
+              <span class="footer-contact-item">
                 <svg class="footer-contact-icon" viewBox="0 0 24 24" fill="none">
-                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                  <polyline points="22,6 12,13 2,6"></polyline>
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                 </svg>
-                hello@callanalytics.com
-              </a>
-            </li>
-            <li>
-              <a href="tel:1-800-CALL-AI" class="footer-contact-item">
-                <svg class="footer-contact-icon" viewBox="0 0 24 24" fill="none">
-                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                </svg>
-                1-800-CALL-AI
-              </a>
+                Cloudflare Encrypted Tunnel
+              </span>
             </li>
             <li>
               <span class="footer-contact-item">
                 <svg class="footer-contact-icon" viewBox="0 0 24 24" fill="none">
-                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                  <circle cx="12" cy="10" r="3"></circle>
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
                 </svg>
-                San Francisco, CA
+                WebSocket Gateway (:3000/ws)
+              </span>
+            </li>
+            <li>
+              <span class="footer-contact-item">
+                <svg class="footer-contact-icon" viewBox="0 0 24 24" fill="none">
+                  <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                  <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                  <line x1="6" y1="6" x2="6.01" y2="6"></line>
+                  <line x1="6" y1="18" x2="6.01" y2="18"></line>
+                </svg>
+                Global OTA Node Hub
               </span>
             </li>
           </ul>
@@ -505,11 +505,11 @@
 
       <!-- Bottom Bar -->
       <div class="footer-bottom-bar">
-        <p class="footer-copyright">© 2025 CallAnalytics. All rights reserved.</p>
+        <p class="footer-copyright">© 2026 HAWA (हावा) — Global Over-The-Air IoT Platform.</p>
         <ul class="footer-legal-links">
-          <li><a href="#" class="footer-legal-link">Privacy Policy</a></li>
-          <li><a href="#" class="footer-legal-link">Terms of Service</a></li>
-          <li><a href="#" class="footer-legal-link">Cookie Policy</a></li>
+          <li><a href="https://github.com/sakshyambastakoti/HAWA" target="_blank" class="footer-legal-link">Documentation</a></li>
+          <li><a href="https://github.com/sakshyambastakoti/HAWA" target="_blank" class="footer-legal-link">GitHub Repository</a></li>
+          <li><a href="/" class="footer-legal-link">Live Console</a></li>
         </ul>
       </div>
     </div>
@@ -517,47 +517,27 @@
 
   <script type="module" src="/js/flasher.js"></script>
 
-  <!-- Enhanced UI interactivity script for chips, password toggle, copy/clear -->
+  <!-- Clean UI interactivity script without emojis or board cards -->
   <script>
-    // Interactive Board Card Selection sync with #boardType
-    const boardCards = document.querySelectorAll('.board-card-select');
-    const boardSelect = document.getElementById('boardType');
-
-    boardCards.forEach(card => {
-      card.addEventListener('click', () => {
-        boardCards.forEach(c => c.classList.remove('selected'));
-        card.classList.add('selected');
-        const val = card.getAttribute('data-value');
-        if (boardSelect) {
-          boardSelect.value = val;
-        }
-      });
-    });
-
-    // Sync if select changes programmatically
-    if (boardSelect) {
-      boardSelect.addEventListener('change', () => {
-        boardCards.forEach(card => {
-          if (card.getAttribute('data-value') === boardSelect.value) {
-            card.classList.add('selected');
-          } else {
-            card.classList.remove('selected');
-          }
-        });
-      });
-    }
-
-    // Toggle Password Visibility
+    // Toggle Password Visibility using clean SVGs
     const togglePassBtn = document.getElementById('togglePasswordBtn');
     const wifiPassInput = document.getElementById('wifiPass');
     if (togglePassBtn && wifiPassInput) {
       togglePassBtn.addEventListener('click', () => {
         if (wifiPassInput.type === 'password') {
           wifiPassInput.type = 'text';
-          togglePassBtn.textContent = '🔒';
+          togglePassBtn.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+              <line x1="1" y1="1" x2="23" y2="23"></line>
+            </svg>`;
         } else {
           wifiPassInput.type = 'password';
-          togglePassBtn.textContent = '👁️';
+          togglePassBtn.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>`;
         }
       });
     }
@@ -583,7 +563,7 @@
       });
     }
 
-    // Enhance Step Indicators syncing with step cards
+    // Step Indicators syncing
     const stepCard1 = document.getElementById('stepCard1');
     const stepCard2 = document.getElementById('stepCard2');
     const stepCard3 = document.getElementById('stepCard3');
