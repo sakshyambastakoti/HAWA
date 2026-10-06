@@ -40,6 +40,7 @@
 
   --shadow-sm: 0 1px 2px 0 rgba(16, 24, 40, 0.05);
   --shadow-md: 0 4px 8px -2px rgba(16, 24, 40, 0.1), 0 2px 4px -2px rgba(16, 24, 40, 0.06);
+  --shadow-card: 0 1px 3px rgba(16, 24, 40, 0.05), 0 1px 2px rgba(16, 24, 40, 0.03);
   --shadow-frame: 0 20px 40px -15px rgba(16, 24, 40, 0.08), 0 0 0 1px rgba(16, 24, 40, 0.04);
 }
 
@@ -172,7 +173,7 @@ body {
 }
 
 /* =========================================================
-   2. HERO SECTION (Pixel-Accurate to Reference Image)
+   2. HERO SECTION
    ========================================================= */
 .hero-section {
   max-width: 980px;
@@ -181,7 +182,6 @@ body {
   text-align: center;
 }
 
-/* Badge Pill: (⚙) AI-Powered Call Intelligence */
 .hero-pill-badge {
   display: inline-flex;
   align-items: center;
@@ -202,7 +202,6 @@ body {
   color: #344054;
 }
 
-/* Big 2-line Hero Headline */
 .hero-headline {
   font-size: 3.85rem;
   font-weight: 800;
@@ -212,7 +211,6 @@ body {
   margin-bottom: 1.5rem;
 }
 
-/* Clean, balanced subtitle */
 .hero-subhead {
   font-size: 1.125rem;
   line-height: 1.62;
@@ -222,7 +220,6 @@ body {
   font-weight: 400;
 }
 
-/* Dual Buttons Row */
 .hero-cta-group {
   display: flex;
   align-items: center;
@@ -232,7 +229,6 @@ body {
   flex-wrap: wrap;
 }
 
-/* Primary Button: ⚡ Start Free Trial */
 .btn-hero-primary {
   background: var(--btn-primary-bg);
   color: var(--btn-primary-text);
@@ -255,7 +251,6 @@ body {
   transform: translateY(-1px);
 }
 
-/* Secondary Button: ▷ Watch Demo */
 .btn-hero-secondary {
   background: #ffffff;
   color: #101828;
@@ -279,7 +274,6 @@ body {
   transform: translateY(-1px);
 }
 
-/* Trust Bullets Row: ● No setup required  ● 14-day free trial  ● Cancel anytime */
 .hero-trust-bullets {
   display: flex;
   align-items: center;
@@ -310,7 +304,7 @@ body {
    ========================================================= */
 .flasher-wrapper {
   max-width: 1040px;
-  margin: 0 auto 5rem;
+  margin: 0 auto 6rem;
   padding: 0 1.5rem;
   width: 100%;
 }
@@ -395,7 +389,6 @@ body {
   background: #ffffff;
 }
 
-/* Step Progress Indicator */
 .step-nav-bar {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -469,7 +462,6 @@ body {
   color: var(--text-primary);
 }
 
-/* Alert Warning */
 .browser-alert {
   background: #fef2f2;
   border: 1px solid #fee2e2;
@@ -482,7 +474,6 @@ body {
   line-height: 1.5;
 }
 
-/* Board Select Chips */
 .form-section-header {
   display: flex;
   align-items: center;
@@ -554,7 +545,6 @@ body {
   font-weight: 500;
 }
 
-/* Form Controls */
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -613,7 +603,6 @@ body {
   padding: 0.25rem;
 }
 
-/* Primary Form Action Button */
 .btn-flash {
   width: 100%;
   padding: 0.85rem 1.5rem;
@@ -641,7 +630,6 @@ body {
   cursor: not-allowed;
 }
 
-/* Progress & Real-time Console */
 .flasher-progress {
   display: none;
   margin-top: 1.75rem;
@@ -754,86 +742,233 @@ body {
 }
 
 /* =========================================================
-   4. FEATURES SECTION & FOOTER
+   4. FEATURES SECTION ("Everything You Need to Excel")
+      Matches Reference Image 1 (3x3 Grid)
    ========================================================= */
-.features-section {
-  max-width: 1040px;
-  margin: 0 auto 5rem;
-  padding: 0 1.5rem;
+.excel-features-section {
+  max-width: 1240px;
+  margin: 0 auto 6rem;
+  padding: 0 2rem;
 }
 
-.section-headline-group {
+.excel-header-group {
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 3.5rem;
 }
 
-.section-eyebrow {
-  font-size: 0.825rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-muted);
-  margin-bottom: 0.5rem;
-}
-
-.section-main-title {
-  font-size: 2rem;
+.excel-main-title {
+  font-size: 2.65rem;
   font-weight: 800;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.035em;
   color: #000000;
+  margin-bottom: 0.85rem;
 }
 
-.features-grid {
+.excel-subtitle {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.excel-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
 }
 
-.feature-box {
+.excel-card {
   background: #ffffff;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   padding: 2rem 1.75rem;
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  transition: all 0.2s ease;
 }
 
-.feature-icon-box {
-  width: 44px;
-  height: 44px;
+.excel-card:hover {
+  border-color: #cbd5e1;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(16, 24, 40, 0.05);
+}
+
+.excel-icon-box {
+  width: 40px;
+  height: 40px;
   border-radius: var(--radius-sm);
-  background: #f8fafc;
-  border: 1px solid var(--border-color);
+  background: #f2f4f7;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.35rem;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.35rem;
+  color: #101828;
 }
 
-.feature-title {
-  font-size: 1.1rem;
+.excel-icon-box svg {
+  width: 20px;
+  height: 20px;
+  stroke: #101828;
+  stroke-width: 1.75;
+  fill: none;
+}
+
+.excel-card-title {
+  font-size: 1.05rem;
   font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 0.5rem;
+  color: #101828;
+  margin-bottom: 0.55rem;
+  letter-spacing: -0.015em;
 }
 
-.feature-desc {
+.excel-card-desc {
   font-size: 0.875rem;
-  line-height: 1.6;
+  line-height: 1.55;
   color: var(--text-muted);
 }
 
-.site-footer {
-  border-top: 1px solid var(--border-subtle);
-  background: #ffffff;
-  padding: 2.5rem 1.5rem;
+/* =========================================================
+   5. SLEEK DARK FOOTER (Exact Match to Reference Image 2)
+   ========================================================= */
+.dark-site-footer {
+  background: #06080d;
+  color: #ffffff;
+  padding: 5rem 2rem 2.5rem;
   margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.footer-container {
+.footer-inner-container {
   max-width: 1240px;
   margin: 0 auto;
+}
+
+.footer-top-columns {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1.35fr;
+  gap: 3.5rem;
+  margin-bottom: 4rem;
+}
+
+.footer-brand-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.footer-brand-badge-group {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 1.25rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.footer-brand-badge {
+  background: #000000;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  letter-spacing: -0.02em;
+}
+
+.footer-brand-name {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.025em;
+}
+
+.footer-brand-desc {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  max-width: 300px;
+  margin-bottom: 1.5rem;
+}
+
+.footer-social-row {
+  display: flex;
+  align-items: center;
+  gap: 1.15rem;
+}
+
+.footer-social-link {
+  color: #94a3b8;
+  transition: color 0.15s ease, transform 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.footer-social-link:hover {
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.footer-col-title {
+  color: #ffffff;
+  font-size: 0.925rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-bottom: 1.25rem;
+}
+
+.footer-links-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.footer-text-link {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.footer-text-link:hover {
+  color: #ffffff;
+}
+
+.footer-contact-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #94a3b8;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.footer-contact-item:hover {
+  color: #ffffff;
+}
+
+.footer-contact-icon {
+  width: 16px;
+  height: 16px;
+  stroke: #94a3b8;
+  stroke-width: 1.75;
+  flex-shrink: 0;
+}
+
+.footer-bottom-bar {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 2rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -841,38 +976,48 @@ body {
   gap: 1.5rem;
 }
 
-.footer-left {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+.footer-copyright {
+  color: #64748b;
   font-size: 0.85rem;
-  color: var(--text-muted);
 }
 
-.footer-links {
+.footer-legal-links {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 2rem;
   list-style: none;
 }
 
-.footer-link {
+.footer-legal-link {
+  color: #64748b;
   font-size: 0.85rem;
-  color: var(--text-muted);
   text-decoration: none;
+  transition: color 0.15s ease;
 }
 
-.footer-link:hover {
-  color: #000000;
+.footer-legal-link:hover {
+  color: #ffffff;
 }
 
-/* Mobile responsive */
+/* =========================================================
+   6. RESPONSIVE DESIGN
+   ========================================================= */
+@media (max-width: 992px) {
+  .excel-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .footer-top-columns {
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+  }
+}
+
 @media (max-width: 768px) {
   .nav-links {
     display: none;
   }
   .hero-headline {
-    font-size: 2.35rem;
+    font-size: 2.45rem;
   }
   .step-nav-bar {
     grid-template-columns: 1fr;
@@ -883,10 +1028,22 @@ body {
   .form-row {
     grid-template-columns: 1fr;
   }
-  .features-grid {
+  .excel-grid {
     grid-template-columns: 1fr;
   }
   .hero-trust-bullets {
+    gap: 1.25rem;
+  }
+  .footer-top-columns {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+  .footer-bottom-bar {
+    flex-direction: column;
+    text-align: center;
+  }
+  .footer-legal-links {
+    justify-content: center;
     gap: 1.25rem;
   }
 }
