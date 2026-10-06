@@ -1,0 +1,16 @@
+{
+  "hawa-esp32-friend-demo": {
+    "deviceId": "hawa-esp32-friend-demo",
+    "name": "Aayush-ESP32-LivingRoom",
+    "chip": "ESP32 (ESP32-D0WDQ6)",
+    "mac": "24:6F:28:1A:BC:3D",
+    "ip": "192.168.1.108",
+    "rssi": -54,
+    "firmwareVersion": "1.0.0",
+    "freeHeap": 218400,
+    "uptime": 120,
+    "status": "offline",
+    "lastSeen": 1791303093460,
+    "firstSeen": 1791303091433
+  }
+}
