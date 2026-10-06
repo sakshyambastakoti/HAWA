@@ -3,93 +3,465 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hawa (हावा) — Instant Web Serial Flasher</title>
-  <meta name="description" content="Connect and flash your ESP8266 or ESP32 board directly from your web browser with zero software installations.">
+  <title>Hawa (हावा) — Web Serial Hardware Flasher</title>
+  <meta name="description" content="Connect, flash, and provision your ESP32 or ESP8266 boards directly from your browser. Zero software installations required.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/flasher.css">
 </head>
 <body>
 
-  <div class="flasher-container">
-    <div class="flasher-header">
-      <div class="flasher-logo">🌬️</div>
-      <h1 class="flasher-title">Connect Your Board to Hawa</h1>
-      <p class="flasher-subtitle">Zero software or driver installation needed. Just connect USB, enter your Wi-Fi, and flash directly from your browser!</p>
-    </div>
-
-    <!-- Browser Support Warning -->
-    <div id="browserWarning" class="browser-alert">
-      ⚠️ <strong>Web Serial API Not Supported:</strong> Your browser does not support Web Serial. Please open this page in <strong>Google Chrome</strong>, <strong>Microsoft Edge</strong>, or <strong>Brave</strong> on a laptop or desktop computer with a USB port.
-    </div>
-
-    <div class="wizard-card">
-      <div class="step-indicator">
-        <div class="step-bubble active" id="bubble1">1</div>
-        <div class="step-bubble" id="bubble2">2</div>
-        <div class="step-bubble" id="bubble3">3</div>
-      </div>
-
-      <form id="flasherForm" onsubmit="return false;">
-        <!-- Board Type -->
-        <div class="form-group">
-          <label class="form-label" for="boardType">Select Your Board Model</label>
-          <select id="boardType" class="form-select">
-            <option value="esp32">ESP32 (Standard DevKit / NodeMCU-32S / WROOM)</option>
-            <option value="esp8266">ESP8266 (NodeMCU / Wemos D1 Mini / ESP-12)</option>
-            <option value="esp32s3">ESP32-S3</option>
-            <option value="esp32c3">ESP32-C3</option>
-          </select>
+  <!-- Minimalist SaaS Navigation Bar -->
+  <header class="site-header">
+    <div class="nav-container">
+      <a href="/" class="brand-wrapper">
+        <div class="brand-badge">
+          <svg viewBox="0 0 24 24">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+          </svg>
+          HAWA
         </div>
+        <span class="brand-title">Flasher</span>
+      </a>
 
-        <!-- Wi-Fi Credentials -->
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label" for="wifiSsid">Wi-Fi / Hotspot Name (SSID)</label>
-            <input type="text" id="wifiSsid" class="form-input" placeholder="e.g. MyHomeWiFi or MyPhoneHotspot" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="wifiPass">Wi-Fi Password</label>
-            <input type="password" id="wifiPass" class="form-input" placeholder="Password (leave blank if open)">
-          </div>
-        </div>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="#flasher" class="nav-link">Web Flasher</a></li>
+          <li><a href="#how-it-works" class="nav-link">How It Works</a></li>
+          <li><a href="#supported-boards" class="nav-link">Supported Boards</a></li>
+          <li><a href="/" class="nav-link">Fleet Dashboard</a></li>
+        </ul>
+      </nav>
 
-        <!-- Nickname & Server -->
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label" for="deviceName">Your Name / Device Nickname</label>
-            <input type="text" id="deviceName" class="form-input" placeholder="e.g. Rohan-ESP32" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="serverUrl">Hawa Hub Server URL</label>
-            <input type="text" id="serverUrl" class="form-input" placeholder="wss://your-tunnel.trycloudflare.com">
-          </div>
-        </div>
-
-        <button type="button" id="startFlashBtn" class="btn-flash">
-          ⚡ Connect USB & Flash Board
-        </button>
-      </form>
-
-      <!-- Progress Section -->
-      <div id="flasherProgress" class="flasher-progress">
-        <div class="progress-header">
-          <span id="flasherStatusText">Initializing Web Serial...</span>
-          <span id="flasherPercent">0%</span>
-        </div>
-        <div class="progress-bar-bg">
-          <div id="flasherBarFill" class="progress-bar-fill"></div>
-        </div>
-      </div>
-
-      <!-- Live Serial Output -->
-      <div id="serialConsole" class="serial-console">
-[Ready] Connect your ESP board to your computer's USB port, then click "Connect USB & Flash Board" above.
+      <div class="nav-actions">
+        <a href="/" class="nav-text-btn">Dashboard</a>
+        <a href="#flasher" class="nav-cta-btn">
+          Connect Device
+        </a>
       </div>
     </div>
-  </div>
+  </header>
+
+  <!-- Hero Header Section -->
+  <section class="hero-section">
+    <div class="hero-pill-badge">
+      <span class="pill-icon">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+      </span>
+      <span>Web Serial Powered · Zero Drivers Needed</span>
+    </div>
+
+    <h1 class="hero-headline">
+      Flash & Connect Your Board<br>
+      <span class="gradient-text">Directly From Your Browser</span>
+    </h1>
+
+    <p class="hero-subhead">
+      Zero command line tools, drivers, or software installations required. Connect your ESP32 or ESP8266 via USB, configure Wi-Fi credentials, and join the Hawa OTA fleet in seconds.
+    </p>
+
+    <div class="hero-cta-group">
+      <a href="#flasher" class="pill-btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+        </svg>
+        Connect USB & Flash
+      </a>
+      <a href="/" class="pill-btn-secondary">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="5 3 19 12 5 21 5 3"></polygon>
+        </svg>
+        Open Fleet Dashboard
+      </a>
+    </div>
+
+    <div class="hero-trust-bullets">
+      <div class="trust-bullet-item">
+        <span class="trust-bullet-dot"></span>
+        <span>No setup required</span>
+      </div>
+      <div class="trust-bullet-item">
+        <span class="trust-bullet-dot"></span>
+        <span>Chrome & Edge native</span>
+      </div>
+      <div class="trust-bullet-item">
+        <span class="trust-bullet-dot"></span>
+        <span>Direct ROM flasher</span>
+      </div>
+      <div class="trust-bullet-item">
+        <span class="trust-bullet-dot"></span>
+        <span>Automatic Wi-Fi provisioning</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Device Flasher Card Frame -->
+  <main class="flasher-wrapper" id="flasher">
+    <div class="flasher-card-frame">
+      <!-- Window Title Bar -->
+      <div class="frame-top-bar">
+        <div class="window-dots">
+          <div class="window-dot red"></div>
+          <div class="window-dot yellow"></div>
+          <div class="window-dot green"></div>
+        </div>
+        <div class="frame-status-indicator">
+          <span class="status-dot-pulse"></span>
+          <span>Web Serial: Ready</span>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <!-- Browser Support Warning -->
+        <div id="browserWarning" class="browser-alert">
+          ⚠️ <strong>Web Serial API Not Supported:</strong> Your current browser does not support Web Serial. Please open this page in <strong>Google Chrome</strong>, <strong>Microsoft Edge</strong>, or <strong>Brave</strong> on a laptop or desktop computer with a USB port.
+        </div>
+
+        <!-- 3-Step Progress Indicator -->
+        <div class="step-nav-bar">
+          <div class="step-card active" id="stepCard1">
+            <div class="step-bubble active" id="bubble1">1</div>
+            <div class="step-meta">
+              <span class="step-label">Step 01</span>
+              <span class="step-name">Select Board</span>
+            </div>
+          </div>
+          <div class="step-card" id="stepCard2">
+            <div class="step-bubble" id="bubble2">2</div>
+            <div class="step-meta">
+              <span class="step-label">Step 02</span>
+              <span class="step-name">Configure Wi-Fi</span>
+            </div>
+          </div>
+          <div class="step-card" id="stepCard3">
+            <div class="step-bubble" id="bubble3">3</div>
+            <div class="step-meta">
+              <span class="step-label">Step 03</span>
+              <span class="step-name">Flash & Link</span>
+            </div>
+          </div>
+        </div>
+
+        <form id="flasherForm" onsubmit="return false;">
+          <!-- 1. Board Selection Section -->
+          <div class="form-section-header">
+            <span class="section-label">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                <rect x="9" y="9" width="6" height="6"></rect>
+                <line x1="9" y1="1" x2="9" y2="4"></line>
+                <line x1="15" y1="1" x2="15" y2="4"></line>
+                <line x1="9" y1="20" x2="9" y2="23"></line>
+                <line x1="15" y1="20" x2="15" y2="23"></line>
+                <line x1="20" y1="9" x2="23" y2="9"></line>
+                <line x1="20" y1="14" x2="23" y2="14"></line>
+                <line x1="1" y1="9" x2="4" y2="9"></line>
+                <line x1="1" y1="14" x2="4" y2="14"></line>
+              </svg>
+              Select Target Board
+            </span>
+            <span class="section-hint">Choose your microcontroller model</span>
+          </div>
+
+          <!-- Interactive Board Cards -->
+          <div class="board-grid" id="boardGrid">
+            <div class="board-card-select selected" data-value="esp32">
+              <span class="board-badge-icon">⚡</span>
+              <span class="board-model-name">ESP32</span>
+              <span class="board-desc">DevKit / WROOM</span>
+            </div>
+            <div class="board-card-select" data-value="esp8266">
+              <span class="board-badge-icon">📡</span>
+              <span class="board-model-name">ESP8266</span>
+              <span class="board-desc">NodeMCU / D1 Mini</span>
+            </div>
+            <div class="board-card-select" data-value="esp32s3">
+              <span class="board-badge-icon">🚀</span>
+              <span class="board-model-name">ESP32-S3</span>
+              <span class="board-desc">Dual Core + USB</span>
+            </div>
+            <div class="board-card-select" data-value="esp32c3">
+              <span class="board-badge-icon">🔬</span>
+              <span class="board-model-name">ESP32-C3</span>
+              <span class="board-desc">RISC-V 160MHz</span>
+            </div>
+          </div>
+
+          <!-- Hidden Native Select (Used by flasher.js) -->
+          <div style="display: none;">
+            <select id="boardType">
+              <option value="esp32" selected>ESP32 (Standard DevKit / NodeMCU-32S / WROOM)</option>
+              <option value="esp8266">ESP8266 (NodeMCU / Wemos D1 Mini / ESP-12)</option>
+              <option value="esp32s3">ESP32-S3</option>
+              <option value="esp32c3">ESP32-C3</option>
+            </select>
+          </div>
+
+          <!-- 2. Wi-Fi Credentials Section -->
+          <div class="form-section-header" style="margin-top: 1.5rem;">
+            <span class="section-label">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+                <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
+                <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+                <line x1="12" y1="20" x2="12.01" y2="20"></line>
+              </svg>
+              Network Credentials
+            </span>
+            <span class="section-hint">Board connects to this network</span>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="wifiSsid">Wi-Fi Name (SSID) *</label>
+              <input type="text" id="wifiSsid" class="form-input" placeholder="e.g. Home_WiFi or Phone_Hotspot" required>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="wifiPass">Wi-Fi Password</label>
+              <div class="input-container">
+                <input type="password" id="wifiPass" class="form-input" placeholder="Password (leave blank if open)">
+                <button type="button" class="input-icon-btn" id="togglePasswordBtn" title="Toggle password visibility">
+                  👁️
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Device Identification & Hub Server -->
+          <div class="form-section-header" style="margin-top: 1.5rem;">
+            <span class="section-label">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                <line x1="6" y1="6" x2="6.01" y2="6"></line>
+                <line x1="6" y1="18" x2="6.01" y2="18"></line>
+              </svg>
+              Device Identity & Server Hub
+            </span>
+            <span class="section-hint">Cloud registry identifier</span>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="deviceName">Board Nickname</label>
+              <input type="text" id="deviceName" class="form-input" placeholder="e.g. LivingRoom-ESP32" required>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="serverUrl">Hawa Hub Server URL</label>
+              <input type="text" id="serverUrl" class="form-input" placeholder="wss://your-tunnel.trycloudflare.com">
+            </div>
+          </div>
+
+          <!-- Main CTA Flash Button -->
+          <button type="button" id="startFlashBtn" class="btn-flash">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+            </svg>
+            Connect USB & Flash Board
+          </button>
+        </form>
+
+        <!-- Progress Section -->
+        <div id="flasherProgress" class="flasher-progress">
+          <div class="progress-header">
+            <span id="flasherStatusText">Initializing Web Serial...</span>
+            <span id="flasherPercent" class="progress-percent-pill">0%</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div id="flasherBarFill" class="progress-bar-fill"></div>
+          </div>
+        </div>
+
+        <!-- Sleek Live Serial Monitor -->
+        <div class="terminal-wrapper">
+          <div class="terminal-header">
+            <div class="terminal-title-area">
+              <span class="status-dot-pulse" style="width: 6px; height: 6px;"></span>
+              <span>Serial Monitor (115200 baud)</span>
+            </div>
+            <div class="terminal-actions">
+              <button type="button" class="terminal-mini-btn" id="copyConsoleBtn">Copy Logs</button>
+              <button type="button" class="terminal-mini-btn" id="clearConsoleBtn">Clear</button>
+            </div>
+          </div>
+          <div id="serialConsole" class="serial-console">[Ready] Connect your ESP board to your computer's USB port, then click "Connect USB & Flash Board" above.</div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Value Propositions / How It Works Section -->
+  <section class="features-section" id="how-it-works">
+    <div class="section-headline-group">
+      <div class="section-eyebrow">Zero Friction Setup</div>
+      <h2 class="section-main-title">How In-Browser Flashing Works</h2>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-box">
+        <div class="feature-icon-box">🔌</div>
+        <h3 class="feature-title">1. Plug USB Cable</h3>
+        <p class="feature-desc">Connect any ESP32 or ESP8266 board to your Mac, Windows, or Linux laptop using a standard micro-USB or USB-C data cable.</p>
+      </div>
+
+      <div class="feature-box">
+        <div class="feature-icon-box">⚡</div>
+        <h3 class="feature-title">2. In-Browser Bootloader</h3>
+        <p class="feature-desc">Using native Web Serial API, Hawa connects directly to the Silicon Labs / CH340 chip and runs the esptool ROM flasher inside Chrome or Edge.</p>
+      </div>
+
+      <div class="feature-box">
+        <div class="feature-icon-box">🌐</div>
+        <h3 class="feature-title">3. Instant Fleet Sync</h3>
+        <p class="feature-desc">Wi-Fi credentials and encryption keys are injected via serial handshake. Your board boots up, connects to Wi-Fi, and appears on the Hawa dashboard.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Supported Hardware Section -->
+  <section class="features-section" id="supported-boards" style="padding-top: 0;">
+    <div class="section-headline-group">
+      <div class="section-eyebrow">Hardware Compatibility</div>
+      <h2 class="section-main-title">Supported Microcontrollers</h2>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-box">
+        <div class="feature-icon-box">🎛️</div>
+        <h3 class="feature-title">ESP32 DevKit & WROOM</h3>
+        <p class="feature-desc">Dual-core Tensilica LX6 at 240MHz, 520KB SRAM, 4MB Flash, integrated 2.4GHz 802.11 b/g/n Wi-Fi & Bluetooth.</p>
+      </div>
+
+      <div class="feature-box">
+        <div class="feature-icon-box">📶</div>
+        <h3 class="feature-title">ESP8266 NodeMCU & D1 Mini</h3>
+        <p class="feature-desc">Single-core 32-bit RISC processor at 80/160MHz with full TCP/IP stack. Lightweight, ubiquitous, and reliable.</p>
+      </div>
+
+      <div class="feature-box">
+        <div class="feature-icon-box">🛡️</div>
+        <h3 class="feature-title">ESP32-S3 & ESP32-C3</h3>
+        <p class="feature-desc">Next-generation hardware crypto acceleration, native USB OTG, and RISC-V architectures with high power efficiency.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Minimalist SaaS Footer -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-left">
+        <strong>HAWA (हावा)</strong> — Global Over-The-Air Hardware Platform
+      </div>
+
+      <ul class="footer-links">
+        <li><a href="/" class="footer-link">Dashboard</a></li>
+        <li><a href="#flasher" class="footer-link">Web Flasher</a></li>
+        <li><a href="https://github.com/sakshyambastakoti/HAWA" target="_blank" class="footer-link">GitHub</a></li>
+      </ul>
+    </div>
+  </footer>
 
   <script type="module" src="/js/flasher.js"></script>
+
+  <!-- Enhanced UI interactivity script for chips, password toggle, copy/clear -->
+  <script>
+    // Interactive Board Card Selection sync with #boardType
+    const boardCards = document.querySelectorAll('.board-card-select');
+    const boardSelect = document.getElementById('boardType');
+
+    boardCards.forEach(card => {
+      card.addEventListener('click', () => {
+        boardCards.forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        const val = card.getAttribute('data-value');
+        if (boardSelect) {
+          boardSelect.value = val;
+        }
+      });
+    });
+
+    // Sync if select changes programmatically
+    if (boardSelect) {
+      boardSelect.addEventListener('change', () => {
+        boardCards.forEach(card => {
+          if (card.getAttribute('data-value') === boardSelect.value) {
+            card.classList.add('selected');
+          } else {
+            card.classList.remove('selected');
+          }
+        });
+      });
+    }
+
+    // Toggle Password Visibility
+    const togglePassBtn = document.getElementById('togglePasswordBtn');
+    const wifiPassInput = document.getElementById('wifiPass');
+    if (togglePassBtn && wifiPassInput) {
+      togglePassBtn.addEventListener('click', () => {
+        if (wifiPassInput.type === 'password') {
+          wifiPassInput.type = 'text';
+          togglePassBtn.textContent = '🔒';
+        } else {
+          wifiPassInput.type = 'password';
+          togglePassBtn.textContent = '👁️';
+        }
+      });
+    }
+
+    // Copy Console Logs
+    const copyBtn = document.getElementById('copyConsoleBtn');
+    const consoleEl = document.getElementById('serialConsole');
+    if (copyBtn && consoleEl) {
+      copyBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(consoleEl.textContent).then(() => {
+          const original = copyBtn.textContent;
+          copyBtn.textContent = 'Copied!';
+          setTimeout(() => { copyBtn.textContent = original; }, 1500);
+        });
+      });
+    }
+
+    // Clear Console Logs
+    const clearBtn = document.getElementById('clearConsoleBtn');
+    if (clearBtn && consoleEl) {
+      clearBtn.addEventListener('click', () => {
+        consoleEl.textContent = '[Cleared] Ready for connection.';
+      });
+    }
+
+    // Enhance Step Indicators syncing with step cards
+    const stepCard1 = document.getElementById('stepCard1');
+    const stepCard2 = document.getElementById('stepCard2');
+    const stepCard3 = document.getElementById('stepCard3');
+
+    const observer = new MutationObserver(() => {
+      const b1 = document.getElementById('bubble1');
+      const b2 = document.getElementById('bubble2');
+      const b3 = document.getElementById('bubble3');
+      
+      if (stepCard1 && b1) {
+        stepCard1.className = 'step-card ' + (b1.classList.contains('done') ? 'done' : (b1.classList.contains('active') ? 'active' : ''));
+      }
+      if (stepCard2 && b2) {
+        stepCard2.className = 'step-card ' + (b2.classList.contains('done') ? 'done' : (b2.classList.contains('active') ? 'active' : ''));
+      }
+      if (stepCard3 && b3) {
+        stepCard3.className = 'step-card ' + (b3.classList.contains('done') ? 'done' : (b3.classList.contains('active') ? 'active' : ''));
+      }
+    });
+
+    const b1 = document.getElementById('bubble1');
+    const b2 = document.getElementById('bubble2');
+    const b3 = document.getElementById('bubble3');
+    if (b1) observer.observe(b1, { attributes: true, attributeFilter: ['class'] });
+    if (b2) observer.observe(b2, { attributes: true, attributeFilter: ['class'] });
+    if (b3) observer.observe(b3, { attributes: true, attributeFilter: ['class'] });
+  </script>
 </body>
 </html>
