@@ -3,83 +3,80 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hawa (हावा) — Web Serial Hardware Flasher</title>
-  <meta name="description" content="Connect, flash, and provision your ESP32 or ESP8266 boards directly from your browser. Zero software installations required.">
+  <title>Hawa — Hardware Intelligence & Web Serial Flasher</title>
+  <meta name="description" content="Unlock the power of native Web Serial to flash, provision, and control your ESP32 or ESP8266 boards directly from your browser.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/flasher.css">
 </head>
 <body>
 
-  <!-- Minimalist SaaS Navigation Bar -->
+  <!-- Minimalist SaaS Navigation Bar (Exact match to reference) -->
   <header class="site-header">
     <div class="nav-container">
       <a href="/" class="brand-wrapper">
-        <div class="brand-badge">
-          <svg viewBox="0 0 24 24">
-            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-          </svg>
-          HAWA
-        </div>
-        <span class="brand-title">Flasher</span>
+        <div class="brand-badge">AI</div>
+        <span class="brand-title">HawaAnalytics</span>
       </a>
 
       <nav>
         <ul class="nav-links">
-          <li><a href="#flasher" class="nav-link">Web Flasher</a></li>
-          <li><a href="#how-it-works" class="nav-link">How It Works</a></li>
+          <li><a href="#flasher" class="nav-link">Features</a></li>
           <li><a href="#supported-boards" class="nav-link">Supported Boards</a></li>
-          <li><a href="/" class="nav-link">Fleet Dashboard</a></li>
+          <li><a href="#how-it-works" class="nav-link">How It Works</a></li>
+          <li><a href="/" class="nav-link">FAQ</a></li>
         </ul>
       </nav>
 
       <div class="nav-actions">
-        <a href="/" class="nav-text-btn">Dashboard</a>
-        <a href="#flasher" class="nav-cta-btn">
-          Connect Device
-        </a>
+        <a href="/" class="nav-text-btn">Sign In</a>
+        <a href="#flasher" class="nav-cta-btn">Start Free Trial</a>
       </div>
     </div>
   </header>
 
-  <!-- Hero Header Section -->
+  <!-- Hero Header Section (Pixel-accurate to reference image) -->
   <section class="hero-section">
+    <!-- Announcement Pill Badge -->
     <div class="hero-pill-badge">
       <span class="pill-icon">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="12" y1="16" x2="12" y2="12"></line>
-          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
         </svg>
       </span>
-      <span>Web Serial Powered · Zero Drivers Needed</span>
+      <span>AI-Powered Hardware Intelligence</span>
     </div>
 
+    <!-- 2-Line Headline -->
     <h1 class="hero-headline">
-      Flash & Connect Your Board<br>
-      <span class="gradient-text">Directly From Your Browser</span>
+      Transform Your Hardware Into<br>
+      Actionable Insights
     </h1>
 
+    <!-- Hero Subtitle -->
     <p class="hero-subhead">
-      Zero command line tools, drivers, or software installations required. Connect your ESP32 or ESP8266 via USB, configure Wi-Fi credentials, and join the Hawa OTA fleet in seconds.
+      Unlock the power of native Web Serial to analyze, flash, and provision every microcontroller conversation, identify fleet opportunities, and boost your hardware performance with real-time insights and automated OTA flashing.
     </p>
 
+    <!-- Dual Hero Buttons -->
     <div class="hero-cta-group">
-      <a href="#flasher" class="pill-btn-primary">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+      <a href="#flasher" class="btn-hero-primary">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
           <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
         </svg>
-        Connect USB & Flash
+        Start Free Trial
       </a>
-      <a href="/" class="pill-btn-secondary">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <a href="/" class="btn-hero-secondary">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <polygon points="5 3 19 12 5 21 5 3"></polygon>
         </svg>
-        Open Fleet Dashboard
+        Watch Demo
       </a>
     </div>
 
+    <!-- Trust Bullets -->
     <div class="hero-trust-bullets">
       <div class="trust-bullet-item">
         <span class="trust-bullet-dot"></span>
@@ -87,22 +84,18 @@
       </div>
       <div class="trust-bullet-item">
         <span class="trust-bullet-dot"></span>
-        <span>Chrome & Edge native</span>
+        <span>14-day free trial</span>
       </div>
       <div class="trust-bullet-item">
         <span class="trust-bullet-dot"></span>
-        <span>Direct ROM flasher</span>
-      </div>
-      <div class="trust-bullet-item">
-        <span class="trust-bullet-dot"></span>
-        <span>Automatic Wi-Fi provisioning</span>
+        <span>Cancel anytime</span>
       </div>
     </div>
   </section>
 
-  <!-- Interactive Device Flasher Card Frame -->
+  <!-- Interactive Device Flasher Card Frame (The Display Bezel from Reference) -->
   <main class="flasher-wrapper" id="flasher">
-    <div class="flasher-card-frame">
+    <div class="device-preview-frame">
       <!-- Window Title Bar -->
       <div class="frame-top-bar">
         <div class="window-dots">
