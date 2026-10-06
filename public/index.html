@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hawa (हावा) — Global Over-The-Air IoT Command Center</title>
+  <meta name="description" content="Manage and remotely program ESP32 and ESP8266 microcontrollers anywhere in the world.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="logo-area">
+      <div class="logo-icon">🌬️</div>
+      <div class="logo-text">
+        <h1>HAWA</h1>
+        <span class="logo-tag">Global OTA Hub</span>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <div id="tunnelBadge" class="tunnel-badge" title="Click to copy public link">
+        <span class="pulse-dot"></span>
+        <span id="tunnelStatusText">Public Tunnel: Connecting...</span>
+      </div>
+      <a href="/flash.html" target="_blank" class="btn-secondary" id="openFlasherBtn">
+        ⚡ Open Web Flasher for Friends
+      </a>
+      <button class="btn-primary" id="openDeployModalBtn">
+        🚀 Deploy Firmware (.bin)
+      </button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Stat Summary Row -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon emerald">🟢</div>
+        <div class="stat-info">
+          <h3>Online Boards</h3>
+          <p id="statOnline">0</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon cyan">📡</div>
+        <div class="stat-info">
+          <h3>Total Registered</h3>
+          <p id="statTotal">0</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon indigo">⚡</div>
+        <div class="stat-info">
+          <h3>Active Tunnel</h3>
+          <p id="statTunnel" style="font-size: 1.1rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Loading...</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon amber">⏱️</div>
+        <div class="stat-info">
+          <h3>Gateway Status</h3>
+          <p id="statGateway">Live (WS)</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Content Layout -->
+    <div class="main-layout">
+      <!-- Left: Device Fleet Grid -->
+      <section class="devices-section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <span>Connected Devices</span>
+            <span id="deviceCountBadge" style="font-size: 0.85rem; color: var(--text-muted); font-weight: normal;">(0 boards)</span>
+          </h2>
+          <button class="btn-secondary btn-sm" id="refreshDevicesBtn">🔄 Refresh</button>
+        </div>
+
+        <div id="deviceGrid" class="device-grid">
+          <!-- Dynamic Device Cards injected here -->
+          <div class="empty-state">
+            <div class="empty-icon">🛰️</div>
+            <h3>No ESP Boards Connected Yet</h3>
+            <p style="color: var(--text-muted); margin-top: 0.5rem; max-width: 400px; margin-inline: auto;">
+              Send your friends to the <strong><a href="/flash.html" target="_blank" style="color: var(--accent-cyan);">Web Serial Flasher</a></strong> to connect their ESP32 or ESP8266 board in 1 click!
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right: Live Remote Serial Console -->
+      <aside class="console-panel">
+        <div class="console-header">
+          <div class="console-title">
+            <span>📺 Remote Serial Logs</span>
+          </div>
+          <select id="consoleDeviceSelect" class="device-selector-dropdown">
+            <option value="">All Devices</option>
+          </select>
+        </div>
+
+        <div id="consoleLogs" class="console-logs">
+          <div class="log-entry" style="color: #64748b;">[System] Listening for incoming telemetry logs from remote ESP boards...</div>
+        </div>
+
+        <div class="console-footer">
+          <input type="text" id="consoleInput" class="console-input" placeholder="Quick command (e.g. toggle, restart)...">
+          <button class="btn-secondary btn-sm" id="clearLogsBtn">Clear</button>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- Modal: Deploy Firmware (.bin) -->
+  <div id="deployModal" class="modal-overlay">
+    <div class="modal-content">
+      <button class="modal-close" id="closeDeployModalBtn">&times;</button>
+      <h2 style="font-size: 1.4rem; font-weight: 700; margin-bottom: 0.5rem;">🚀 Deploy Over-The-Air Firmware</h2>
+      <p style="color: var(--text-muted); font-size: 0.9rem;">
+        Upload your compiled Arduino or PlatformIO <code>.bin</code> file to flash it remotely onto your friend's ESP board.
+      </p>
+
+      <div id="dropzone" class="dropzone">
+        <div class="dropzone-icon">📦</div>
+        <div class="dropzone-text">
+          <strong>Click to browse</strong> or drag & drop your <code>.bin</code> file here
+        </div>
+        <input type="file" id="firmwareFileInput" accept=".bin" style="display: none;">
+      </div>
+
+      <div id="fileSelectedInfo" style="display: none; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 12px; padding: 1rem; margin-bottom: 1.25rem;">
+        <div style="display: flex; justify-content: space-between; font-weight: 600; font-size: 0.9rem;">
+          <span id="selectedFileName">firmware.bin</span>
+          <span id="selectedFileSize" style="color: var(--accent-cyan);">0 KB</span>
+        </div>
+        <div id="selectedFileMd5" style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); margin-top: 0.35rem;">
+          MD5: Calculating...
+        </div>
+      </div>
+
+      <div style="margin-bottom: 1.5rem;">
+        <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.4rem; font-weight: 500;">Target Device</label>
+        <select id="targetDeviceSelect" class="device-selector-dropdown" style="width: 100%; padding: 0.65rem 1rem; font-size: 0.9rem; border-radius: 10px;">
+          <option value="">Select an online device...</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom: 1.5rem;">
+        <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.4rem; font-weight: 500;">Version Label (Optional)</label>
+        <input type="text" id="targetVersionInput" class="console-input" style="width: 100%; padding: 0.65rem 1rem;" placeholder="e.g. v1.1.0">
+      </div>
+
+      <div id="modalOtaProgress" style="display: none; margin-bottom: 1.5rem;">
+        <div class="progress-header">
+          <span id="modalProgressText">Flashing...</span>
+          <span id="modalProgressPercent">0%</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div id="modalProgressBarFill" class="progress-bar-fill"></div>
+        </div>
+      </div>
+
+      <button id="startDeployBtn" class="btn-primary" style="width: 100%; justify-content: center; padding: 0.85rem; font-size: 1rem;" disabled>
+        Push Firmware Wirelessly 🌬️
+      </button>
+    </div>
+  </div>
+
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>

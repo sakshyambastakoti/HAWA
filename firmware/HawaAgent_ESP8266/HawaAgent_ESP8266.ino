@@ -1,0 +1,253 @@
+/*
+ * 🌬️ Project Hawa (हावा) - ESP8266 Client Agent Firmware
+ * 
+ * NodeMCU, Wemos D1 Mini, ESP-12E/F
+ */
+
+#include <Arduino.h>
+#include <ESP8266WiFi.h>
+#include <WebSocketsClient.h> // Arduino library: WebSockets by Markus Sattler
+#include <ArduinoJson.h>      // Arduino library: ArduinoJson
+
+#include "HawaConfig.h"
+#include "HawaOTA.h"
+
+HawaConfig8266 config;
+WebSocketsClient webSocket;
+unsigned long lastHeartbeat = 0;
+bool isOtaRunning = false;
+String currentDeviceId;
+
+void sendJsonToWs(const String& jsonStr) {
+    if (webSocket.isConnected()) {
+        webSocket.sendTXT(jsonStr);
+    }
+}
+
+void hawaLog(const String& msg) {
+    Serial.println(msg);
+    if (webSocket.isConnected() && !isOtaRunning) {
+        DynamicJsonDocument doc(512);
+        doc["type"] = "SERIAL_LOG";
+        doc["deviceId"] = currentDeviceId;
+        doc["text"] = msg;
+        String out;
+        serializeJson(doc, out);
+        webSocket.sendTXT(out);
+    }
+}
+
+void onOTAProgress(int percent, size_t written, size_t total) {
+    DynamicJsonDocument doc(256);
+    doc["type"] = "OTA_PROGRESS";
+    doc["deviceId"] = currentDeviceId;
+    doc["percent"] = percent;
+    doc["bytesRead"] = written;
+    doc["totalBytes"] = total;
+    String out;
+    serializeJson(doc, out);
+    sendJsonToWs(out);
+}
+
+void onOTAStatus(bool success, const String& message) {
+    DynamicJsonDocument doc(256);
+    doc["type"] = "OTA_COMPLETE";
+    doc["deviceId"] = currentDeviceId;
+    doc["status"] = success ? "SUCCESS" : "FAILED";
+    doc["message"] = message;
+    String out;
+    serializeJson(doc, out);
+    sendJsonToWs(out);
+}
+
+void checkSerialProvisioning() {
+    if (Serial.available()) {
+        String line = Serial.readStringUntil('\n');
+        line.trim();
+
+        if (line.startsWith("HAWA_CONFIG:")) {
+            String jsonPart = line.substring(12);
+            DynamicJsonDocument doc(512);
+            DeserializationError err = deserializeJson(doc, jsonPart);
+
+            if (!err) {
+                String newSsid = doc["ssid"] | "";
+                String newPass = doc["pass"] | "";
+                String newServer = doc["server"] | "";
+                String newName = doc["name"] | "ESP8266-Device";
+
+                config.saveCredentials(newSsid, newPass, newServer, newName);
+                Serial.println("HAWA_ACK:CONFIG_SAVED");
+                delay(1000);
+                ESP.restart();
+            } else {
+                Serial.println("HAWA_ERR:INVALID_JSON");
+            }
+        }
+    }
+}
+
+void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
+    switch (type) {
+        case WStype_DISCONNECTED:
+            Serial.println("[WS] Disconnected from Hawa Server");
+            break;
+
+        case WStype_CONNECTED: {
+            Serial.println("[WS] Connected! Sending CLIENT_HELLO...");
+            DynamicJsonDocument doc(512);
+            doc["type"] = "CLIENT_HELLO";
+            doc["deviceId"] = currentDeviceId;
+            doc["name"] = config.deviceName;
+            doc["chip"] = "ESP8266";
+            doc["mac"] = WiFi.macAddress();
+            doc["ip"] = WiFi.localIP().toString();
+            doc["rssi"] = WiFi.RSSI();
+            doc["firmwareVersion"] = config.firmwareVersion;
+            doc["freeHeap"] = ESP.getFreeHeap();
+            doc["uptime"] = millis() / 1000;
+
+            String out;
+            serializeJson(doc, out);
+            webSocket.sendTXT(out);
+            break;
+        }
+
+        case WStype_TEXT: {
+            DynamicJsonDocument doc(1024);
+            DeserializationError err = deserializeJson(doc, payload);
+            if (err) return;
+
+            String msgType = doc["type"] | "";
+
+            if (msgType == "OTA_START") {
+                String downloadUrl = doc["downloadUrl"] | "";
+                String md5 = doc["md5"] | "";
+                String targetVersion = doc["version"] | "";
+
+                hawaLog("[OTA] Starting Over-The-Air Update from: " + downloadUrl);
+                isOtaRunning = true;
+
+                bool ok = HawaOTA8266::performOTA(downloadUrl, md5, onOTAProgress, onOTAStatus);
+                if (ok) {
+                    if (targetVersion.length() > 0) {
+                        config.updateVersion(targetVersion);
+                    }
+                    delay(2000);
+                    ESP.restart();
+                } else {
+                    isOtaRunning = false;
+                }
+            } else if (msgType == "COMMAND") {
+                String action = doc["action"] | "";
+                if (action == "REBOOT") {
+                    hawaLog("[CMD] Remote reboot request received. Restarting...");
+                    delay(1000);
+                    ESP.restart();
+                } else if (action == "TOGGLE_LED") {
+                    digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
+                    hawaLog("[CMD] LED Toggled!");
+                }
+            }
+            break;
+        }
+
+        case WStype_BIN:
+        case WStype_ERROR:
+        case WStype_PONG:
+            break;
+    }
+}
+
+void setup() {
+    Serial.begin(115200);
+    pinMode(LED_BUILTIN, OUTPUT);
+    digitalWrite(LED_BUILTIN, HIGH); // Off for active-low ESP8266
+
+    config.begin();
+    currentDeviceId = "hawa-esp8266-" + WiFi.macAddress();
+    currentDeviceId.replace(":", "");
+    currentDeviceId.toLowerCase();
+
+    Serial.println("\n==================================");
+    Serial.println("🌬️  Hawa (हावा) ESP8266 Client Agent");
+    Serial.println("Device ID: " + currentDeviceId);
+    Serial.println("Firmware Ver: " + config.firmwareVersion);
+    Serial.println("==================================");
+
+    if (!config.hasWifiCredentials()) {
+        Serial.println("[Hawa] No Wi-Fi configured. Waiting for Web Serial Flasher configuration...");
+        return;
+    }
+
+    Serial.println("[WiFi] Connecting to: " + config.ssid);
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(config.ssid.c_str(), config.password.c_str());
+
+    int attempts = 0;
+    while (WiFi.status() != WL_CONNECTED && attempts < 30) {
+        delay(500);
+        Serial.print(".");
+        attempts++;
+        checkSerialProvisioning();
+    }
+
+    if (WiFi.status() == WL_CONNECTED) {
+        Serial.println("\n[WiFi] Connected! IP: " + WiFi.localIP().toString());
+        digitalWrite(LED_BUILTIN, LOW); // On
+
+        String server = config.serverUrl;
+        if (server.length() == 0) server = "ws://192.168.1.100:3000";
+
+        bool isSSL = server.startsWith("wss://");
+        server.replace("wss://", "");
+        server.replace("ws://", "");
+        server.replace("https://", "");
+        server.replace("http://", "");
+
+        int port = isSSL ? 443 : 3000;
+        int colonIdx = server.indexOf(':');
+        int slashIdx = server.indexOf('/');
+        String host = server;
+
+        if (colonIdx > 0) {
+            host = server.substring(0, colonIdx);
+            String portStr = (slashIdx > colonIdx) ? server.substring(colonIdx + 1, slashIdx) : server.substring(colonIdx + 1);
+            port = portStr.toInt();
+        } else if (slashIdx > 0) {
+            host = server.substring(0, slashIdx);
+        }
+
+        Serial.printf("[WS] Connecting to %s:%d (SSL: %s)...\n", host.c_str(), port, isSSL ? "yes" : "no");
+        if (isSSL) {
+            webSocket.beginSSL(host.c_str(), port, "/ws");
+        } else {
+            webSocket.begin(host.c_str(), port, "/ws");
+        }
+        webSocket.onEvent(webSocketEvent);
+        webSocket.setReconnectInterval(5000);
+    } else {
+        Serial.println("\n[WiFi] Connection failed. Waiting for re-provisioning over Serial...");
+    }
+}
+
+void loop() {
+    checkSerialProvisioning();
+
+    if (WiFi.status() == WL_CONNECTED) {
+        webSocket.loop();
+
+        if (millis() - lastHeartbeat > 15000 && !isOtaRunning) {
+            lastHeartbeat = millis();
+            DynamicJsonDocument doc(256);
+            doc["type"] = "HEARTBEAT";
+            doc["deviceId"] = currentDeviceId;
+            doc["rssi"] = WiFi.RSSI();
+            doc["freeHeap"] = ESP.getFreeHeap();
+            doc["uptime"] = millis() / 1000;
+            String out;
+            serializeJson(doc, out);
+            sendJsonToWs(out);
+        }
+    }
+}

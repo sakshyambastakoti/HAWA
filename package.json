@@ -1,0 +1,31 @@
+{
+  "name": "hawa",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "tunnel": "node tunnel.js",
+    "hawa": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sakshyambastakoti/HAWA.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/sakshyambastakoti/HAWA/issues"
+  },
+  "homepage": "https://github.com/sakshyambastakoti/HAWA#readme",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "esptool-js": "^0.7.0",
+    "express": "^5.2.1",
+    "multer": "^2.4.0",
+    "untun": "^0.2.2",
+    "ws": "^8.22.0"
+  }
+}

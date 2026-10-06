@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hawa (हावा) — Instant Web Serial Flasher</title>
+  <meta name="description" content="Connect and flash your ESP8266 or ESP32 board directly from your web browser with zero software installations.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/flasher.css">
+</head>
+<body>
+
+  <div class="flasher-container">
+    <div class="flasher-header">
+      <div class="flasher-logo">🌬️</div>
+      <h1 class="flasher-title">Connect Your Board to Hawa</h1>
+      <p class="flasher-subtitle">Zero software or driver installation needed. Just connect USB, enter your Wi-Fi, and flash directly from your browser!</p>
+    </div>
+
+    <!-- Browser Support Warning -->
+    <div id="browserWarning" class="browser-alert">
+      ⚠️ <strong>Web Serial API Not Supported:</strong> Your browser does not support Web Serial. Please open this page in <strong>Google Chrome</strong>, <strong>Microsoft Edge</strong>, or <strong>Brave</strong> on a laptop or desktop computer with a USB port.
+    </div>
+
+    <div class="wizard-card">
+      <div class="step-indicator">
+        <div class="step-bubble active" id="bubble1">1</div>
+        <div class="step-bubble" id="bubble2">2</div>
+        <div class="step-bubble" id="bubble3">3</div>
+      </div>
+
+      <form id="flasherForm" onsubmit="return false;">
+        <!-- Board Type -->
+        <div class="form-group">
+          <label class="form-label" for="boardType">Select Your Board Model</label>
+          <select id="boardType" class="form-select">
+            <option value="esp32">ESP32 (Standard DevKit / NodeMCU-32S / WROOM)</option>
+            <option value="esp8266">ESP8266 (NodeMCU / Wemos D1 Mini / ESP-12)</option>
+            <option value="esp32s3">ESP32-S3</option>
+            <option value="esp32c3">ESP32-C3</option>
+          </select>
+        </div>
+
+        <!-- Wi-Fi Credentials -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="wifiSsid">Wi-Fi / Hotspot Name (SSID)</label>
+            <input type="text" id="wifiSsid" class="form-input" placeholder="e.g. MyHomeWiFi or MyPhoneHotspot" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="wifiPass">Wi-Fi Password</label>
+            <input type="password" id="wifiPass" class="form-input" placeholder="Password (leave blank if open)">
+          </div>
+        </div>
+
+        <!-- Nickname & Server -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="deviceName">Your Name / Device Nickname</label>
+            <input type="text" id="deviceName" class="form-input" placeholder="e.g. Rohan-ESP32" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="serverUrl">Hawa Hub Server URL</label>
+            <input type="text" id="serverUrl" class="form-input" placeholder="wss://your-tunnel.trycloudflare.com">
+          </div>
+        </div>
+
+        <button type="button" id="startFlashBtn" class="btn-flash">
+          ⚡ Connect USB & Flash Board
+        </button>
+      </form>
+
+      <!-- Progress Section -->
+      <div id="flasherProgress" class="flasher-progress">
+        <div class="progress-header">
+          <span id="flasherStatusText">Initializing Web Serial...</span>
+          <span id="flasherPercent">0%</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div id="flasherBarFill" class="progress-bar-fill"></div>
+        </div>
+      </div>
+
+      <!-- Live Serial Output -->
+      <div id="serialConsole" class="serial-console">
+[Ready] Connect your ESP board to your computer's USB port, then click "Connect USB & Flash Board" above.
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/js/flasher.js"></script>
+</body>
+</html>
