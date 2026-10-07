@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "tunnel": "node tunnel.js",
-    "hawa": "node server.js"
+    "hawa": "node server.js",
+    "simulate": "node simulate_esp.js"
   },
   "repository": {
     "type": "git",

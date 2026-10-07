@@ -12,5 +12,22 @@
     "status": "offline",
     "lastSeen": 1791303093460,
     "firstSeen": 1791303091433
+  },
+  "esp32-hawa-demo": {
+    "deviceId": "esp32-hawa-demo",
+    "name": "Living Room Node (ESP32)",
+    "nickname": null,
+    "tags": [],
+    "chip": "ESP32 (ESP32-D0WDQ6)",
+    "mac": "24:6F:28:1A:BC:3D",
+    "ip": "192.168.1.108",
+    "rssi": -61,
+    "firmwareVersion": "1.0.0",
+    "freeHeap": 218906,
+    "uptime": 135,
+    "status": "offline",
+    "lastSeen": 1791366600640,
+    "firstSeen": 1791366576891,
+    "metrics": null
   }
 }
