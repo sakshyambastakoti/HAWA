@@ -1,5 +1,5 @@
 /*
- * 🌬️ Project Hawa (हावा) - ESP32 Client Agent Firmware
+ * Project Hawa - ESP32 Client Agent Firmware
  * 
  * Features:
  *  - Persistent NVS config (Wi-Fi, Server URL, Device Name)
@@ -97,7 +97,7 @@ void checkSerialProvisioning() {
 
                 config.saveCredentials(newSsid, newPass, newServer, newName);
                 Serial.println("\n==================================");
-                Serial.println("✅ [HAWA] Wi-Fi CONFIG SAVED TO NVS!");
+                Serial.println("[HAWA] Wi-Fi CONFIG SAVED TO NVS!");
                 Serial.println("SSID: " + newSsid);
                 Serial.println("Server: " + newServer);
                 Serial.println("Rebooting board to connect to Wi-Fi...");
@@ -128,7 +128,7 @@ void checkSerialProvisioning() {
 
                 config.saveCredentials(newSsid, newPass, newServer, "ESP32-Device");
                 Serial.println("\n==================================");
-                Serial.println("✅ [HAWA] Wi-Fi SAVED VIA SERIAL COMMAND!");
+                Serial.println("[HAWA] Wi-Fi SAVED VIA SERIAL COMMAND!");
                 Serial.println("SSID: " + newSsid);
                 Serial.println("Server: " + newServer);
                 Serial.println("Rebooting board to connect to Wi-Fi...");
@@ -168,9 +168,9 @@ void checkSerialProvisioning() {
 
         // Fallback guidance
         Serial.println("\n[HAWA SERIAL COMMAND HELP]");
-        Serial.println("👉 Send Wi-Fi:   WIFI:your_ssid,your_password");
-        Serial.println("👉 Or JSON:      HAWA_CONFIG:{\"ssid\":\"name\",\"pass\":\"pw\",\"server\":\"wss://...\"}");
-        Serial.println("👉 Other:        STATUS | REBOOT | CLEAR\n");
+        Serial.println("> Send Wi-Fi:   WIFI:your_ssid,your_password");
+        Serial.println("> Or JSON:      HAWA_CONFIG:{\"ssid\":\"name\",\"pass\":\"pw\",\"server\":\"wss://...\"}");
+        Serial.println("> Other:        STATUS | REBOOT | CLEAR\n");
     }
 }
 
@@ -267,7 +267,7 @@ void setup() {
     currentDeviceId.toLowerCase();
 
     Serial.println("\n==================================");
-    Serial.println("🌬️  Hawa (हावा) ESP32 Client Agent");
+    Serial.println("[HAWA] ESP32 Client Agent");
     Serial.println("Device ID: " + currentDeviceId);
     Serial.println("Firmware Ver: " + config.firmwareVersion);
     Serial.println("==================================");

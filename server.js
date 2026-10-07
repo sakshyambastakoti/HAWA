@@ -806,9 +806,9 @@ wss.on('close', () => {
 // Start Server
 server.listen(config.PORT, config.HOST, () => {
   console.log(`=======================================================`);
-  console.log(`🌬️  HAWA (हावा) OTA Platform Server Running`);
-  console.log(`📍 Local Dashboard: http://localhost:${config.PORT}`);
-  console.log(`⚡ Client Flasher:  http://localhost:${config.PORT}/flash.html`);
-  console.log(`🌐 Configured Public URL: ${config.PUBLIC_URL}`);
+  console.log(`[HAWA] OTA Platform Server Running`);
+  console.log(`[LOCAL] Dashboard: http://localhost:${config.PORT}`);
+  console.log(`[FLASHER] Client Flasher:  http://localhost:${config.PORT}/flash.html`);
+  console.log(`[PUBLIC] Configured Public URL: ${config.PUBLIC_URL}`);
   console.log(`=======================================================`);
 });

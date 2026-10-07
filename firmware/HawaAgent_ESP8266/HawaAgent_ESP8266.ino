@@ -1,5 +1,5 @@
 /*
- * 🌬️ Project Hawa (हावा) - ESP8266 Client Agent Firmware
+ * Project Hawa - ESP8266 Client Agent Firmware
  * 
  * NodeMCU, Wemos D1 Mini, ESP-12E/F
  */
@@ -170,7 +170,7 @@ void setup() {
     currentDeviceId.toLowerCase();
 
     Serial.println("\n==================================");
-    Serial.println("🌬️  Hawa (हावा) ESP8266 Client Agent");
+    Serial.println("[HAWA] ESP8266 Client Agent");
     Serial.println("Device ID: " + currentDeviceId);
     Serial.println("Firmware Ver: " + config.firmwareVersion);
     Serial.println("==================================");

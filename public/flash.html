@@ -118,13 +118,25 @@
 
   <!-- Interactive Device Flasher Card Frame -->
   <main class="flasher-wrapper" id="flasher">
-    <div class="device-preview-frame">
+    <div class="device-preview-frame" id="devicePreviewFrame">
       <!-- Window Title Bar -->
       <div class="frame-top-bar">
         <div class="window-dots">
-          <div class="window-dot red"></div>
-          <div class="window-dot yellow"></div>
-          <div class="window-dot green"></div>
+          <div class="window-dot red" title="Status: Standby"></div>
+          <div class="window-dot yellow" title="Port: Ready"></div>
+          <div class="window-dot green window-dot-expand" id="windowDotExpand" title="Toggle Fullscreen Window" role="button" tabindex="0"></div>
+          <span class="window-title-text">HAWA WEB FLASHER · FIRMWARE WORKBENCH</span>
+        </div>
+        <div class="window-actions">
+          <button type="button" class="window-expand-btn" id="expandFlasherWindowBtn" title="Toggle Fullscreen Window (Esc to exit)">
+            <svg class="window-expand-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 3 21 3 21 9"></polyline>
+              <polyline points="9 21 3 21 3 15"></polyline>
+              <line x1="21" y1="3" x2="14" y2="10"></line>
+              <line x1="3" y1="21" x2="10" y2="14"></line>
+            </svg>
+            <span id="windowExpandLabel">EXPAND WINDOW</span>
+          </button>
         </div>
       </div>
 
@@ -461,21 +473,12 @@
             <div class="terminal-wrapper" id="terminalWrapper">
               <div class="terminal-header">
                 <div class="terminal-window-controls">
-                  <span class="term-dot term-dot-red" title="Serial Status"></span>
-                  <span class="term-dot term-dot-yellow" title="Baud Rate: 115200"></span>
-                  <span class="term-dot term-dot-green term-dot-expand" id="termDotExpand" title="Expand to Fullscreen (Esc to exit)" role="button" tabindex="0"></span>
+                  <span class="term-dot term-dot-red"></span>
+                  <span class="term-dot term-dot-yellow"></span>
+                  <span class="term-dot term-dot-green"></span>
                   <span class="term-prompt-label">esp-serial@ttyUSB0</span>
                 </div>
                 <div class="terminal-actions">
-                  <button type="button" class="terminal-mini-btn terminal-expand-btn" id="expandConsoleBtn" title="Toggle Fullscreen (Esc to exit)">
-                    <svg class="expand-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="15 3 21 3 21 9"></polyline>
-                      <polyline points="9 21 3 21 3 15"></polyline>
-                      <line x1="21" y1="3" x2="14" y2="10"></line>
-                      <line x1="3" y1="21" x2="10" y2="14"></line>
-                    </svg>
-                    <span id="expandBtnLabel">EXPAND</span>
-                  </button>
                   <button type="button" class="terminal-mini-btn" id="copyConsoleBtn">Copy Logs</button>
                   <button type="button" class="terminal-mini-btn" id="clearConsoleBtn">Clear</button>
                 </div>
@@ -789,29 +792,29 @@
       });
     }
 
-    // Terminal Fullscreen Toggle Handler
-    const expandConsoleBtn = document.getElementById('expandConsoleBtn');
-    const termDotExpand = document.getElementById('termDotExpand');
-    const terminalWrapper = document.getElementById('terminalWrapper');
-    const expandBtnLabel = document.getElementById('expandBtnLabel');
+    // Web Flasher Window Fullscreen Toggle Handler
+    const expandFlasherWindowBtn = document.getElementById('expandFlasherWindowBtn');
+    const windowDotExpand = document.getElementById('windowDotExpand');
+    const devicePreviewFrame = document.getElementById('devicePreviewFrame');
+    const windowExpandLabel = document.getElementById('windowExpandLabel');
 
-    function toggleTerminalFullscreen() {
-      if (!terminalWrapper) return;
-      const isFullscreen = terminalWrapper.classList.toggle('is-fullscreen');
-      document.body.classList.toggle('terminal-fullscreen-active', isFullscreen);
+    function toggleFlasherWindowFullscreen() {
+      if (!devicePreviewFrame) return;
+      const isFullscreen = devicePreviewFrame.classList.toggle('window-fullscreen');
+      document.body.classList.toggle('flasher-fullscreen-active', isFullscreen);
 
-      const expandBtn = document.getElementById('expandConsoleBtn');
+      const expandBtn = document.getElementById('expandFlasherWindowBtn');
       const icon = expandBtn ? expandBtn.querySelector('svg') : null;
 
       if (isFullscreen) {
-        if (expandBtnLabel) expandBtnLabel.textContent = 'COLLAPSE';
+        if (windowExpandLabel) windowExpandLabel.textContent = 'COLLAPSE WINDOW';
         if (expandBtn) expandBtn.setAttribute('title', 'Exit Fullscreen (Esc)');
         if (icon) {
           icon.innerHTML = '<polyline points="4 14 10 14 10 20"></polyline><polyline points="20 10 14 10 14 4"></polyline><line x1="14" y1="10" x2="21" y2="3"></line><line x1="10" y1="14" x2="3" y2="21"></line>';
         }
       } else {
-        if (expandBtnLabel) expandBtnLabel.textContent = 'EXPAND';
-        if (expandBtn) expandBtn.setAttribute('title', 'Toggle Fullscreen (Esc to exit)');
+        if (windowExpandLabel) windowExpandLabel.textContent = 'EXPAND WINDOW';
+        if (expandBtn) expandBtn.setAttribute('title', 'Toggle Fullscreen Window (Esc to exit)');
         if (icon) {
           icon.innerHTML = '<polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line>';
         }
@@ -824,13 +827,13 @@
       }
     }
 
-    if (expandConsoleBtn) expandConsoleBtn.addEventListener('click', toggleTerminalFullscreen);
-    if (termDotExpand) termDotExpand.addEventListener('click', toggleTerminalFullscreen);
+    if (expandFlasherWindowBtn) expandFlasherWindowBtn.addEventListener('click', toggleFlasherWindowFullscreen);
+    if (windowDotExpand) windowDotExpand.addEventListener('click', toggleFlasherWindowFullscreen);
 
-    // Escape key closes fullscreen mode
+    // Escape key closes window fullscreen mode
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && terminalWrapper && terminalWrapper.classList.contains('is-fullscreen')) {
-        toggleTerminalFullscreen();
+      if (e.key === 'Escape' && devicePreviewFrame && devicePreviewFrame.classList.contains('window-fullscreen')) {
+        toggleFlasherWindowFullscreen();
       }
     });
 
