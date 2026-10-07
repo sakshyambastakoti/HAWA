@@ -120,13 +120,16 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.9rem 2.2rem;
+  padding: 0.8rem 2.2rem;
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
   position: sticky;
   top: 0;
-  z-index: 100;
-  backdrop-filter: blur(12px);
+  width: 100%;
+  height: 65px;
+  z-index: 300;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 .logo-area {
@@ -1198,7 +1201,6 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1.15rem;
   width: 100%;
 }
 
@@ -1206,37 +1208,41 @@ body {
   display: none;
 }
 
-/* The Outward Bulging Capsule Pod (Exact Sketch Match) */
+/* The Single Unified Menu Capsule Pod */
 .sidebar-capsule-pod {
   width: 52px;
-  padding: 8px 5px;
+  padding: 10px 5px;
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 28px !important;
+  border-radius: 999px !important;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+  gap: 6px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
   position: relative;
-  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.sidebar-capsule-pod.secondary,
-.sidebar-capsule-pod.tertiary {
-  border-color: var(--border-color);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .sidebar-capsule-pod:hover {
   border-color: var(--border-active);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.65);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.65);
+}
+
+/* Subtle micro-divider between tool sections inside the single capsule */
+.capsule-pod-divider {
+  width: 22px;
+  height: 1px;
+  background: var(--border-subtle);
+  margin: 2px 0;
+  flex-shrink: 0;
 }
 
 /* Clickable Capsule / Pill Buttons (Exact Sketch Style) */
 .sidebar-capsule-btn {
-  width: 36px;
-  height: 50px;
-  border: 1px solid var(--border-color);
+  width: 38px;
+  height: 44px;
+  border: 1px solid transparent;
   border-radius: 999px !important;
   background: transparent;
   color: var(--text-muted);
@@ -1246,7 +1252,7 @@ body {
   cursor: pointer;
   padding: 0;
   position: relative;
-  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
   text-decoration: none;
   outline: none;
 }
@@ -1254,7 +1260,7 @@ body {
 .sidebar-capsule-btn:hover {
   background: var(--bg-card-hover);
   color: var(--text-main);
-  border-color: var(--border-active);
+  border-color: var(--border-color);
   transform: scale(1.08);
 }
 
@@ -1376,11 +1382,16 @@ body {
     margin-left: 60px;
   }
   .sidebar-capsule-pod {
-    width: 40px;
+    width: 44px;
+    padding: 8px 4px;
+    gap: 4px;
   }
   .sidebar-capsule-btn {
-    width: 26px;
+    width: 32px;
     height: 38px;
+  }
+  .capsule-pod-divider {
+    width: 16px;
   }
 }
 

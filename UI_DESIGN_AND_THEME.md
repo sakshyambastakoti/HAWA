@@ -116,8 +116,12 @@ The interface employs three distinct typographic styles for visual role clarity:
 ### 4.6 Transparent Tactile Slide Bar Menu
 - Left-docked permanent operator navigation rail (`76px` fixed width) configured with borderless transparency (`background: transparent; border-right: none;`).
 - Ambient 24px dot-matrix background flows seamlessly under the sidebar canvas for an elevated floating deck look.
-- Bulging curved pods (`.sidebar-capsule-pod`) house tactile stacked pill buttons (`border-radius: 999px`) with dark/light mode surface adaptation and soft ambient drop shadows.
-- Dedicated tool pods: Fleet Matrix / Serial Telemetry, Firmware Repository / OTA Deployer, and System Settings / Web Flasher Bench.
+- Single unified elongated capsule pod (`.sidebar-capsule-pod`) with pure capsule pill curvature (`border-radius: 999px !important`), housing all primary operator actions within one cohesive enclosure.
+- Micro-dividers cleanly separate logical tool clusters:
+  1. Monitoring Group: `01 // FLEET MATRIX` & `02 // SERIAL TELEMETRY`
+  2. Binary Pipeline: `03 // FIRMWARE LIBRARY` & `04 // DEPLOY OTA`
+  3. System Control: `05 // SYSTEM SETTINGS` & `06 // FLASH BENCH`
+- Each option button uses tactile capsule styling (`border-radius: 999px`) with instant tooltips, tactile click micro-animations, and stark high-contrast active states.
 
 ---
 
