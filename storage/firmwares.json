@@ -1,5 +1,47 @@
 [
   {
+    "id": "fw_1791387436048",
+    "filename": "1791387436018_esp32_blink_merged_0x0000.bin",
+    "originalName": "esp32_blink_merged_0x0000.bin",
+    "version": "v_latest",
+    "size": 306368,
+    "offset": 65536,
+    "isMerged": true,
+    "md5": "6d94487421a48c8cde47fe16b9ab502e",
+    "downloadUrl": "https://leaves-pensions-honest-leadership.trycloudflare.com/api/firmware/download/1791387436018_esp32_blink_merged_0x0000.bin",
+    "uploadedAt": "2026-10-07T15:37:16.048Z"
+  },
+  {
+    "id": "fw_1791387213111",
+    "filename": "1791387209777_esp32_blink_merged_0x0000.bin",
+    "originalName": "esp32_blink_merged_0x0000.bin",
+    "version": "v_latest",
+    "size": 371904,
+    "md5": "d1209e555fff8f6d63d51b5c9df61b98",
+    "downloadUrl": "https://leaves-pensions-honest-leadership.trycloudflare.com/api/firmware/download/1791387209777_esp32_blink_merged_0x0000.bin",
+    "uploadedAt": "2026-10-07T15:33:33.111Z"
+  },
+  {
+    "id": "fw_1791387175623",
+    "filename": "1791387174706_esp32_blink_merged_0x0000.bin",
+    "originalName": "esp32_blink_merged_0x0000.bin",
+    "version": "1",
+    "size": 371904,
+    "md5": "d1209e555fff8f6d63d51b5c9df61b98",
+    "downloadUrl": "https://leaves-pensions-honest-leadership.trycloudflare.com/api/firmware/download/1791387174706_esp32_blink_merged_0x0000.bin",
+    "uploadedAt": "2026-10-07T15:32:55.623Z"
+  },
+  {
+    "id": "fw_1791386523959",
+    "filename": "1791386523913_esp32_blink_merged_0x0000.bin",
+    "originalName": "esp32_blink_merged_0x0000.bin",
+    "version": "v_latest",
+    "size": 371904,
+    "md5": "d1209e555fff8f6d63d51b5c9df61b98",
+    "downloadUrl": "https://leaves-pensions-honest-leadership.trycloudflare.com/api/firmware/download/1791386523913_esp32_blink_merged_0x0000.bin",
+    "uploadedAt": "2026-10-07T15:22:03.959Z"
+  },
+  {
     "id": "fw_1791379352059",
     "filename": "1791379352045_esp32_blink_app_0x10000.bin",
     "originalName": "esp32_blink_app_0x10000.bin",

@@ -21,23 +21,14 @@
     "chip": "ESP32 (ESP32-D0WDQ6)",
     "mac": "24:6F:28:1A:BC:3D",
     "ip": "192.168.1.108",
-    "rssi": -54,
-    "firmwareVersion": "v2.0.0-blink-heartbeat",
-    "freeHeap": 218803,
-    "uptime": 2025,
+    "rssi": -59,
+    "firmwareVersion": "1.0.0",
+    "freeHeap": 219112,
+    "uptime": 6885,
     "status": "online",
-    "lastSeen": 1791382742919,
+    "lastSeen": 1791387455184,
     "firstSeen": 1791366576891,
-    "metrics": null,
-    "lastOta": {
-      "otaId": "ota_1791379361591",
-      "startedAt": 1791379361591,
-      "filename": "1791379352045_esp32_blink_app_0x10000.bin",
-      "progress": 100,
-      "status": "completed",
-      "completedAt": 1791379365631,
-      "errorMessage": null
-    }
+    "metrics": null
   },
   "hawa-esp32-000000000000": {
     "deviceId": "hawa-esp32-000000000000",
@@ -47,13 +38,22 @@
     "chip": "ESP32 (ESP32-D0WD-V3)",
     "mac": "88:57:21:B6:43:70",
     "ip": "192.168.137.186",
-    "rssi": -55,
+    "rssi": -49,
     "firmwareVersion": "1.0.0",
-    "freeHeap": 189428,
-    "uptime": 120,
+    "freeHeap": 189544,
+    "uptime": 15,
     "status": "offline",
-    "lastSeen": 1791382752134,
+    "lastSeen": 1791387463316,
     "firstSeen": 1791382566177,
-    "metrics": null
+    "metrics": null,
+    "lastOta": {
+      "otaId": "ota_1791387436062",
+      "startedAt": 1791387436085,
+      "filename": "1791387436018_esp32_blink_merged_0x0000.bin",
+      "progress": 100,
+      "status": "completed",
+      "completedAt": 1791387438633,
+      "errorMessage": null
+    }
   }
 }

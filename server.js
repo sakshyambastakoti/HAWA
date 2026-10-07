@@ -3,6 +3,7 @@ const http = require('http');
 const { WebSocketServer, WebSocket } = require('ws');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 const crypto = require('crypto');
 const multer = require('multer');
 const cors = require('cors');
@@ -150,15 +151,70 @@ function broadcastToDashboards(data) {
   }
 }
 
-// Compute MD5 of file
-function calculateMD5(filePath) {
+// Compute MD5 of file (or subslice of file starting at startOffset)
+function calculateMD5(filePath, startOffset = 0) {
   return new Promise((resolve, reject) => {
     const hash = crypto.createHash('md5');
-    const stream = fs.createReadStream(filePath);
+    const stream = fs.createReadStream(filePath, { start: startOffset });
     stream.on('data', chunk => hash.update(chunk));
     stream.on('end', () => resolve(hash.digest('hex')));
     stream.on('error', reject);
   });
+}
+
+// Inspect binary to determine if it is an app image (starts at 0x0) or a merged 0x0000 image (app at 0x10000)
+function getFirmwareOtaInfo(filePath) {
+  const stat = fs.statSync(filePath);
+  let offset = 0;
+  if (stat.size > 65536) {
+    try {
+      const fd = fs.openSync(filePath, 'r');
+      const headerBuf = Buffer.alloc(8);
+      fs.readSync(fd, headerBuf, 0, 8, 0);
+      // ESP32 Application header begins with magic byte 0xE9.
+      // Merged binaries start with 0xFF padding at 0x0000, and have the app partition at 0x10000 (65536).
+      if (headerBuf[0] !== 0xE9) {
+        const appHeaderBuf = Buffer.alloc(8);
+        fs.readSync(fd, appHeaderBuf, 0, 8, 65536);
+        if (appHeaderBuf[0] === 0xE9) {
+          offset = 65536;
+          console.log(`[OTA] Auto-detected merged full-flash binary (${path.basename(filePath)}). App partition starts at 0x10000 (${stat.size - offset} bytes).`);
+        }
+      }
+      fs.closeSync(fd);
+    } catch (e) {
+      console.warn('[Firmware] Error inspecting binary header:', e.message);
+    }
+  }
+  const size = stat.size - offset;
+  return { offset, size };
+}
+
+// Helper to determine the optimal download URL for a target device (direct LAN HTTP if on same subnet, or Cloudflare HTTPS if remote)
+function getBestDownloadUrlForDevice(deviceId, filename) {
+  const dev = devices[deviceId];
+  const devIp = dev ? dev.ip : null;
+
+  // If the device is on the local LAN or hotspot, route directly via host LAN IP over plain HTTP
+  if (devIp && typeof devIp === 'string') {
+    const interfaces = os.networkInterfaces();
+    for (const name of Object.keys(interfaces)) {
+      for (const iface of interfaces[name]) {
+        if (iface.family === 'IPv4' && !iface.internal) {
+          const devSubnet = devIp.split('.').slice(0, 3).join('.');
+          const serverSubnet = iface.address.split('.').slice(0, 3).join('.');
+          if (devSubnet === serverSubnet) {
+            console.log(`[OTA] Device '${deviceId}' (${devIp}) matches server interface ${iface.address}. Using direct LAN HTTP URL.`);
+            return `http://${iface.address}:${config.PORT}/api/firmware/download/${filename}`;
+          }
+        }
+      }
+    }
+  }
+
+  // Fallback to configured public Cloudflare URL (or local URL if none)
+  const base = config.PUBLIC_URL || `http://localhost:${config.PORT}`;
+  return `${base}/api/firmware/download/${filename}`;
 }
 
 // ==========================================
@@ -298,14 +354,17 @@ app.post('/api/firmware/upload', upload.single('firmware'), async (req, res) => 
       return res.status(400).json({ error: 'No firmware file uploaded' });
     }
 
-    const md5 = await calculateMD5(req.file.path);
+    const { offset, size } = getFirmwareOtaInfo(req.file.path);
+    const md5 = await calculateMD5(req.file.path, offset);
     const targetVersion = req.body.targetVersion || req.body.version || 'v_latest';
     const fileInfo = {
       id: `fw_${Date.now()}`,
       filename: req.file.filename,
       originalName: req.file.originalname,
       version: targetVersion,
-      size: req.file.size,
+      size,
+      offset,
+      isMerged: offset > 0,
       md5,
       downloadUrl: `${config.PUBLIC_URL}/api/firmware/download/${req.file.filename}`,
       uploadedAt: new Date().toISOString()
@@ -360,14 +419,14 @@ app.get('/api/firmware/download/:filename', (req, res) => {
     return res.status(404).json({ error: 'Firmware binary not found' });
   }
 
+  const { offset, size } = getFirmwareOtaInfo(filePath);
+
   // Set appropriate headers for ESP OTA streaming
   res.setHeader('Content-Type', 'application/octet-stream');
   res.setHeader('Content-Disposition', `attachment; filename="${req.params.filename}"`);
+  res.setHeader('Content-Length', size);
   
-  const stat = fs.statSync(filePath);
-  res.setHeader('Content-Length', stat.size);
-  
-  const stream = fs.createReadStream(filePath);
+  const stream = fs.createReadStream(filePath, { start: offset });
   stream.pipe(res);
 });
 
@@ -388,22 +447,22 @@ app.post('/api/ota/deploy', (req, res) => {
     return res.status(400).json({ error: `Device ${targetDeviceId} is currently offline` });
   }
 
-  const stat = fs.statSync(filePath);
-  calculateMD5(filePath).then(md5 => {
+  const { offset, size } = getFirmwareOtaInfo(filePath);
+  calculateMD5(filePath, offset).then(md5 => {
     const otaId = `ota_${Date.now()}`;
-    // Full URL that the ESP will request
-    const downloadUrl = `${config.PUBLIC_URL}/api/firmware/download/${filename}`;
+    // Select optimal download URL (direct LAN HTTP if on same subnet, or Cloudflare HTTPS if remote)
+    const downloadUrl = getBestDownloadUrlForDevice(targetDeviceId, filename);
 
     const otaPayload = {
       type: 'OTA_START',
       otaId,
       downloadUrl,
-      size: stat.size,
+      size,
       md5,
       version: targetVersion || 'v_latest'
     };
 
-    console.log(`[OTA] Initiating update for device '${targetDeviceId}' with file '${filename}'`);
+    console.log(`[OTA] Initiating update for device '${targetDeviceId}' with file '${filename}' via: ${downloadUrl}`);
     ws.send(JSON.stringify(otaPayload));
 
     if (devices[targetDeviceId]) {
@@ -423,7 +482,7 @@ app.post('/api/ota/deploy', (req, res) => {
       device: devices[targetDeviceId]
     });
 
-    res.json({ success: true, otaId, downloadUrl, size: stat.size, md5 });
+    res.json({ success: true, otaId, downloadUrl, size, md5 });
   }).catch(err => {
     res.status(500).json({ error: 'Failed to prepare OTA package: ' + err.message });
   });
@@ -466,20 +525,20 @@ app.post('/api/ota/deploy-batch', (req, res) => {
     return res.status(404).json({ error: 'Firmware binary not found on server' });
   }
 
-  const stat = fs.statSync(filePath);
-  calculateMD5(filePath).then(md5 => {
-    const downloadUrl = `${config.PUBLIC_URL}/api/firmware/download/${filename}`;
+  const { offset, size } = getFirmwareOtaInfo(filePath);
+  calculateMD5(filePath, offset).then(md5 => {
     let dispatched = 0;
 
     targetDeviceIds.forEach(devId => {
       const ws = activeEspSockets.get(devId);
       if (ws && ws.readyState === WebSocket.OPEN) {
         const otaId = `ota_${Date.now()}_${devId}`;
+        const downloadUrl = getBestDownloadUrlForDevice(devId, filename);
         const otaPayload = {
           type: 'OTA_START',
           otaId,
           downloadUrl,
-          size: stat.size,
+          size,
           md5,
           version: targetVersion || 'v_latest'
         };

@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
+#include <WiFiClientSecure.h>
 #include <ESP8266httpUpdate.h>
 
 typedef void (*OTAProgressCallback)(int percent, size_t written, size_t total);
@@ -12,7 +13,18 @@ class HawaOTA8266 {
 public:
     static bool performOTA(const String& downloadUrl, const String& expectedMD5,
                            OTAProgressCallback progressCb, OTAStatusCallback statusCb) {
-        WiFiClient client;
+        bool isHttps = downloadUrl.startsWith("https://");
+        WiFiClient plainClient;
+        WiFiClientSecure secureClient;
+        WiFiClient* clientPtr = nullptr;
+
+        if (isHttps) {
+            secureClient.setInsecure(); // Skip certificate verification
+            clientPtr = &secureClient;
+        } else {
+            clientPtr = &plainClient;
+        }
+
         ESPhttpUpdate.setLedPin(LED_BUILTIN, LOW);
 
         ESPhttpUpdate.onProgress([progressCb](int current, int total) {
@@ -24,7 +36,7 @@ public:
             ESPhttpUpdate.setMD5(expectedMD5.c_str());
         }
 
-        t_httpUpdate_return ret = ESPhttpUpdate.update(client, downloadUrl);
+        t_httpUpdate_return ret = ESPhttpUpdate.update(*clientPtr, downloadUrl);
 
         switch (ret) {
             case HTTP_UPDATE_FAILED: {

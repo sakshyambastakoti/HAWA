@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <WiFi.h>
+#include <WiFiClientSecure.h>
 #include <HTTPClient.h>
 #include <Update.h>
 #include <esp_ota_ops.h>
@@ -16,10 +17,22 @@ public:
                            OTAProgressCallback progressCb, OTAStatusCallback statusCb) {
         HTTPClient http;
         http.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
-        http.setTimeout(15000);
+        http.setTimeout(30000);
 
-        WiFiClient client;
-        if (!http.begin(client, downloadUrl)) {
+        bool isHttps = downloadUrl.startsWith("https://");
+
+        WiFiClient plainClient;
+        WiFiClientSecure secureClient;
+        WiFiClient* clientPtr = nullptr;
+
+        if (isHttps) {
+            secureClient.setInsecure(); // Skip certificate verification for dynamic Cloudflare / tunnel domains
+            clientPtr = &secureClient;
+        } else {
+            clientPtr = &plainClient;
+        }
+
+        if (!http.begin(*clientPtr, downloadUrl)) {
             if (statusCb) statusCb(false, "Failed to connect to download URL");
             return false;
         }
