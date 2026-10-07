@@ -12,8 +12,9 @@
   --accent-rose: #f43f5e;
   --text-main: #f1f5f9;
   --text-muted: #94a3b8;
-  --font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-family: 'Space Grotesk', 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --font-dot: 'Doto', 'DotGothic16', monospace, sans-serif;
 }
 
 * {
@@ -63,12 +64,12 @@ body {
 }
 
 .logo-text h1 {
-  font-size: 1.6rem;
+  font-family: var(--font-dot);
+  font-size: 1.45rem;
   font-weight: 800;
-  letter-spacing: -0.5px;
-  background: linear-gradient(to right, #ffffff, #cbd5e1);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #ffffff;
 }
 
 .logo-tag {
@@ -217,8 +218,10 @@ body {
 }
 
 .stat-info p {
+  font-family: var(--font-dot);
   font-size: 1.6rem;
-  font-weight: 700;
+  font-weight: 800;
+  letter-spacing: 0.05em;
   color: var(--text-main);
   margin-top: 0.2rem;
 }
