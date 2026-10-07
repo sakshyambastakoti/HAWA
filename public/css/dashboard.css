@@ -1138,8 +1138,8 @@ body {
 
 .sidebar-menu {
   width: 76px;
-  background: var(--bg-secondary);
-  border-right: 1px solid var(--border-color);
+  background: transparent;
+  border-right: none;
   position: fixed;
   top: 0;
   left: 0;
@@ -1151,7 +1151,8 @@ body {
   z-index: 200;
   flex-shrink: 0;
   user-select: none;
-  backdrop-filter: blur(16px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .admin-main-content {
@@ -1166,14 +1167,14 @@ body {
 .sidebar-brand-badge {
   width: 40px;
   height: 40px;
-  background: var(--btn-primary-bg);
-  color: var(--btn-primary-text);
+  background: var(--bg-card);
+  color: var(--text-main);
   border: 1px solid var(--border-color);
   display: flex;
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  margin-bottom: 1.5rem;
+  margin-bottom: auto;
   transition: all 0.15s ease;
 }
 
@@ -1184,7 +1185,9 @@ body {
 }
 
 .sidebar-brand-badge:hover {
-  opacity: 0.9;
+  border-color: var(--border-active);
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
   transform: translateY(-1px);
 }
 
@@ -1194,26 +1197,13 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  gap: 1.15rem;
   width: 100%;
 }
 
 .sidebar-rail-line {
-  width: 2px;
-  background: var(--border-color);
-  transition: background 0.15s ease;
-}
-
-.sidebar-rail-line.top {
-  height: 40px;
-}
-
-.sidebar-rail-line.middle {
-  flex: 1;
-  min-height: 28px;
-}
-
-.sidebar-rail-line.bottom {
-  height: 40px;
+  display: none;
 }
 
 /* The Outward Bulging Capsule Pod (Exact Sketch Match) */
@@ -1221,30 +1211,32 @@ body {
   width: 52px;
   padding: 8px 5px;
   background: var(--bg-card);
-  border: 2px solid var(--border-active);
+  border: 1px solid var(--border-color);
   border-radius: 28px !important;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  gap: 8px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
   position: relative;
   transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.sidebar-capsule-pod.secondary {
+.sidebar-capsule-pod.secondary,
+.sidebar-capsule-pod.tertiary {
   border-color: var(--border-color);
 }
 
 .sidebar-capsule-pod:hover {
   border-color: var(--border-active);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.65);
 }
 
 /* Clickable Capsule / Pill Buttons (Exact Sketch Style) */
 .sidebar-capsule-btn {
   width: 36px;
-  height: 52px;
-  border: 2px solid var(--border-color);
+  height: 50px;
+  border: 1px solid var(--border-color);
   border-radius: 999px !important;
   background: transparent;
   color: var(--text-muted);

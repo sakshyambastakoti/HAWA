@@ -113,6 +113,12 @@ The interface employs three distinct typographic styles for visual role clarity:
 - Header bar includes window status dots (red, yellow, green) and a clear terminal action.
 - Footer bar includes a baud rate dropdown selector (default `115200`) and a serial command transmission input.
 
+### 4.6 Transparent Tactile Slide Bar Menu
+- Left-docked permanent operator navigation rail (`76px` fixed width) configured with borderless transparency (`background: transparent; border-right: none;`).
+- Ambient 24px dot-matrix background flows seamlessly under the sidebar canvas for an elevated floating deck look.
+- Bulging curved pods (`.sidebar-capsule-pod`) house tactile stacked pill buttons (`border-radius: 999px`) with dark/light mode surface adaptation and soft ambient drop shadows.
+- Dedicated tool pods: Fleet Matrix / Serial Telemetry, Firmware Repository / OTA Deployer, and System Settings / Web Flasher Bench.
+
 ---
 
 ## 5. Theme State Persistence Architecture
