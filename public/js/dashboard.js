@@ -1,3 +1,6 @@
+// HAWA Fleet Command Console - Dashboard Client Script
+// Zero-emoji technical operations logic
+
 // State
 let devices = [];
 let publicUrl = window.location.origin;
@@ -5,6 +8,8 @@ let selectedFile = null;
 let uploadedFileMeta = null;
 let activeOtaDeviceId = null;
 let ws = null;
+let currentFilter = 'all';
+let searchQuery = '';
 
 // Theme Toggle Handler
 const themeToggleBtn = document.getElementById('themeToggleBtn');
@@ -47,7 +52,9 @@ const deviceGrid = document.getElementById('deviceGrid');
 const deviceCountBadge = document.getElementById('deviceCountBadge');
 const consoleLogs = document.getElementById('consoleLogs');
 const consoleDeviceSelect = document.getElementById('consoleDeviceSelect');
+const consoleInput = document.getElementById('consoleInput');
 const clearLogsBtn = document.getElementById('clearLogsBtn');
+const fleetSearchInput = document.getElementById('fleetSearchInput');
 
 // Modal Elements
 const deployModal = document.getElementById('deployModal');
@@ -141,54 +148,90 @@ function handleWsMessage(msg) {
     case 'OTA_FINISHED':
       handleOtaFinished(msg.deviceId, msg.status, msg.message);
       break;
-
-    case 'SERVER_CONFIG_UPDATED':
-      if (msg.publicUrl) updatePublicUrl(msg.publicUrl);
-      break;
   }
 }
 
 function updatePublicUrl(url) {
   publicUrl = url;
-  statTunnel.textContent = url.replace('https://', '').replace('http://', '');
-  tunnelStatusText.textContent = `Tunnel: ${url.replace('https://', '')}`;
-  tunnelBadge.title = `Click to copy public link: ${url}`;
+  if (statTunnel) statTunnel.textContent = url.replace('https://', '').replace('http://', '');
+  if (tunnelStatusText) tunnelStatusText.textContent = `TUNNEL: ${url.replace('https://', '').replace('http://', '')}`;
+  if (tunnelBadge) tunnelBadge.title = `Click to copy public gateway URL: ${url}`;
 }
 
 // Copy Tunnel URL on Click
-tunnelBadge.addEventListener('click', () => {
-  navigator.clipboard.writeText(publicUrl).then(() => {
-    const oldText = tunnelStatusText.textContent;
-    tunnelStatusText.textContent = 'Copied to Clipboard! 🎉';
-    setTimeout(() => { tunnelStatusText.textContent = oldText; }, 2000);
+if (tunnelBadge) {
+  tunnelBadge.addEventListener('click', () => {
+    navigator.clipboard.writeText(publicUrl).then(() => {
+      const oldText = tunnelStatusText.textContent;
+      tunnelStatusText.textContent = 'COPIED TO CLIPBOARD';
+      setTimeout(() => { tunnelStatusText.textContent = oldText; }, 2000);
+    });
   });
-});
+}
 
 function updateStats() {
   const onlineCount = devices.filter(d => d.isOnline).length;
-  statOnline.textContent = onlineCount;
-  statTotal.textContent = devices.length;
-  deviceCountBadge.textContent = `(${devices.length} boards)`;
+  if (statOnline) statOnline.textContent = onlineCount;
+  if (statTotal) statTotal.textContent = devices.length;
+  if (deviceCountBadge) deviceCountBadge.textContent = `[${devices.length} NODES]`;
+}
+
+// Filter and Search Event Handlers
+document.querySelectorAll('.filter-pill').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter || 'all';
+    renderDevices();
+  });
+});
+
+if (fleetSearchInput) {
+  fleetSearchInput.addEventListener('input', (e) => {
+    searchQuery = e.target.value.trim().toLowerCase();
+    renderDevices();
+  });
 }
 
 function renderDevices() {
-  if (devices.length === 0) {
+  const filtered = devices.filter(d => {
+    if (currentFilter === 'online' && !d.isOnline) return false;
+    if (currentFilter === 'offline' && d.isOnline) return false;
+    if (searchQuery) {
+      const matchName = (d.name || '').toLowerCase().includes(searchQuery);
+      const matchId = (d.deviceId || '').toLowerCase().includes(searchQuery);
+      const matchChip = (d.chip || '').toLowerCase().includes(searchQuery);
+      if (!matchName && !matchId && !matchChip) return false;
+    }
+    return true;
+  });
+
+  if (filtered.length === 0) {
     deviceGrid.innerHTML = `
       <div class="empty-state">
-        <div class="empty-icon">🛰️</div>
-        <h3>No ESP Boards Connected Yet</h3>
-        <p style="color: var(--text-muted); margin-top: 0.5rem; max-width: 400px; margin-inline: auto;">
-          Send your friends to the <strong><a href="/flash.html" target="_blank" style="color: var(--accent-cyan);">Web Serial Flasher</a></strong> to connect their ESP32 or ESP8266 board in 1 click!
+        <div class="empty-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="8" rx="0"></rect>
+            <rect x="2" y="14" width="20" height="8" rx="0"></rect>
+            <line x1="6" y1="6" x2="6.01" y2="6"></line>
+            <line x1="6" y1="18" x2="6.01" y2="18"></line>
+          </svg>
+        </div>
+        <h3>${devices.length === 0 ? 'NO HARDWARE NODES DETECTED' : 'NO MATCHING NODES FOUND'}</h3>
+        <p>
+          ${devices.length === 0 
+            ? 'Connect your ESP32 or ESP8266 boards via the <a href="/flash.html" target="_blank" style="color: var(--text-main); font-weight: 600; text-decoration: underline;">Web Serial Flasher</a> to register them into this fleet console.'
+            : 'Try adjusting your filter selection or clear the search criteria.'}
         </p>
       </div>
     `;
     return;
   }
 
-  deviceGrid.innerHTML = devices.map(dev => {
+  deviceGrid.innerHTML = filtered.map(dev => {
     const isOnline = dev.isOnline;
     const statusClass = dev.status === 'updating' ? 'updating' : (isOnline ? 'online' : 'offline');
-    const statusText = dev.status === 'updating' ? 'Flashing OTA...' : (isOnline ? 'Online' : 'Offline');
+    const statusText = dev.status === 'updating' ? 'FLASHING OTA' : (isOnline ? 'ONLINE' : 'OFFLINE');
     const wifiSignal = dev.rssi ? `${dev.rssi} dBm` : 'N/A';
     const heapKb = dev.freeHeap ? `${(dev.freeHeap / 1024).toFixed(0)} KB` : 'N/A';
     const uptimeStr = dev.uptime ? formatUptime(dev.uptime) : 'N/A';
@@ -198,7 +241,7 @@ function renderDevices() {
         <div class="device-header">
           <div class="device-name-group">
             <h4>${escapeHtml(dev.name || dev.deviceId)}</h4>
-            <span class="device-chip-badge">${escapeHtml(dev.chip || 'ESP')} • ${escapeHtml(dev.deviceId)}</span>
+            <span class="device-chip-badge">[ ${escapeHtml(dev.chip || 'ESP')} ] // ${escapeHtml(dev.deviceId)}</span>
           </div>
           <span class="status-pill ${statusClass}" id="pill-${dev.deviceId}">
             ${statusText}
@@ -207,27 +250,27 @@ function renderDevices() {
 
         <div class="device-meta-list">
           <div class="meta-item">
-            <div class="meta-label">Firmware</div>
-            <div class="meta-value" id="fw-${dev.deviceId}">${escapeHtml(dev.firmwareVersion || '1.0.0')}</div>
+            <span class="meta-label">FIRMWARE</span>
+            <span class="meta-value" id="fw-${dev.deviceId}">${escapeHtml(dev.firmwareVersion || '1.0.0')}</span>
           </div>
           <div class="meta-item">
-            <div class="meta-label">Wi-Fi RSSI</div>
-            <div class="meta-value" id="rssi-${dev.deviceId}">${wifiSignal}</div>
+            <span class="meta-label">WIFI RSSI</span>
+            <span class="meta-value" id="rssi-${dev.deviceId}">${wifiSignal}</span>
           </div>
           <div class="meta-item">
-            <div class="meta-label">Free Heap</div>
-            <div class="meta-value" id="heap-${dev.deviceId}">${heapKb}</div>
+            <span class="meta-label">FREE HEAP</span>
+            <span class="meta-value" id="heap-${dev.deviceId}">${heapKb}</span>
           </div>
           <div class="meta-item">
-            <div class="meta-label">Uptime</div>
-            <div class="meta-value" id="uptime-${dev.deviceId}">${uptimeStr}</div>
+            <span class="meta-label">UPTIME</span>
+            <span class="meta-value" id="uptime-${dev.deviceId}">${uptimeStr}</span>
           </div>
         </div>
 
         <!-- Progress bar for OTA -->
         <div class="device-ota-progress" id="progress-box-${dev.deviceId}">
           <div class="progress-header">
-            <span>Flashing Firmware...</span>
+            <span>TRANSMITTING FIRMWARE...</span>
             <span id="progress-txt-${dev.deviceId}">0%</span>
           </div>
           <div class="progress-bar-bg">
@@ -236,14 +279,29 @@ function renderDevices() {
         </div>
 
         <div class="device-actions">
-          <button class="btn-primary btn-sm" onclick="openDeployForDevice('${dev.deviceId}')" ${!isOnline ? 'disabled' : ''}>
-            🚀 OTA Flash
+          <button type="button" class="btn-primary btn-sm" onclick="openDeployForDevice('${dev.deviceId}')" ${!isOnline ? 'disabled' : ''} title="Push remote OTA firmware">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            FLASH
           </button>
-          <button class="btn-secondary btn-sm" onclick="rebootDevice('${dev.deviceId}')" ${!isOnline ? 'disabled' : ''}>
-            🔄 Reboot
+          <button type="button" class="btn-secondary btn-sm" onclick="rebootDevice('${dev.deviceId}')" ${!isOnline ? 'disabled' : ''} title="Remote hardware reset">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <polyline points="1 20 1 14 7 14"></polyline>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+            REBOOT
           </button>
-          <button class="btn-secondary btn-sm" onclick="toggleLed('${dev.deviceId}')" ${!isOnline ? 'disabled' : ''}>
-            💡 LED
+          <button type="button" class="btn-secondary btn-sm" onclick="toggleLed('${dev.deviceId}')" ${!isOnline ? 'disabled' : ''} title="GPIO LED diagnostic">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+            </svg>
+            LED
           </button>
         </div>
       </div>
@@ -262,12 +320,11 @@ function updateDeviceCardMetrics(dev) {
   if (uptimeEl) uptimeEl.textContent = dev.uptime ? formatUptime(dev.uptime) : 'N/A';
   if (pillEl) {
     pillEl.className = 'status-pill online';
-    pillEl.textContent = 'Online';
+    pillEl.textContent = 'ONLINE';
   }
 }
 
 function updateOtaProgress(deviceId, percent, written, total) {
-  // Update card progress bar
   const box = document.getElementById(`progress-box-${deviceId}`);
   const txt = document.getElementById(`progress-txt-${deviceId}`);
   const bar = document.getElementById(`progress-bar-${deviceId}`);
@@ -278,7 +335,6 @@ function updateOtaProgress(deviceId, percent, written, total) {
     bar.style.width = `${percent}%`;
   }
 
-  // Update modal progress bar if open
   if (activeOtaDeviceId === deviceId) {
     modalOtaProgress.style.display = 'block';
     modalProgressPercent.textContent = `${percent}%`;
@@ -288,37 +344,60 @@ function updateOtaProgress(deviceId, percent, written, total) {
 
 function handleOtaFinished(deviceId, status, message) {
   const isSuccess = status === 'SUCCESS';
-  alert(isSuccess ? `🎉 Success! Device ${deviceId} finished OTA and is rebooting.` : `❌ OTA Failed for ${deviceId}: ${message}`);
-
   const box = document.getElementById(`progress-box-${deviceId}`);
   if (box) box.classList.remove('active');
 
-  modalOtaProgress.style.display = 'none';
-  closeDeployModal();
+  const dev = devices.find(d => d.deviceId === deviceId);
+  if (dev) {
+    dev.status = isSuccess ? 'online' : 'error';
+    const pillEl = document.getElementById(`pill-${deviceId}`);
+    if (pillEl) {
+      pillEl.className = `status-pill ${isSuccess ? 'online' : 'offline'}`;
+      pillEl.textContent = isSuccess ? 'ONLINE' : 'ERROR';
+    }
+  }
+
+  if (activeOtaDeviceId === deviceId) {
+    modalProgressText.textContent = isSuccess ? 'COMPLETE!' : 'FAILED';
+    setTimeout(() => {
+      closeDeployModal();
+      modalOtaProgress.style.display = 'none';
+      startDeployBtn.disabled = false;
+      activeOtaDeviceId = null;
+    }, 1500);
+  }
+
+  alert(`[OTA] Device ${deviceId}: ${message}`);
 }
 
 function populateDeviceSelects() {
-  const onlineDevices = devices.filter(d => d.isOnline);
+  const opts = '<option value="">ALL FLEET NODES</option>' + 
+    devices.map(d => `<option value="${d.deviceId}">${escapeHtml(d.name || d.deviceId)} (${d.chip || 'ESP'})</option>`).join('');
   
-  targetDeviceSelect.innerHTML = `<option value="">Select an online board...</option>` + 
-    onlineDevices.map(d => `<option value="${d.deviceId}">${escapeHtml(d.name || d.deviceId)} (${d.chip})</option>`).join('');
+  const currentVal = consoleDeviceSelect.value;
+  consoleDeviceSelect.innerHTML = opts;
+  consoleDeviceSelect.value = currentVal;
 
-  consoleDeviceSelect.innerHTML = `<option value="">All Devices</option>` + 
-    devices.map(d => `<option value="${d.deviceId}">${escapeHtml(d.name || d.deviceId)}</option>`).join('');
+  const modalOpts = '<option value="">SELECT AN ONLINE NODE...</option>' + 
+    devices.filter(d => d.isOnline).map(d => `<option value="${d.deviceId}">${escapeHtml(d.name || d.deviceId)} [${d.chip || 'ESP'}] - ${d.deviceId}</option>`).join('');
+  
+  const currentModalVal = targetDeviceSelect.value;
+  targetDeviceSelect.innerHTML = modalOpts;
+  targetDeviceSelect.value = currentModalVal;
 }
 
-// Log Terminal
+// Telemetry Console Logging
 function appendLog(deviceId, log) {
-  const filter = consoleDeviceSelect.value;
-  if (filter && filter !== deviceId) return;
+  const selected = consoleDeviceSelect.value;
+  if (selected && selected !== deviceId) return;
 
   const entry = document.createElement('div');
   entry.className = 'log-entry';
 
-  const date = new Date(log.timestamp || Date.now());
-  const timeStr = date.toTimeString().split(' ')[0];
+  const d = new Date(log.timestamp || Date.now());
+  const timeStr = d.toTimeString().split(' ')[0] + '.' + String(d.getMilliseconds()).padStart(3, '0');
 
-  entry.innerHTML = `<span class="log-timestamp">[${timeStr}] [${deviceId}]:</span> ${escapeHtml(log.text || '')}`;
+  entry.innerHTML = `<span style="color: var(--text-muted); font-family: var(--font-mono);">[${timeStr}] [${escapeHtml(deviceId)}]:</span> ${escapeHtml(log.text || '')}`;
   consoleLogs.appendChild(entry);
   consoleLogs.scrollTop = consoleLogs.scrollHeight;
 }
@@ -327,13 +406,35 @@ clearLogsBtn.addEventListener('click', () => {
   consoleLogs.innerHTML = '';
 });
 
+// Quick console command input
+if (consoleInput) {
+  consoleInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      const cmd = consoleInput.value.trim();
+      if (!cmd) return;
+      const target = consoleDeviceSelect.value;
+
+      const entry = document.createElement('div');
+      entry.className = 'log-entry system';
+      entry.textContent = `[TX] > ${cmd} ${target ? `(Target: ${target})` : '(Broadcast)'}`;
+      consoleLogs.appendChild(entry);
+      consoleLogs.scrollTop = consoleLogs.scrollHeight;
+      consoleInput.value = '';
+
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: 'CMD', command: cmd, targetDeviceId: target || null }));
+      }
+    }
+  });
+}
+
 // Device Control Actions
 window.rebootDevice = async function(deviceId) {
   if (!confirm(`Are you sure you want to remotely reboot device "${deviceId}"?`)) return;
   try {
     const res = await fetch(`/api/device/${deviceId}/reboot`, { method: 'POST' });
     const data = await res.json();
-    alert(data.message || 'Reboot signal sent!');
+    alert(data.message || 'Reboot signal sent successfully.');
   } catch (err) {
     alert('Error: ' + err.message);
   }
@@ -355,11 +456,13 @@ window.openDeployForDevice = function(deviceId) {
 
 // Modal Logic
 function openDeployModal() {
+  deployModal.classList.add('active');
   deployModal.classList.add('open');
   populateDeviceSelects();
 }
 
 function closeDeployModal() {
+  deployModal.classList.remove('active');
   deployModal.classList.remove('open');
 }
 
@@ -402,10 +505,9 @@ async function handleFileSelected(file) {
   selectedFile = file;
   selectedFileName.textContent = file.name;
   selectedFileSize.textContent = `${(file.size / 1024).toFixed(1)} KB`;
-  selectedFileMd5.textContent = 'Uploading & computing MD5 hash...';
+  selectedFileMd5.textContent = 'CALCULATING MD5 HASH...';
   fileSelectedInfo.style.display = 'block';
 
-  // Upload to server immediately
   const formData = new FormData();
   formData.append('firmware', file);
 
@@ -429,7 +531,7 @@ async function handleFileSelected(file) {
 targetDeviceSelect.addEventListener('change', validateDeployForm);
 
 function validateDeployForm() {
-  const ready = (uploadedFileMeta && targetDeviceSelect.value);
+  const ready = Boolean(uploadedFileMeta && targetDeviceSelect.value);
   startDeployBtn.disabled = !ready;
 }
 
@@ -469,8 +571,8 @@ startDeployBtn.addEventListener('click', async () => {
 function formatUptime(seconds) {
   const m = Math.floor(seconds / 60);
   const h = Math.floor(m / 60);
-  if (h > 0) return `${h}h ${m % 60}m`;
-  return `${m}m ${seconds % 60}s`;
+  if (h > 0) return `${h}H ${m % 60}M`;
+  return `${m}M ${seconds % 60}S`;
 }
 
 function escapeHtml(str) {
@@ -491,5 +593,5 @@ document.getElementById('refreshDevicesBtn').addEventListener('click', () => {
   });
 });
 
-// Start
+// Connect WebSocket on load
 connectWebSocket();
