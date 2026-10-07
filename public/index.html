@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HAWA — Fleet Operations & Remote IoT Command Console</title>
+  <title>HAWA — Fleet Operations & Firmware Deployer</title>
   <meta name="description" content="Mission-control IoT fleet manager and over-the-air binary deployer for ESP32 and ESP8266 microcontrollers.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Doto:wght@300;400;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/dashboard.css?v=17">
+  <link rel="stylesheet" href="/css/dashboard.css?v=21">
   <script>
     (function() {
       const saved = localStorage.getItem('hawa_theme') || 'light';
@@ -29,482 +29,354 @@
       <div class="logo-text">
         <div class="logo-title-row">
           <h1>HAWA</h1>
-          <span class="admin-tag">ADMIN OPS</span>
+          <span class="admin-tag">COMMAND OPS</span>
         </div>
-        <span class="logo-sub">GLOBAL OVER-THE-AIR COMMAND CENTER</span>
+        <span class="logo-sub">OVER-THE-AIR FIRMWARE DEPLOYER</span>
       </div>
+    </div>
+
+    <div class="nav-actions">
+      <!-- Live Status Badge -->
+      <div class="nav-status-pill" id="navHubStatus">
+        <span class="pulse-dot"></span>
+        <span id="navHubStatusText">HUB ONLINE</span>
+      </div>
+
+      <!-- Active Device Quick Counter -->
+      <div class="nav-active-pill" id="navActiveBadge">
+        <span class="stat-indicator-dot"></span>
+        <span id="navActiveCountText">0 ACTIVE NODES</span>
+      </div>
+
+      <!-- Web Flasher Anchor -->
+      <a href="/flash.html" target="_blank" class="nav-link-btn" title="Open Web Serial Flasher in new tab">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="16 18 22 12 16 6"></polyline>
+          <polyline points="8 6 2 12 8 18"></polyline>
+        </svg>
+        <span>WEB FLASHER</span>
+      </a>
+
+      <!-- Theme Switcher -->
+      <button type="button" class="theme-toggle-btn" id="themeToggleBtn" aria-label="Toggle Theme">
+        <span class="theme-toggle-icon">
+          <svg class="sun-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg class="moon-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </span>
+        <span id="themeToggleLabel">DARK</span>
+      </button>
+
+      <!-- Settings Icon Button -->
+      <button type="button" class="nav-icon-btn" id="openSettingsBtn" title="System Settings & Gateway Config">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+      </button>
     </div>
   </header>
 
-  <!-- 2. Application Layout: Sidebar Rail + Operations Content -->
+  <!-- 2. Application Layout -->
   <div class="admin-app-layout">
-    <!-- Left Tactile Sidebar Menu -->
-    <aside class="sidebar-menu" id="sidebarMenu">
-      <!-- The Vertical Rail Track with Single Unified Capsule Pod -->
-      <div class="sidebar-rail-track">
-        <!-- Single Unified Menu Capsule Pod (All Options Inside) -->
-        <div class="sidebar-capsule-pod" id="sidebarCapsulePod">
-          <!-- Option 1: Fleet Matrix -->
-          <button type="button" class="sidebar-capsule-btn active" id="sideNavFleet" aria-label="Fleet Matrix">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="3" width="7" height="7"></rect>
-              <rect x="14" y="3" width="7" height="7"></rect>
-              <rect x="14" y="14" width="7" height="7"></rect>
-              <rect x="3" y="14" width="7" height="7"></rect>
-            </svg>
-          </button>
-
-          <!-- Option 2: Live Serial Telemetry Stream -->
-          <button type="button" class="sidebar-capsule-btn" id="sideNavConsole" aria-label="Telemetry Stream">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="4 17 10 11 4 5"></polyline>
-              <line x1="12" y1="19" x2="20" y2="19"></line>
-            </svg>
-          </button>
-
-          <div class="capsule-pod-divider"></div>
-
-          <!-- Option 3: Firmware Library & Rollback -->
-          <button type="button" class="sidebar-capsule-btn" id="sideNavLibrary" aria-label="Firmware Library">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-            </svg>
-          </button>
-
-          <!-- Option 4: OTA Deployer -->
-          <button type="button" class="sidebar-capsule-btn" id="sideNavDeploy" aria-label="Deploy Firmware">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="17 8 12 3 7 8"></polyline>
-              <line x1="12" y1="3" x2="12" y2="15"></line>
-            </svg>
-          </button>
-
-          <div class="capsule-pod-divider"></div>
-
-          <!-- Option 5: Settings & Gateway Config -->
-          <button type="button" class="sidebar-capsule-btn" id="sideNavSettings" aria-label="System Settings">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="4" y1="21" x2="4" y2="14"></line>
-              <line x1="4" y1="10" x2="4" y2="3"></line>
-              <line x1="12" y1="21" x2="12" y2="12"></line>
-              <line x1="12" y1="8" x2="12" y2="3"></line>
-              <line x1="20" y1="21" x2="20" y2="16"></line>
-              <line x1="20" y1="12" x2="20" y2="3"></line>
-              <line x1="1" y1="14" x2="7" y2="14"></line>
-              <line x1="9" y1="8" x2="15" y2="8"></line>
-              <line x1="17" y1="16" x2="23" y2="16"></line>
-            </svg>
-          </button>
-
-          <!-- Option 6: Web Flasher Bench -->
-          <a href="/flash.html" target="_blank" class="sidebar-capsule-btn" id="sideNavFlasher" aria-label="Web Flasher">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="16 18 22 12 16 6"></polyline>
-              <polyline points="8 6 2 12 8 18"></polyline>
-            </svg>
-          </a>
-        </div>
-      </div>
-
-      <!-- Bottom Theme Toggle Button in Sidebar -->
-      <div class="sidebar-footer">
-        <button type="button" class="sidebar-footer-btn" id="sidebarThemeBtn" aria-label="Toggle Theme">
-          <span class="theme-toggle-icon">
-            <svg class="sun-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="5"></circle>
-              <line x1="12" y1="1" x2="12" y2="3"></line>
-              <line x1="12" y1="21" x2="12" y2="23"></line>
-              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-              <line x1="1" y1="12" x2="3" y2="12"></line>
-              <line x1="21" y1="12" x2="23" y2="12"></line>
-              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-            </svg>
-            <svg class="moon-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-            </svg>
-          </span>
-        </button>
-      </div>
-    </aside>
-
-    <!-- Main Content Area -->
     <div class="admin-main-content">
+      <main class="container">
 
-  <!-- 2. Main Admin Container -->
-  <main class="container">
-
-    <!-- Admin Metric Row (4 Columns) -->
-    <section class="stats-grid">
-      <!-- Metric 1: Online Microcontrollers -->
-      <div class="stat-card">
-        <div class="stat-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="4" y="4" width="16" height="16" rx="0"></rect>
-            <rect x="9" y="9" width="6" height="6" rx="0"></rect>
-            <line x1="9" y1="1" x2="9" y2="4"></line>
-            <line x1="15" y1="1" x2="15" y2="4"></line>
-            <line x1="9" y1="20" x2="9" y2="23"></line>
-            <line x1="15" y1="20" x2="15" y2="23"></line>
-            <line x1="20" y1="9" x2="23" y2="9"></line>
-            <line x1="20" y1="14" x2="23" y2="14"></line>
-            <line x1="1" y1="9" x2="4" y2="9"></line>
-            <line x1="1" y1="14" x2="4" y2="14"></line>
-          </svg>
-        </div>
-        <div class="stat-info">
-          <span class="stat-index">METRIC // 01</span>
-          <h3>ONLINE NODES</h3>
-          <p class="stat-value" id="statOnline">0</p>
-        </div>
-      </div>
-
-      <!-- Metric 2: Total Registered Hardware -->
-      <div class="stat-card">
-        <div class="stat-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="2" y1="12" x2="22" y2="12"></line>
-            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-          </svg>
-        </div>
-        <div class="stat-info">
-          <span class="stat-index">METRIC // 02</span>
-          <h3>TOTAL REGISTERED</h3>
-          <p class="stat-value" id="statTotal">0</p>
-        </div>
-      </div>
-
-      <!-- Metric 3: Edge Tunnel Gateway -->
-      <div class="stat-card">
-        <div class="stat-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
-            <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
-            <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
-            <line x1="12" y1="20" x2="12.01" y2="20"></line>
-          </svg>
-        </div>
-        <div class="stat-info">
-          <span class="stat-index">METRIC // 03</span>
-          <h3>EDGE TUNNEL GATEWAY</h3>
-          <p class="stat-value monospace" id="statTunnel">LOADING...</p>
-        </div>
-      </div>
-
-      <!-- Metric 4: Real-time Telemetry Gateway -->
-      <div class="stat-card accent-red">
-        <div class="stat-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-          </svg>
-        </div>
-        <div class="stat-info">
-          <span class="stat-index">METRIC // 04</span>
-          <h3>TELEMETRY STREAM</h3>
-          <p class="stat-value monospace" id="statGateway">LIVE (WS)</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 3. Operations Control & Filter Bar -->
-    <div class="ops-bar">
-      <div class="ops-bar-left">
-        <div class="ops-title-group">
-          <span class="ops-title">FLEET MATRIX</span>
-          <span class="ops-count" id="deviceCountBadge">[0 NODES]</span>
-        </div>
-        <div class="filter-pills">
-          <button type="button" class="filter-pill active" data-filter="all">ALL</button>
-          <button type="button" class="filter-pill" data-filter="online">ONLINE</button>
-          <button type="button" class="filter-pill" data-filter="offline">OFFLINE</button>
-        </div>
-      </div>
-
-      <div class="ops-bar-right">
-        <div class="search-input-wrap">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-          <input type="text" id="fleetSearchInput" class="search-input" placeholder="SEARCH DEVICE ID, NICKNAME, TAG...">
-        </div>
-        <button type="button" class="btn-secondary btn-sm" id="refreshDevicesBtn" title="Sync fleet state">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="23 4 23 10 17 10"></polyline>
-            <polyline points="1 20 1 14 7 14"></polyline>
-            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-          </svg>
-          SYNC FLEET
-        </button>
-      </div>
-    </div>
-
-    <!-- Batch Action Controls Bar (Appears when checkboxes selected) -->
-    <div class="batch-bar" id="batchBar" style="display: none;">
-      <div class="batch-bar-left">
-        <label class="batch-select-all-label">
-          <input type="checkbox" id="selectAllCheckbox" class="batch-checkbox">
-          <span>SELECT ALL</span>
-        </label>
-        <span class="batch-count-tag" id="batchCountTag">0 NODES SELECTED</span>
-      </div>
-      <div class="batch-actions-group">
-        <button type="button" class="btn-secondary btn-sm" id="batchRebootBtn">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"></path></svg>
-          BATCH REBOOT
-        </button>
-        <button type="button" class="btn-secondary btn-sm" id="batchPingBtn">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-          BATCH PING
-        </button>
-        <button type="button" class="btn-primary btn-sm" id="batchDeployBtn">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-          BATCH OTA DEPLOY
-        </button>
-        <button type="button" class="btn-text btn-sm" id="clearBatchSelectionBtn">CANCEL</button>
-      </div>
-    </div>
-
-    <!-- Tag Filter Chips Bar -->
-    <div class="tag-chips-bar" id="tagChipsBar" style="display: none;">
-      <span class="tag-bar-label">PROJECT TAGS:</span>
-      <div class="tag-chips-list" id="tagChipsList"></div>
-    </div>
-
-    <!-- 4. Two-Column Workspace Layout -->
-    <div class="main-layout">
-
-      <!-- Left Column: Fleet Node Cards -->
-      <section class="devices-section" id="devicesSection">
-        <div id="deviceGrid" class="device-grid">
-          <!-- Dynamic Device Cards injected here -->
-          <div class="empty-state">
-            <div class="empty-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="2" y="2" width="20" height="8" rx="0"></rect>
-                <rect x="2" y="14" width="20" height="8" rx="0"></rect>
-                <line x1="6" y1="6" x2="6.01" y2="6"></line>
-                <line x1="6" y1="18" x2="6.01" y2="18"></line>
+        <!-- Top Metric Row: Hardware Availability & Target Status -->
+        <section class="stats-grid">
+          <!-- Metric 1: Available Devices (User Requirement #1) -->
+          <div class="stat-card stat-card-hero">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="4" y="4" width="16" height="16" rx="0"></rect>
+                <rect x="9" y="9" width="6" height="6" rx="0"></rect>
+                <line x1="9" y1="1" x2="9" y2="4"></line>
+                <line x1="15" y1="1" x2="15" y2="4"></line>
+                <line x1="9" y1="20" x2="9" y2="23"></line>
+                <line x1="15" y1="20" x2="15" y2="23"></line>
+                <line x1="20" y1="9" x2="23" y2="9"></line>
+                <line x1="20" y1="14" x2="23" y2="14"></line>
+                <line x1="1" y1="9" x2="4" y2="9"></line>
+                <line x1="1" y1="14" x2="4" y2="14"></line>
               </svg>
             </div>
-            <h3>NO HARDWARE NODES DETECTED</h3>
-            <p>
-              Connect your ESP32 or ESP8266 boards via the <a href="/flash.html" target="_blank" style="color: var(--text-main); font-weight: 600; text-decoration: underline;">Web Serial Flasher</a> to provision Wi-Fi and register them into this fleet console.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <!-- Right Column: Live Remote Telemetry Panel -->
-      <aside class="console-panel" id="consolePanel">
-        <div class="console-header">
-          <div class="console-title-group">
-            <div class="window-dots">
-              <span class="window-dot red"></span>
-              <span class="window-dot yellow"></span>
-              <span class="window-dot green"></span>
+            <div class="stat-info">
+              <span class="stat-index">METRIC // 01</span>
+              <h3>AVAILABLE DEVICES</h3>
+              <p class="stat-value" id="statOnline">0</p>
+              <span class="stat-sub" id="statOnlineSub">0 OF 0 NODES ACTIVE & READY FOR OTA</span>
             </div>
-            <span class="console-title">REMOTE TELEMETRY STREAM</span>
           </div>
 
-          <div class="console-header-actions">
-            <select id="consoleDeviceSelect" class="device-selector-dropdown">
-              <option value="">ALL FLEET NODES</option>
-            </select>
-            <button type="button" class="btn-secondary btn-xs" id="exportLogsBtn" title="Download serial telemetry stream as text file">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-              EXPORT .TXT
-            </button>
+          <!-- Metric 2: Target Device Selected (User Requirement #2) -->
+          <div class="stat-card">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="22" y1="12" x2="18" y2="12"></line>
+                <line x1="6" y1="12" x2="2" y2="12"></line>
+                <line x1="12" y1="6" x2="12" y2="2"></line>
+                <line x1="12" y1="22" x2="12" y2="18"></line>
+              </svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-index">METRIC // 02</span>
+              <h3>TARGET HARDWARE</h3>
+              <p class="stat-value monospace target-val" id="selectedTargetDisplay">NONE SELECTED</p>
+              <span class="stat-sub" id="selectedTargetSub">SELECT AN ACTIVE NODE BELOW</span>
+            </div>
+          </div>
+
+          <!-- Metric 3: Firmware & Pipeline Status -->
+          <div class="stat-card">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-index">METRIC // 03</span>
+              <h3>OTA PIPELINE</h3>
+              <p class="stat-value monospace" id="otaPipelineStatus">STANDBY</p>
+              <span class="stat-sub" id="otaPipelineSub">READY FOR .BIN PAYLOAD</span>
+            </div>
+          </div>
+
+          <!-- Metric 4: Public Gateway / Tunnel -->
+          <div class="stat-card accent-red">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+                <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
+                <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+                <line x1="12" y1="20" x2="12.01" y2="20"></line>
+              </svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-index">METRIC // 04</span>
+              <h3>GATEWAY TUNNEL</h3>
+              <p class="stat-value monospace" id="statTunnel">LOCAL (PORT 3000)</p>
+              <span class="stat-sub" id="statTunnelSub">CLICK TO COPY PUBLIC URL</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Two-Column Operational Command Center -->
+        <div class="operations-grid">
+
+          <!-- Left Column: Active Hardware Nodes (Selection Matrix) -->
+          <section class="ops-panel" id="devicesSection">
+            <div class="panel-header">
+              <div class="panel-header-left">
+                <span class="panel-tag">SECTION // 01</span>
+                <h2 class="panel-title">SELECT ACTIVE HARDWARE</h2>
+                <p class="panel-desc">Click any online microcontroller node to designate it as the deployment target.</p>
+              </div>
+              <div class="panel-actions">
+                <button type="button" class="btn-secondary btn-sm" id="refreshDevicesBtn" title="Scan and refresh connected hardware nodes">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="23 4 23 10 17 10"></polyline>
+                    <polyline points="1 20 1 14 7 14"></polyline>
+                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                  </svg>
+                  SYNC
+                </button>
+                <button type="button" class="btn-secondary btn-sm" id="toggleShowAllBtn" title="Toggle between active-only and all registered nodes">
+                  SHOW ALL
+                </button>
+              </div>
+            </div>
+
+            <!-- Device Cards Container -->
+            <div id="deviceGrid" class="device-grid">
+              <!-- Dynamically populated by dashboard.js -->
+            </div>
+          </section>
+
+          <!-- Right Column: Firmware (.bin) & Upload Console (User Requirements #3 & #4) -->
+          <section class="ops-panel" id="firmwareUploadSection">
+            <div class="panel-header">
+              <div class="panel-header-left">
+                <span class="panel-tag">SECTION // 02</span>
+                <h2 class="panel-title">FIRMWARE DEPLOYMENT CONSOLE</h2>
+                <p class="panel-desc">Select a compiled binary (.bin), inspect its cryptographic MD5 hash, and deploy over-the-air.</p>
+              </div>
+            </div>
+
+            <!-- Target Device Alert / Summary Banner -->
+            <div class="target-summary-box" id="targetSummaryBox">
+              <div class="target-summary-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="22" y1="12" x2="18" y2="12"></line>
+                  <line x1="6" y1="12" x2="2" y2="12"></line>
+                  <line x1="12" y1="6" x2="12" y2="2"></line>
+                  <line x1="12" y1="22" x2="12" y2="18"></line>
+                </svg>
+              </div>
+              <div class="target-summary-details">
+                <span class="target-summary-label">DEPLOYMENT DESTINATION</span>
+                <div class="target-summary-name" id="targetSummaryName">PLEASE SELECT AN ACTIVE NODE ON THE LEFT</div>
+                <div class="target-summary-meta" id="targetSummaryMeta">Requires an online ESP32 or ESP8266 node</div>
+              </div>
+            </div>
+
+            <!-- Drag & Drop Zone for .bin File -->
+            <div id="firmwareDropzone" class="dropzone">
+              <div class="dropzone-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+              </div>
+              <div class="dropzone-text">
+                <strong>CLICK TO SELECT</strong> OR DRAG & DROP BINARY (.BIN)
+              </div>
+              <div class="dropzone-sub">Compiled machine binary for ESP32 or ESP8266 (Arduino / PlatformIO)</div>
+              <input type="file" id="firmwareFileInput" accept=".bin" style="display: none;">
+            </div>
+
+            <!-- File Selected Inspection Card -->
+            <div id="fileSelectedBox" class="file-inspection-card" style="display: none;">
+              <div class="file-inspection-header">
+                <div class="file-name-group">
+                  <span class="file-icon-tag">BIN</span>
+                  <div class="file-name-text" id="selectedFileName">firmware.bin</div>
+                </div>
+                <button type="button" class="btn-text btn-xs" id="removeFileBtn" title="Remove or replace file">REMOVE</button>
+              </div>
+              <div class="file-inspection-meta">
+                <div class="meta-row">
+                  <span class="meta-label">FILE SIZE:</span>
+                  <strong class="meta-val" id="selectedFileSize">0 KB</strong>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-label">MD5 CHECKSUM:</span>
+                  <code class="meta-val monospace" id="selectedFileMd5">CALCULATING MD5 HASH...</code>
+                </div>
+              </div>
+
+              <div class="version-tag-row">
+                <label for="releaseVersionInput" class="version-label">VERSION TAG (OPTIONAL):</label>
+                <input type="text" id="releaseVersionInput" class="form-input" placeholder="e.g. v2.1.0">
+              </div>
+            </div>
+
+            <!-- The Uploading & Flashing Progress Bar Component (User Requirement #4) -->
+            <div id="uploadProgressSection" class="upload-progress-card" style="display: none;">
+              <!-- Stepper stages -->
+              <div class="progress-stepper">
+                <div class="step-pill active" id="stepUpload">
+                  <span class="step-num">01</span>
+                  <span class="step-text">HUB UPLOAD</span>
+                </div>
+                <div class="step-divider"></div>
+                <div class="step-pill" id="stepOta">
+                  <span class="step-num">02</span>
+                  <span class="step-text">OTA STREAM</span>
+                </div>
+                <div class="step-divider"></div>
+                <div class="step-pill" id="stepFlash">
+                  <span class="step-num">03</span>
+                  <span class="step-text">FLASH MEMORY</span>
+                </div>
+                <div class="step-divider"></div>
+                <div class="step-pill" id="stepReboot">
+                  <span class="step-num">04</span>
+                  <span class="step-text">REBOOT</span>
+                </div>
+              </div>
+
+              <!-- Progress Header -->
+              <div class="progress-details-header">
+                <div class="progress-status-group">
+                  <span class="progress-status-tag" id="progressStatusTag">TRANSMITTING</span>
+                  <span class="progress-status-msg" id="progressStatusMsg">Uploading firmware binary to hub...</span>
+                </div>
+                <div class="progress-percent-val" id="progressPercentVal">0%</div>
+              </div>
+
+              <!-- High-Tech Animated Progress Bar Track -->
+              <div class="progress-bar-chassis">
+                <div class="progress-bar-track">
+                  <div class="progress-bar-fill" id="progressBarFill" style="width: 0%;"></div>
+                </div>
+              </div>
+
+              <!-- Progress Metrics -->
+              <div class="progress-telemetry-row">
+                <span class="progress-bytes" id="progressBytesDisplay">0 KB / 0 KB</span>
+                <span class="progress-rate" id="progressRateDisplay">CONNECTING...</span>
+              </div>
+
+              <!-- Result Notification Banner (appears on completion or failure) -->
+              <div class="progress-result-banner" id="progressResultBanner" style="display: none;">
+                <div class="result-icon" id="resultIcon"></div>
+                <div class="result-msg" id="resultMsg"></div>
+              </div>
+            </div>
+
+            <!-- Action Button: Upload & Flash Firmware -->
+            <div class="deploy-action-wrap">
+              <button type="button" class="btn-primary btn-large btn-deploy" id="deployFirmwareBtn" disabled>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                <span id="deployBtnText">UPLOAD & FLASH FIRMWARE (.BIN)</span>
+              </button>
+              <div class="deploy-helper-text" id="deployHelperText">
+                Select an active device on the left and a .bin file above to start
+              </div>
+            </div>
+
+          </section>
+
+        </div> <!-- .operations-grid -->
+
+        <!-- Bottom Compact Activity Ticker -->
+        <div class="activity-ticker-bar">
+          <div class="ticker-label">
+            <span class="ticker-dot"></span>
+            LIVE FLEET EVENT FEED:
+          </div>
+          <div class="ticker-content" id="tickerContent">
+            System initialized. WebSocket connected to HAWA Hub. Waiting for dispatch commands...
           </div>
         </div>
 
-        <!-- Telemetry Log Level Filter Toolbar -->
-        <div class="console-filter-toolbar">
-          <div class="log-level-pills">
-            <span class="filter-label">LEVEL:</span>
-            <button type="button" class="log-level-btn active" data-level="all">ALL</button>
-            <button type="button" class="log-level-btn" data-level="info">INFO</button>
-            <button type="button" class="log-level-btn" data-level="warn">WARN</button>
-            <button type="button" class="log-level-btn" data-level="error">ERROR</button>
-          </div>
-          <button type="button" class="btn-text btn-xs auto-scroll-btn active" id="toggleAutoScrollBtn" title="Toggle Auto-Scroll">
-            AUTO-SCROLL: ON
-          </button>
-        </div>
+      </main>
+    </div> <!-- .admin-main-content -->
+  </div> <!-- .admin-app-layout -->
 
-        <!-- Command Quick Macros Bar -->
-        <div class="console-macro-bar">
-          <span class="macro-label">MACROS:</span>
-          <button type="button" class="macro-btn" data-cmd="ping">PING</button>
-          <button type="button" class="macro-btn" data-cmd="status">STATUS</button>
-          <button type="button" class="macro-btn" data-cmd="heap">HEAP</button>
-          <button type="button" class="macro-btn" data-cmd="reboot">REBOOT</button>
-          <button type="button" class="macro-btn" data-cmd="toggle_led">LED</button>
-        </div>
-
-        <div id="consoleLogs" class="console-logs">
-          <div class="log-entry system">[SYSTEM] Remote telemetry stream initialized. Waiting for packets...</div>
-        </div>
-
-        <div class="console-footer">
-          <input type="text" id="consoleInput" class="console-input" placeholder="COMMAND (e.g. status, reboot, ping)...">
-          <button type="button" class="btn-secondary btn-sm" id="clearLogsBtn">CLEAR</button>
-        </div>
-      </aside>
-    </div>
-  </main>
-
-  </div> <!-- .admin-main-content -->
-</div> <!-- .admin-app-layout -->
-
-  <!-- 3. Full-Width Minimalist Nothing Tech Style Footer -->
+  <!-- Minimal Minimalist Footer -->
   <footer class="admin-footer">
     <div class="footer-left">
-      <a href="#account" class="footer-link" id="footerLinkAccount">ACCOUNT</a>
-      <a href="#contact" class="footer-link" id="footerLinkContact">CONTACT</a>
-      <a href="#careers" class="footer-link" id="footerLinkCareers">CAREERS</a>
-      <a href="#legal" class="footer-link" id="footerLinkLegal">LEGAL</a>
+      <span>HAWA HARDWARE ARCHITECTURE // 0PX SHARP EDGES // BRUTALIST FLEET CONSOLE</span>
     </div>
     <div class="footer-right">
-      <a href="https://instagram.com" target="_blank" rel="noopener" class="footer-link">INSTAGRAM</a>
-      <a href="https://youtube.com" target="_blank" rel="noopener" class="footer-link">YOUTUBE</a>
-      <a href="https://x.com" target="_blank" rel="noopener" class="footer-link">X</a>
-      <a href="https://tiktok.com" target="_blank" rel="noopener" class="footer-link">TIKTOK</a>
+      <a href="/flash.html" target="_blank" class="footer-link">WEB SERIAL FLASHER</a>
+      <span class="footer-sep">/</span>
+      <a href="https://github.com/sakshyambastakoti/HAWA" target="_blank" rel="noopener" class="footer-link">GITHUB REPO</a>
     </div>
   </footer>
 
-  <!-- 5. Modal: Deploy Firmware (.bin) -->
-  <div id="deployModal" class="modal-overlay">
-    <div class="modal-content">
-      <button type="button" class="modal-close" id="closeDeployModalBtn" aria-label="Close modal">&times;</button>
-      
-      <div class="modal-header-tag">ADMIN OVER-THE-AIR PIPELINE</div>
-      <h2 class="modal-title">REMOTE FIRMWARE DEPLOYMENT</h2>
-      <p class="modal-desc">
-        Select a compiled Arduino or PlatformIO binary (<code style="font-family: var(--font-mono); color: var(--text-main);">.bin</code>) to push remotely to any connected hardware node via encrypted WebSocket channel.
-      </p>
-
-      <div id="dropzone" class="dropzone">
-        <div class="dropzone-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-            <polyline points="17 8 12 3 7 8"></polyline>
-            <line x1="12" y1="3" x2="12" y2="15"></line>
-          </svg>
-        </div>
-        <div class="dropzone-text">
-          <strong>CLICK TO SELECT</strong> OR DRAG & DROP BINARY (.BIN)
-        </div>
-        <div class="dropzone-sub">Compiled machine binary for ESP32 or ESP8266</div>
-        <input type="file" id="firmwareFileInput" accept=".bin" style="display: none;">
-      </div>
-
-      <!-- File details box -->
-      <div id="fileSelectedInfo" class="file-selected-box">
-        <div class="file-selected-row">
-          <span id="selectedFileName">firmware.bin</span>
-          <span id="selectedFileSize" style="color: var(--text-main);">0 KB</span>
-        </div>
-        <div id="selectedFileMd5" class="file-selected-md5">MD5: CALCULATING...</div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="targetDeviceSelect">TARGET HARDWARE NODE</label>
-        <select id="targetDeviceSelect" class="form-select">
-          <option value="">SELECT AN ONLINE NODE...</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="targetVersionInput">RELEASE VERSION TAG (OPTIONAL)</label>
-        <input type="text" id="targetVersionInput" class="form-input" placeholder="e.g. v2.1.0">
-      </div>
-
-      <div id="modalOtaProgress" style="display: none; margin-bottom: 1.25rem;">
-        <div class="progress-header">
-          <span id="modalProgressText">TRANSMITTING FIRMWARE...</span>
-          <span id="modalProgressPercent">0%</span>
-        </div>
-        <div class="progress-bar-bg">
-          <div id="modalProgressBarFill" class="progress-bar-fill"></div>
-        </div>
-      </div>
-
-      <button type="button" id="startDeployBtn" class="btn-primary" style="width: 100%; justify-content: center;" disabled>
-        DISPATCH FIRMWARE OVER-THE-AIR
-      </button>
-    </div>
-  </div>
-
-  <!-- 6. Modal: Firmware Library & Rollback Pipeline -->
-  <div id="firmwareLibraryModal" class="modal-overlay">
-    <div class="modal-content modal-large">
-      <button type="button" class="modal-close" id="closeLibraryModalBtn" aria-label="Close modal">&times;</button>
-      
-      <div class="modal-header-tag">FIRMWARE REPOSITORY // ROLLBACK ENGINE</div>
-      <h2 class="modal-title">FIRMWARE BINARY LIBRARY</h2>
-      <p class="modal-desc">
-        Persistent compiled binaries stored on disk. 1-click redeploy to nodes, trigger rollbacks, or execute batch fleet updates.
-      </p>
-
-      <div class="library-toolbar">
-        <button type="button" class="btn-primary btn-sm" id="libraryUploadBtn">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-          UPLOAD NEW BINARY (.BIN)
-        </button>
-        <span class="library-count-tag" id="libraryCountTag">0 BINARIES STORED</span>
-      </div>
-
-      <div class="firmware-list" id="firmwareLibraryList">
-        <div class="empty-state">
-          <div class="empty-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-          </div>
-          <h3>NO BINARIES IN LIBRARY</h3>
-          <p>Deploy a firmware binary or upload one above to persist it for fast rollback and redeployment.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 7. Modal: Edit Device Metadata (Nickname & Tags) -->
-  <div id="deviceEditModal" class="modal-overlay">
-    <div class="modal-content">
-      <button type="button" class="modal-close" id="closeDeviceEditModalBtn" aria-label="Close modal">&times;</button>
-      
-      <div class="modal-header-tag">NODE CONFIGURATION</div>
-      <h2 class="modal-title">EDIT HARDWARE METADATA</h2>
-      <p class="modal-desc" id="editModalSubtitle">
-        Configure custom nickname and operational project tags for this node.
-      </p>
-
-      <form id="deviceEditForm">
-        <input type="hidden" id="editDeviceIdHidden">
-        
-        <div class="form-group">
-          <label class="form-label" for="editNicknameInput">DEVICE NICKNAME / LOCATION</label>
-          <input type="text" id="editNicknameInput" class="form-input" placeholder="e.g. Living Room Node, Sensor Hub 01">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="editTagsInput">PROJECT TAGS (COMMA SEPARATED)</label>
-          <input type="text" id="editTagsInput" class="form-input" placeholder="e.g. PROD, LAB, SENSORS, OFFICE">
-          <div class="form-hint">Tags will be displayed on the node card and used for filter chips.</div>
-        </div>
-
-        <div class="modal-actions-row">
-          <button type="button" class="btn-secondary" id="cancelDeviceEditBtn">CANCEL</button>
-          <button type="submit" class="btn-primary" id="saveDeviceMetaBtn">SAVE METADATA</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- 8. Modal: System Settings & Gateway Configuration -->
+  <!-- Retained Settings Modal (triggered from header gear icon) -->
   <div id="settingsModal" class="modal-overlay">
     <div class="modal-content modal-large">
       <button type="button" class="modal-close" id="closeSettingsModalBtn" aria-label="Close modal">&times;</button>
@@ -552,40 +424,12 @@
           </div>
         </div>
 
-        <!-- 3. Telemetry Stream & Log Retention -->
-        <div class="settings-section">
-          <div class="settings-section-title">03 // TELEMETRY & LOG RETENTION</div>
-          <div class="settings-grid-2col">
-            <div class="form-group">
-              <label class="form-label" for="settingMaxLogs">MAX LOG BUFFER DEPTH</label>
-              <select id="settingMaxLogs" class="form-select monospace">
-                <option value="100">100 LINES</option>
-                <option value="200" selected>200 LINES (RECOMMENDED)</option>
-                <option value="500">500 LINES</option>
-                <option value="1000">1000 LINES</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">LOG PERSISTENCE</label>
-              <div class="settings-toggle-group">
-                <label class="toggle-checkbox-label">
-                  <input type="checkbox" id="settingAutoScroll" checked>
-                  <span>ENABLE AUTO-SCROLL BY DEFAULT</span>
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 4. Fleet Maintenance Actions -->
+        <!-- 3. Fleet Maintenance Actions -->
         <div class="settings-section danger-zone">
-          <div class="settings-section-title">04 // FLEET MAINTENANCE</div>
+          <div class="settings-section-title">03 // FLEET MAINTENANCE</div>
           <div class="maintenance-actions-row">
             <button type="button" class="btn-secondary btn-sm" id="purgeOfflineDevicesBtn">
               PURGE OFFLINE NODES
-            </button>
-            <button type="button" class="btn-secondary btn-sm" id="clearAllLogsBtn">
-              CLEAR LOGS BUFFER
             </button>
           </div>
         </div>
@@ -598,9 +442,42 @@
     </div>
   </div>
 
-  <!-- 9. Floating Toast Notifications Container -->
+  <!-- Retained Device Edit Modal (for changing nickname) -->
+  <div id="deviceEditModal" class="modal-overlay">
+    <div class="modal-content">
+      <button type="button" class="modal-close" id="closeDeviceEditModalBtn" aria-label="Close modal">&times;</button>
+      
+      <div class="modal-header-tag">NODE CONFIGURATION</div>
+      <h2 class="modal-title">EDIT HARDWARE METADATA</h2>
+      <p class="modal-desc" id="editModalSubtitle">
+        Configure custom nickname and operational project tags for this node.
+      </p>
+
+      <form id="deviceEditForm">
+        <input type="hidden" id="editDeviceIdHidden">
+        
+        <div class="form-group">
+          <label class="form-label" for="editNicknameInput">DEVICE NICKNAME / LOCATION</label>
+          <input type="text" id="editNicknameInput" class="form-input" placeholder="e.g. Living Room Node, Sensor Hub 01">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="editTagsInput">PROJECT TAGS (COMMA SEPARATED)</label>
+          <input type="text" id="editTagsInput" class="form-input" placeholder="e.g. PROD, LAB, SENSORS, OFFICE">
+          <div class="form-hint">Tags will be displayed on the node card.</div>
+        </div>
+
+        <div class="modal-actions-row">
+          <button type="button" class="btn-secondary" id="cancelDeviceEditBtn">CANCEL</button>
+          <button type="submit" class="btn-primary" id="saveDeviceMetaBtn">SAVE METADATA</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Alert Container -->
   <div class="toast-container" id="toastContainer" aria-live="polite"></div>
 
-  <script src="/js/dashboard.js?v=12"></script>
+  <script src="/js/dashboard.js?v=21"></script>
 </body>
 </html>

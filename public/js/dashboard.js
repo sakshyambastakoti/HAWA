@@ -1,24 +1,18 @@
-// HAWA Fleet Command Console - Dashboard Client Script
-// Zero-emoji technical operations logic
+// HAWA Fleet Command Console - Streamlined Mission Control
+// Zero-emoji technical brutalist logic
 
-// Global State
+// Application State
 let devices = [];
-let firmwares = [];
-let selectedDeviceIds = new Set();
-let publicUrl = window.location.origin;
+let selectedTargetDeviceId = null;
 let selectedFile = null;
 let uploadedFileMeta = null;
-let activeOtaDeviceId = null;
+let isDeploying = false;
+let showAllDevices = false;
+let publicUrl = window.location.origin;
 let ws = null;
-let currentFilter = 'all';
-let currentTagFilter = 'all';
-let searchQuery = '';
-let activeLogLevel = 'all';
-let autoScrollLogs = true;
-let historicalLogs = []; // Array of { deviceId, timestamp, text, level }
 
 // =========================================================
-// 1. THEME TOGGLE & SYNC
+// 1. THEME SWITCHER & PERSISTENCE
 // =========================================================
 const themeToggleBtn = document.getElementById('themeToggleBtn');
 const themeToggleLabel = document.getElementById('themeToggleLabel');
@@ -52,62 +46,70 @@ if (themeToggleBtn) {
 // 2. DOM ELEMENTS
 // =========================================================
 const statOnline = document.getElementById('statOnline');
-const statTotal = document.getElementById('statTotal');
+const statOnlineSub = document.getElementById('statOnlineSub');
+const navActiveCountText = document.getElementById('navActiveCountText');
+const navHubStatusText = document.getElementById('navHubStatusText');
+const selectedTargetDisplay = document.getElementById('selectedTargetDisplay');
+const selectedTargetSub = document.getElementById('selectedTargetSub');
+const otaPipelineStatus = document.getElementById('otaPipelineStatus');
+const otaPipelineSub = document.getElementById('otaPipelineSub');
 const statTunnel = document.getElementById('statTunnel');
-const tunnelBadge = document.getElementById('tunnelBadge');
-const tunnelStatusText = document.getElementById('tunnelStatusText');
+
+// Target Box & Devices
+const targetSummaryBox = document.getElementById('targetSummaryBox');
+const targetSummaryName = document.getElementById('targetSummaryName');
+const targetSummaryMeta = document.getElementById('targetSummaryMeta');
 const deviceGrid = document.getElementById('deviceGrid');
-const deviceCountBadge = document.getElementById('deviceCountBadge');
-const consoleLogs = document.getElementById('consoleLogs');
-const consoleDeviceSelect = document.getElementById('consoleDeviceSelect');
-const consoleInput = document.getElementById('consoleInput');
-const clearLogsBtn = document.getElementById('clearLogsBtn');
-const fleetSearchInput = document.getElementById('fleetSearchInput');
+const refreshDevicesBtn = document.getElementById('refreshDevicesBtn');
+const toggleShowAllBtn = document.getElementById('toggleShowAllBtn');
 
-// Batch Bar & Tags
-const batchBar = document.getElementById('batchBar');
-const selectAllCheckbox = document.getElementById('selectAllCheckbox');
-const batchCountTag = document.getElementById('batchCountTag');
-const batchRebootBtn = document.getElementById('batchRebootBtn');
-const batchPingBtn = document.getElementById('batchPingBtn');
-const batchDeployBtn = document.getElementById('batchDeployBtn');
-const clearBatchSelectionBtn = document.getElementById('clearBatchSelectionBtn');
-const tagChipsBar = document.getElementById('tagChipsBar');
-const tagChipsList = document.getElementById('tagChipsList');
-
-// Console Enhancements
-const exportLogsBtn = document.getElementById('exportLogsBtn');
-const toggleAutoScrollBtn = document.getElementById('toggleAutoScrollBtn');
-const logLevelBtns = document.querySelectorAll('.log-level-btn');
-const macroBtns = document.querySelectorAll('.macro-btn');
-
-// Modals: Deploy Modal
-const deployModal = document.getElementById('deployModal');
-const openDeployModalBtn = document.getElementById('openDeployModalBtn');
-const closeDeployModalBtn = document.getElementById('closeDeployModalBtn');
-const dropzone = document.getElementById('dropzone');
+// File Upload & Console
+const firmwareDropzone = document.getElementById('firmwareDropzone');
 const firmwareFileInput = document.getElementById('firmwareFileInput');
-const fileSelectedInfo = document.getElementById('fileSelectedInfo');
+const fileSelectedBox = document.getElementById('fileSelectedBox');
 const selectedFileName = document.getElementById('selectedFileName');
 const selectedFileSize = document.getElementById('selectedFileSize');
 const selectedFileMd5 = document.getElementById('selectedFileMd5');
-const targetDeviceSelect = document.getElementById('targetDeviceSelect');
-const targetVersionInput = document.getElementById('targetVersionInput');
-const startDeployBtn = document.getElementById('startDeployBtn');
-const modalOtaProgress = document.getElementById('modalOtaProgress');
-const modalProgressPercent = document.getElementById('modalProgressPercent');
-const modalProgressBarFill = document.getElementById('modalProgressBarFill');
-const modalProgressText = document.getElementById('modalProgressText');
+const releaseVersionInput = document.getElementById('releaseVersionInput');
+const removeFileBtn = document.getElementById('removeFileBtn');
+const deployFirmwareBtn = document.getElementById('deployFirmwareBtn');
+const deployBtnText = document.getElementById('deployBtnText');
+const deployHelperText = document.getElementById('deployHelperText');
 
-// Modals: Firmware Library Modal
-const firmwareLibraryModal = document.getElementById('firmwareLibraryModal');
-const openLibraryBtn = document.getElementById('openLibraryBtn');
-const closeLibraryModalBtn = document.getElementById('closeLibraryModalBtn');
-const libraryUploadBtn = document.getElementById('libraryUploadBtn');
-const libraryCountTag = document.getElementById('libraryCountTag');
-const firmwareLibraryList = document.getElementById('firmwareLibraryList');
+// Progress Bar Elements
+const uploadProgressSection = document.getElementById('uploadProgressSection');
+const stepUpload = document.getElementById('stepUpload');
+const stepOta = document.getElementById('stepOta');
+const stepFlash = document.getElementById('stepFlash');
+const stepReboot = document.getElementById('stepReboot');
+const progressStatusTag = document.getElementById('progressStatusTag');
+const progressStatusMsg = document.getElementById('progressStatusMsg');
+const progressPercentVal = document.getElementById('progressPercentVal');
+const progressBarFill = document.getElementById('progressBarFill');
+const progressBytesDisplay = document.getElementById('progressBytesDisplay');
+const progressRateDisplay = document.getElementById('progressRateDisplay');
+const progressResultBanner = document.getElementById('progressResultBanner');
+const resultIcon = document.getElementById('resultIcon');
+const resultMsg = document.getElementById('resultMsg');
 
-// Modals: Device Edit Modal
+// Activity Ticker & Toasts
+const tickerContent = document.getElementById('tickerContent');
+const toastContainer = document.getElementById('toastContainer');
+
+// Settings & Edit Modals
+const settingsModal = document.getElementById('settingsModal');
+const openSettingsBtn = document.getElementById('openSettingsBtn');
+const closeSettingsModalBtn = document.getElementById('closeSettingsModalBtn');
+const cancelSettingsBtn = document.getElementById('cancelSettingsBtn');
+const systemSettingsForm = document.getElementById('systemSettingsForm');
+const settingGatewayUrl = document.getElementById('settingGatewayUrl');
+const testGatewayBtn = document.getElementById('testGatewayBtn');
+const presetLocalHost = document.getElementById('presetLocalHost');
+const presetOrigin = document.getElementById('presetOrigin');
+const settingHeartbeatSec = document.getElementById('settingHeartbeatSec');
+const settingTimeoutSec = document.getElementById('settingTimeoutSec');
+const purgeOfflineDevicesBtn = document.getElementById('purgeOfflineDevicesBtn');
+
 const deviceEditModal = document.getElementById('deviceEditModal');
 const closeDeviceEditModalBtn = document.getElementById('closeDeviceEditModalBtn');
 const cancelDeviceEditBtn = document.getElementById('cancelDeviceEditBtn');
@@ -115,28 +117,6 @@ const deviceEditForm = document.getElementById('deviceEditForm');
 const editDeviceIdHidden = document.getElementById('editDeviceIdHidden');
 const editNicknameInput = document.getElementById('editNicknameInput');
 const editTagsInput = document.getElementById('editTagsInput');
-const editModalSubtitle = document.getElementById('editModalSubtitle');
-
-// Modals: System Settings & Gateway Modal
-const settingsModal = document.getElementById('settingsModal');
-const sideNavSettings = document.getElementById('sideNavSettings');
-const closeSettingsModalBtn = document.getElementById('closeSettingsModalBtn');
-const cancelSettingsBtn = document.getElementById('cancelSettingsBtn');
-const systemSettingsForm = document.getElementById('systemSettingsForm');
-const saveSettingsBtn = document.getElementById('saveSettingsBtn');
-const settingGatewayUrl = document.getElementById('settingGatewayUrl');
-const testGatewayBtn = document.getElementById('testGatewayBtn');
-const presetLocalHost = document.getElementById('presetLocalHost');
-const presetOrigin = document.getElementById('presetOrigin');
-const settingHeartbeatSec = document.getElementById('settingHeartbeatSec');
-const settingTimeoutSec = document.getElementById('settingTimeoutSec');
-const settingMaxLogs = document.getElementById('settingMaxLogs');
-const settingAutoScroll = document.getElementById('settingAutoScroll');
-const purgeOfflineDevicesBtn = document.getElementById('purgeOfflineDevicesBtn');
-const clearAllLogsBtn = document.getElementById('clearAllLogsBtn');
-
-// Toast Container
-const toastContainer = document.getElementById('toastContainer');
 
 // =========================================================
 // 3. WEBSOCKET CONNECTION & EVENT DISPATCHER
@@ -148,7 +128,8 @@ function connectWebSocket() {
   ws = new WebSocket(wsUrl);
 
   ws.onopen = () => {
-    console.log('[WS] Connected to Hawa Hub');
+    logActivity('WebSocket link established with HAWA Hub');
+    if (navHubStatusText) navHubStatusText.textContent = 'HUB ONLINE';
     ws.send(JSON.stringify({ type: 'DASHBOARD_HELLO' }));
   };
 
@@ -162,7 +143,8 @@ function connectWebSocket() {
   };
 
   ws.onclose = () => {
-    console.warn('[WS] Connection closed. Reconnecting in 3s...');
+    if (navHubStatusText) navHubStatusText.textContent = 'DISCONNECTED';
+    logActivity('WebSocket connection lost. Reconnecting in 3s...');
     setTimeout(connectWebSocket, 3000);
   };
 }
@@ -171,14 +153,10 @@ function handleWsMessage(msg) {
   switch (msg.type) {
     case 'INIT_STATE':
       devices = msg.devices || [];
-      if (Array.isArray(msg.firmwares)) firmwares = msg.firmwares;
       if (msg.publicUrl) updatePublicUrl(msg.publicUrl);
       if (msg.settings) populateSettingsForm(msg.settings);
-      renderDevices();
-      renderTagChips();
-      renderFirmwareLibrary();
       updateStats();
-      populateDeviceSelects();
+      renderDevices();
       break;
 
     case 'DEVICE_UPDATED':
@@ -189,10 +167,9 @@ function handleWsMessage(msg) {
       } else {
         devices.push(updated);
       }
-      renderDevices();
-      renderTagChips();
       updateStats();
-      populateDeviceSelects();
+      renderDevices();
+      logActivity(`Device status updated: ${updated.nickname || updated.deviceId} (${updated.isOnline ? 'ONLINE' : 'OFFLINE'})`);
       break;
 
     case 'DEVICE_HEARTBEAT':
@@ -204,39 +181,26 @@ function handleWsMessage(msg) {
         dev.isOnline = true;
         dev.status = 'online';
         dev.lastSeen = Date.now();
-        updateDeviceCardMetrics(dev);
+        updateDeviceCardMeters(dev);
         updateStats();
       }
       break;
 
-    case 'NEW_LOG':
-      appendLog(msg.deviceId, msg.log);
-      break;
-
     case 'OTA_PROGRESS_UPDATE':
-      updateOtaProgress(msg.deviceId, msg.percent, msg.bytesRead, msg.totalBytes);
+      handleOtaProgress(msg.deviceId, msg.percent, msg.bytesRead, msg.totalBytes);
       break;
 
     case 'OTA_FINISHED':
-      handleOtaFinished(msg.deviceId, msg.status, msg.message);
-      break;
-
-    case 'FIRMWARE_LIBRARY_UPDATED':
-      if (Array.isArray(msg.firmwares)) {
-        firmwares = msg.firmwares;
-        renderFirmwareLibrary();
-      }
+      handleOtaComplete(msg.deviceId, msg.status, msg.message);
       break;
 
     case 'FLEET_ALERT':
       showToastAlert(msg.alertType, msg.message);
+      logActivity(`[ALERT] ${msg.message}`);
       break;
 
     case 'SERVER_CONFIG_UPDATED':
-      if (msg.settings) {
-        if (msg.settings.publicUrl) updatePublicUrl(msg.settings.publicUrl);
-        populateSettingsForm(msg.settings);
-      }
+      if (msg.settings && msg.settings.publicUrl) updatePublicUrl(msg.settings.publicUrl);
       break;
   }
 }
@@ -244,27 +208,13 @@ function handleWsMessage(msg) {
 function updatePublicUrl(url) {
   publicUrl = url;
   if (statTunnel) statTunnel.textContent = url.replace('https://', '').replace('http://', '');
-  if (tunnelStatusText) tunnelStatusText.textContent = `TUNNEL: ${url.replace('https://', '').replace('http://', '')}`;
-  if (tunnelBadge) tunnelBadge.title = `Click to copy public gateway URL: ${url}`;
-}
-
-// Copy Tunnel URL on Click
-if (tunnelBadge) {
-  tunnelBadge.addEventListener('click', () => {
-    navigator.clipboard.writeText(publicUrl).then(() => {
-      const oldText = tunnelStatusText.textContent;
-      tunnelStatusText.textContent = 'COPIED TO CLIPBOARD';
-      setTimeout(() => { tunnelStatusText.textContent = oldText; }, 2000);
-      showToastAlert('INFO', 'Gateway URL copied to clipboard');
-    });
-  });
 }
 
 if (statTunnel) {
   statTunnel.style.cursor = 'pointer';
   statTunnel.title = 'Click to copy gateway URL';
   statTunnel.addEventListener('click', () => {
-    if (publicUrl && publicUrl !== 'LOADING...') {
+    if (publicUrl) {
       navigator.clipboard.writeText(publicUrl).then(() => {
         showToastAlert('INFO', 'Gateway URL copied to clipboard');
       });
@@ -273,237 +223,134 @@ if (statTunnel) {
 }
 
 // =========================================================
-// 4. FLOATING FLEET HEALTH TOAST ALERTS
+// 4. STATS & AVAILABLE DEVICES COUNTER (USER REQUIREMENT #1)
 // =========================================================
-function showToastAlert(type, message) {
-  if (!toastContainer) return;
+function updateStats() {
+  const onlineCount = devices.filter(d => d.isOnline).length;
+  const totalCount = devices.length;
 
-  const card = document.createElement('div');
-  const typeClass = (type || 'INFO').toLowerCase();
-  card.className = `toast-card ${typeClass}`;
-
-  const header = document.createElement('div');
-  header.className = 'toast-header';
-
-  const tag = document.createElement('span');
-  tag.className = 'toast-tag';
-  tag.textContent = `ALERT // ${type.toUpperCase()}`;
-
-  const closeBtn = document.createElement('button');
-  closeBtn.className = 'toast-close';
-  closeBtn.innerHTML = '&times;';
-  closeBtn.addEventListener('click', () => card.remove());
-
-  header.appendChild(tag);
-  header.appendChild(closeBtn);
-
-  const body = document.createElement('div');
-  body.className = 'toast-msg';
-  body.textContent = message;
-
-  card.appendChild(header);
-  card.appendChild(body);
-
-  toastContainer.appendChild(card);
-
-  // Auto remove after 4.5 seconds
-  setTimeout(() => {
-    card.style.opacity = '0';
-    card.style.transform = 'translateX(30px)';
-    setTimeout(() => card.remove(), 250);
-  }, 4500);
-}
-
-// =========================================================
-// 5. TAGS FILTER & SEARCH
-// =========================================================
-function renderTagChips() {
-  if (!tagChipsList || !tagChipsBar) return;
-
-  const tagsSet = new Set();
-  devices.forEach(d => {
-    if (Array.isArray(d.tags)) {
-      d.tags.forEach(t => tagsSet.add(t));
-    }
-  });
-
-  if (tagsSet.size === 0) {
-    tagChipsBar.style.display = 'none';
-    return;
+  if (statOnline) statOnline.textContent = onlineCount;
+  if (statOnlineSub) {
+    statOnlineSub.textContent = `${onlineCount} OF ${totalCount} NODES ACTIVE & READY FOR OTA`;
+  }
+  if (navActiveCountText) {
+    navActiveCountText.textContent = `${onlineCount} ACTIVE NODE${onlineCount === 1 ? '' : 'S'}`;
   }
 
-  tagChipsBar.style.display = 'flex';
-  const allTags = ['ALL', ...Array.from(tagsSet)];
-
-  tagChipsList.innerHTML = allTags.map(tag => {
-    const isActive = (tag === 'ALL' && currentTagFilter === 'all') || (tag.toLowerCase() === currentTagFilter);
-    return `<button type="button" class="tag-chip ${isActive ? 'active' : ''}" data-tag="${escapeHtml(tag)}">${escapeHtml(tag)}</button>`;
-  }).join('');
-
-  tagChipsList.querySelectorAll('.tag-chip').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const selected = btn.dataset.tag;
-      currentTagFilter = selected === 'ALL' ? 'all' : selected.toLowerCase();
-      renderTagChips();
-      renderDevices();
-    });
-  });
-}
-
-// Filter and Search Event Handlers
-document.querySelectorAll('.filter-pill').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentFilter = btn.dataset.filter || 'all';
-    renderDevices();
-  });
-});
-
-if (fleetSearchInput) {
-  fleetSearchInput.addEventListener('input', (e) => {
-    searchQuery = e.target.value.trim().toLowerCase();
-    renderDevices();
-  });
+  // If currently selected target went offline, notify user
+  if (selectedTargetDeviceId) {
+    const targetDev = devices.find(d => d.deviceId === selectedTargetDeviceId);
+    if (targetDev && !targetDev.isOnline) {
+      if (selectedTargetSub) selectedTargetSub.textContent = 'TARGET NODE IS CURRENTLY OFFLINE';
+      if (targetSummaryMeta) targetSummaryMeta.textContent = 'WARNING: Device is currently offline';
+      validateDeployForm();
+    }
+  }
 }
 
 // =========================================================
-// 6. FLEET DEVICES MATRIX RENDERING
+// 5. ACTIVE DEVICES RENDERING & SELECTION (USER REQUIREMENT #2)
 // =========================================================
 function renderDevices() {
-  const filtered = devices.filter(d => {
-    if (currentFilter === 'online' && !d.isOnline) return false;
-    if (currentFilter === 'offline' && d.isOnline) return false;
-    
-    if (currentTagFilter !== 'all') {
-      const tags = (d.tags || []).map(t => t.toLowerCase());
-      if (!tags.includes(currentTagFilter)) return false;
-    }
+  if (!deviceGrid) return;
 
-    if (searchQuery) {
-      const matchName = (d.name || '').toLowerCase().includes(searchQuery);
-      const matchNick = (d.nickname || '').toLowerCase().includes(searchQuery);
-      const matchId = (d.deviceId || '').toLowerCase().includes(searchQuery);
-      const matchChip = (d.chip || '').toLowerCase().includes(searchQuery);
-      const matchTags = (d.tags || []).join(' ').toLowerCase().includes(searchQuery);
-      if (!matchName && !matchNick && !matchId && !matchChip && !matchTags) return false;
-    }
-    return true;
-  });
+  const onlineDevices = devices.filter(d => d.isOnline);
+  const displayDevices = showAllDevices ? devices : onlineDevices;
 
-  if (deviceCountBadge) {
-    deviceCountBadge.textContent = `[${filtered.length} NODES]`;
-  }
-
-  if (filtered.length === 0) {
+  if (displayDevices.length === 0) {
     deviceGrid.innerHTML = `
       <div class="empty-state">
         <div class="empty-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="2" y="2" width="20" height="8" rx="0"></rect>
-            <rect x="2" y="14" width="20" height="8" rx="0"></rect>
-            <line x1="6" y1="6" x2="6.01" y2="6"></line>
-            <line x1="6" y1="18" x2="6.01" y2="18"></line>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="4" y="4" width="16" height="16" rx="0"></rect>
+            <rect x="9" y="9" width="6" height="6" rx="0"></rect>
+            <line x1="9" y1="1" x2="9" y2="4"></line>
+            <line x1="15" y1="1" x2="15" y2="4"></line>
+            <line x1="9" y1="20" x2="9" y2="23"></line>
+            <line x1="15" y1="20" x2="15" y2="23"></line>
+            <line x1="20" y1="9" x2="23" y2="9"></line>
+            <line x1="20" y1="14" x2="23" y2="14"></line>
+            <line x1="1" y1="9" x2="4" y2="9"></line>
+            <line x1="1" y1="14" x2="4" y2="14"></line>
           </svg>
         </div>
-        <h3>${devices.length === 0 ? 'NO HARDWARE NODES DETECTED' : 'NO MATCHING NODES FOUND'}</h3>
+        <h3>${devices.length === 0 ? 'NO HARDWARE NODES REGISTERED' : '0 ACTIVE NODES ONLINE'}</h3>
         <p>
-          ${devices.length === 0 
-            ? 'Connect your ESP32 or ESP8266 boards via the <a href="/flash.html" target="_blank" style="color: var(--text-main); font-weight: 600; text-decoration: underline;">Web Serial Flasher</a> to register them into this fleet console.'
-            : 'Try adjusting your tag or status filters, or clear search query.'}
+          ${devices.length === 0
+            ? 'Connect your ESP32 or ESP8266 boards via the <a href="/flash.html" target="_blank" style="color: var(--text-main); font-weight: 600; text-decoration: underline;">Web Serial Flasher</a> to provision Wi-Fi and register them into HAWA.'
+            : 'All registered hardware nodes are currently offline. Power on your devices, or click "SHOW ALL" to inspect offline profiles.'}
         </p>
       </div>
     `;
-    updateBatchBar();
     return;
   }
 
-  deviceGrid.innerHTML = filtered.map(dev => {
-    const isOnline = dev.isOnline;
-    const isSelected = selectedDeviceIds.has(dev.deviceId);
-    const statusClass = dev.status === 'updating' ? 'updating' : (isOnline ? 'online' : 'offline');
-    const statusText = dev.status === 'updating' ? 'FLASHING OTA' : (isOnline ? 'ONLINE' : 'OFFLINE');
+  deviceGrid.innerHTML = displayDevices.map(dev => {
+    const isOnline = Boolean(dev.isOnline);
+    const isSelected = selectedTargetDeviceId === dev.deviceId;
     const wifiSignal = dev.rssi ? `${dev.rssi} dBm` : 'N/A';
     const heapKb = dev.freeHeap ? `${(dev.freeHeap / 1024).toFixed(0)} KB` : 'N/A';
     const uptimeStr = dev.uptime ? formatUptime(dev.uptime) : 'N/A';
 
-    // RSSI Signal Quality & Gauge Fill (0 to 100%)
+    // RSSI signal fill calculation (-100 to -50)
     let rssiPercent = 0;
-    let rssiColorClass = 'rssi-poor';
     if (dev.rssi) {
-      // Typically -100 (0%) to -50 (100%)
       rssiPercent = Math.min(100, Math.max(10, ((dev.rssi + 100) / 50) * 100));
-      if (dev.rssi >= -65) rssiColorClass = 'rssi-good';
-      else if (dev.rssi >= -80) rssiColorClass = 'rssi-fair';
     }
 
-    // Heap Utilization Fill
     const freeHeapBytes = dev.freeHeap || 0;
-    const isHeapWarning = isOnline && freeHeapBytes > 0 && freeHeapBytes < (24 * 1024); // Low RAM < 24KB
-
-    // Custom Tags
-    const tagsHtml = (dev.tags && dev.tags.length > 0)
-      ? `<div class="device-tags-container">
-          ${dev.tags.map(t => `<span class="device-tag-badge">${escapeHtml(t)}</span>`).join('')}
-         </div>`
-      : '';
-
-    // Live Sensor Metrics if ESP emitted any
-    let sensorsHtml = '';
-    if (dev.metrics && typeof dev.metrics === 'object') {
-      const entries = Object.entries(dev.metrics).filter(([k]) => k !== 'updatedAt');
-      if (entries.length > 0) {
-        sensorsHtml = `
-          <div class="sensor-stream-row">
-            ${entries.map(([k, v]) => `
-              <span class="sensor-chip">
-                <span class="sensor-chip-key">${escapeHtml(k)}:</span>
-                <span class="sensor-chip-val">${escapeHtml(String(v))}</span>
-              </span>
-            `).join('')}
-          </div>
-        `;
-      }
-    }
+    const heapPercent = Math.min(100, Math.max(15, (freeHeapBytes / (160 * 1024)) * 100));
 
     return `
-      <div class="device-card ${statusClass}" id="card-${dev.deviceId}">
-        <!-- Multi-select checkbox -->
-        <input type="checkbox" class="device-select-checkbox" data-id="${dev.deviceId}" ${isSelected ? 'checked' : ''} title="Select node for batch ops">
-
+      <div class="device-card ${isOnline ? 'online' : 'offline'} ${isSelected ? 'selected-target' : ''}" 
+           id="card-${dev.deviceId}" 
+           onclick="handleCardClick('${dev.deviceId}', ${isOnline})"
+           title="${isOnline ? 'Click to select as firmware target' : 'Device is offline'}">
+        
         <div class="device-header">
-          <div class="device-name-group">
-            <div class="device-nickname-row">
-              <span class="device-nickname-text">${escapeHtml(dev.nickname || dev.name || dev.deviceId)}</span>
-              <button type="button" class="device-edit-btn" onclick="openDeviceEditModal('${dev.deviceId}')" title="Configure nickname and tags">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-              </button>
+          <div class="device-select-row">
+            <div class="device-radio-box">
+              <div class="device-radio-dot"></div>
             </div>
-            <span class="device-chip-badge">[ ${escapeHtml(dev.chip || 'ESP')} ] // ${escapeHtml(dev.deviceId)}</span>
+            <div class="device-name-group">
+              <div class="device-nickname-row">
+                <span class="device-nickname-text">${escapeHtml(dev.nickname || dev.name || dev.deviceId)}</span>
+                <button type="button" class="device-edit-btn" onclick="event.stopPropagation(); openDeviceEditModal('${dev.deviceId}')" title="Configure nickname">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 20h9"></path>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                  </svg>
+                </button>
+              </div>
+              <span class="device-chip-badge">[ ${escapeHtml(dev.chip || 'ESP')} ] // ${escapeHtml(dev.deviceId)}</span>
+            </div>
           </div>
-          <span class="status-pill ${statusClass}" id="pill-${dev.deviceId}">
-            ${statusText}
+
+          <span class="status-pill ${isOnline ? 'online' : 'offline'}">
+            ${isOnline ? 'ACTIVE' : 'OFFLINE'}
           </span>
         </div>
 
-        ${tagsHtml}
-
         <div class="device-meta-list">
           <div class="meta-item">
-            <span class="meta-label">FIRMWARE</span>
-            <span class="meta-value" id="fw-${dev.deviceId}">${escapeHtml(dev.firmwareVersion || '1.0.0')}</span>
+            <span class="meta-label">IP ADDRESS</span>
+            <span class="meta-value monospace">${escapeHtml(dev.ip || 'DHCP')}</span>
           </div>
           <div class="meta-item">
-            <span class="meta-label">IP ADDR</span>
-            <span class="meta-value monospace">${escapeHtml(dev.ip || 'DHCP')}</span>
+            <span class="meta-label">FIRMWARE</span>
+            <span class="meta-value">${escapeHtml(dev.firmwareVersion || 'v1.0.0')}</span>
           </div>
           <div class="meta-item">
             <span class="meta-label">UPTIME</span>
             <span class="meta-value monospace" id="uptime-${dev.deviceId}">${uptimeStr}</span>
           </div>
+          <div class="meta-item">
+            <span class="meta-label">FREE HEAP</span>
+            <span class="meta-value monospace" id="heap-${dev.deviceId}">${heapKb}</span>
+          </div>
         </div>
 
-        <!-- Telemetry Meters (Signal RSSI & Free Heap Headroom) -->
+        <!-- Telemetry Meters -->
         <div class="telemetry-meters-row">
           <div class="meter-col">
             <div class="meter-header">
@@ -511,190 +358,429 @@ function renderDevices() {
               <span class="meter-val" id="rssi-${dev.deviceId}">${wifiSignal}</span>
             </div>
             <div class="meter-bar-track">
-              <div class="meter-bar-fill ${rssiColorClass}" id="rssi-bar-${dev.deviceId}" style="width: ${rssiPercent}%;"></div>
+              <div class="meter-bar-fill rssi-good" id="rssi-bar-${dev.deviceId}" style="width: ${rssiPercent}%;"></div>
             </div>
           </div>
           <div class="meter-col">
             <div class="meter-header">
-              <span>FREE HEAP RAM</span>
-              <span class="meter-val" id="heap-${dev.deviceId}">${heapKb}</span>
+              <span>HEAP RAM</span>
+              <span class="meter-val">${heapKb}</span>
             </div>
             <div class="meter-bar-track">
-              <div class="meter-bar-fill ${isHeapWarning ? 'heap-warn' : ''}" id="heap-bar-${dev.deviceId}" style="width: ${Math.min(100, Math.max(15, (freeHeapBytes / (160 * 1024)) * 100))}%;"></div>
+              <div class="meter-bar-fill" id="heap-bar-${dev.deviceId}" style="width: ${heapPercent}%;"></div>
             </div>
           </div>
         </div>
 
-        ${sensorsHtml}
-
-        <!-- Progress bar for OTA -->
-        <div class="device-ota-progress" id="progress-box-${dev.deviceId}">
-          <div class="progress-header">
-            <span>TRANSMITTING FIRMWARE...</span>
-            <span id="progress-txt-${dev.deviceId}">0%</span>
-          </div>
-          <div class="progress-bar-bg">
-            <div class="progress-bar-fill" id="progress-bar-${dev.deviceId}"></div>
-          </div>
-        </div>
-
-        <div class="device-actions">
-          <button type="button" class="btn-primary btn-sm" onclick="openDeployForDevice('${dev.deviceId}')" ${!isOnline ? 'disabled' : ''} title="Push remote OTA firmware">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="17 8 12 3 7 8"></polyline>
-              <line x1="12" y1="3" x2="12" y2="15"></line>
-            </svg>
-            FLASH
-          </button>
-          <button type="button" class="btn-secondary btn-sm" onclick="rebootDevice('${dev.deviceId}')" ${!isOnline ? 'disabled' : ''} title="Remote hardware reset">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <!-- Card bottom actions -->
+        <div class="device-actions" onclick="event.stopPropagation()">
+          <button type="button" class="btn-secondary btn-sm" onclick="rebootDevice('${dev.deviceId}')" ${!isOnline ? 'disabled' : ''} title="Remote restart">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polyline points="23 4 23 10 17 10"></polyline>
-              <polyline points="1 20 1 14 7 14"></polyline>
-              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"></path>
             </svg>
             REBOOT
           </button>
           <button type="button" class="btn-secondary btn-sm" onclick="toggleLed('${dev.deviceId}')" ${!isOnline ? 'disabled' : ''} title="GPIO LED diagnostic">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="5"></circle>
               <line x1="12" y1="1" x2="12" y2="3"></line>
             </svg>
             LED
           </button>
         </div>
+
       </div>
     `;
   }).join('');
-
-  // Wire Checkboxes for Batch Ops
-  document.querySelectorAll('.device-select-checkbox').forEach(cb => {
-    cb.addEventListener('change', (e) => {
-      const id = e.target.dataset.id;
-      if (e.target.checked) selectedDeviceIds.add(id);
-      else selectedDeviceIds.delete(id);
-      updateBatchBar();
-    });
-  });
-
-  updateBatchBar();
 }
 
-function updateDeviceCardMetrics(dev) {
+window.handleCardClick = function(deviceId, isOnline) {
+  if (!isOnline) {
+    showToastAlert('WARN', `Node ${deviceId} is currently offline`);
+    return;
+  }
+  selectTargetDevice(deviceId);
+};
+
+function selectTargetDevice(deviceId) {
+  selectedTargetDeviceId = deviceId;
+  const dev = devices.find(d => d.deviceId === deviceId);
+
+  // Update target display card
+  if (dev) {
+    const targetName = dev.nickname || dev.name || dev.deviceId;
+    if (selectedTargetDisplay) selectedTargetDisplay.textContent = targetName;
+    if (selectedTargetSub) selectedTargetSub.textContent = `[${dev.chip || 'ESP'}] IP: ${dev.ip || 'DHCP'} — ONLINE`;
+
+    if (targetSummaryBox) targetSummaryBox.classList.add('has-target');
+    if (targetSummaryName) targetSummaryName.textContent = `TARGET: ${targetName} (${dev.deviceId})`;
+    if (targetSummaryMeta) targetSummaryMeta.textContent = `CHIP: ${dev.chip || 'ESP32'} | IP: ${dev.ip || 'DHCP'} | FW: ${dev.firmwareVersion || 'v1.0.0'}`;
+
+    logActivity(`Selected target hardware node: ${targetName}`);
+  }
+
+  // Re-render device cards to reflect active radio dot
+  renderDevices();
+  validateDeployForm();
+}
+
+function updateDeviceCardMeters(dev) {
   const rssiEl = document.getElementById(`rssi-${dev.deviceId}`);
   const heapEl = document.getElementById(`heap-${dev.deviceId}`);
   const uptimeEl = document.getElementById(`uptime-${dev.deviceId}`);
-  const pillEl = document.getElementById(`pill-${dev.deviceId}`);
   const rssiBar = document.getElementById(`rssi-bar-${dev.deviceId}`);
-  const heapBar = document.getElementById(`heap-bar-${dev.deviceId}`);
 
-  if (rssiEl) rssiEl.textContent = dev.rssi ? `${dev.rssi} dBm` : 'N/A';
-  if (heapEl) heapEl.textContent = dev.freeHeap ? `${(dev.freeHeap / 1024).toFixed(0)} KB` : 'N/A';
-  if (uptimeEl) uptimeEl.textContent = dev.uptime ? formatUptime(dev.uptime) : 'N/A';
-  
-  if (pillEl) {
-    pillEl.className = 'status-pill online';
-    pillEl.textContent = 'ONLINE';
-  }
-
+  if (rssiEl && dev.rssi) rssiEl.textContent = `${dev.rssi} dBm`;
+  if (heapEl && dev.freeHeap) heapEl.textContent = `${(dev.freeHeap / 1024).toFixed(0)} KB`;
+  if (uptimeEl && dev.uptime) uptimeEl.textContent = formatUptime(dev.uptime);
   if (rssiBar && dev.rssi) {
-    const rssiPercent = Math.min(100, Math.max(10, ((dev.rssi + 100) / 50) * 100));
-    rssiBar.style.width = `${rssiPercent}%`;
-  }
-
-  if (heapBar && dev.freeHeap) {
-    const heapPercent = Math.min(100, Math.max(15, (dev.freeHeap / (160 * 1024)) * 100));
-    heapBar.style.width = `${heapPercent}%`;
+    const p = Math.min(100, Math.max(10, ((dev.rssi + 100) / 50) * 100));
+    rssiBar.style.width = `${p}%`;
   }
 }
 
-// =========================================================
-// 7. BATCH OPERATIONS HANDLERS
-// =========================================================
-function updateBatchBar() {
-  if (!batchBar || !batchCountTag) return;
+// Filter and Sync Buttons
+if (refreshDevicesBtn) {
+  refreshDevicesBtn.addEventListener('click', () => {
+    fetch('/api/devices')
+      .then(r => r.json())
+      .then(data => {
+        devices = data;
+        updateStats();
+        renderDevices();
+        showToastAlert('INFO', 'Synced fleet node state');
+        logActivity('Fleet states refreshed from hub registry');
+      })
+      .catch(err => {
+        showToastAlert('ERROR', 'Failed to sync devices: ' + err.message);
+      });
+  });
+}
 
-  const count = selectedDeviceIds.size;
-  if (count > 0) {
-    batchBar.style.display = 'flex';
-    batchCountTag.textContent = `${count} NODE${count > 1 ? 'S' : ''} SELECTED`;
-    if (selectAllCheckbox) {
-      selectAllCheckbox.checked = (count === devices.length && devices.length > 0);
+if (toggleShowAllBtn) {
+  toggleShowAllBtn.addEventListener('click', () => {
+    showAllDevices = !showAllDevices;
+    toggleShowAllBtn.textContent = showAllDevices ? 'ACTIVE ONLY' : 'SHOW ALL';
+    renderDevices();
+  });
+}
+
+// =========================================================
+// 6. FIRMWARE FILE SELECTION (.BIN) (USER REQUIREMENT #3)
+// =========================================================
+if (firmwareDropzone) {
+  firmwareDropzone.addEventListener('click', () => firmwareFileInput.click());
+
+  firmwareDropzone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    firmwareDropzone.classList.add('dragover');
+  });
+
+  firmwareDropzone.addEventListener('dragleave', () => {
+    firmwareDropzone.classList.remove('dragover');
+  });
+
+  firmwareDropzone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    firmwareDropzone.classList.remove('dragover');
+    if (e.dataTransfer.files && e.dataTransfer.files.length) {
+      handleFileSelected(e.dataTransfer.files[0]);
     }
-  } else {
-    batchBar.style.display = 'none';
-    if (selectAllCheckbox) selectAllCheckbox.checked = false;
+  });
+}
+
+if (firmwareFileInput) {
+  firmwareFileInput.addEventListener('change', () => {
+    if (firmwareFileInput.files && firmwareFileInput.files.length) {
+      handleFileSelected(firmwareFileInput.files[0]);
+    }
+  });
+}
+
+if (removeFileBtn) {
+  removeFileBtn.addEventListener('click', () => {
+    selectedFile = null;
+    uploadedFileMeta = null;
+    if (firmwareFileInput) firmwareFileInput.value = '';
+    if (fileSelectedBox) fileSelectedBox.style.display = 'none';
+    if (firmwareDropzone) firmwareDropzone.style.display = 'flex';
+    validateDeployForm();
+    logActivity('Cleared selected firmware binary');
+  });
+}
+
+async function handleFileSelected(file) {
+  if (!file.name.toLowerCase().endsWith('.bin')) {
+    showToastAlert('WARN', 'Only compiled .bin firmware files are supported.');
+    return;
+  }
+
+  selectedFile = file;
+  uploadedFileMeta = null;
+
+  if (selectedFileName) selectedFileName.textContent = file.name;
+  if (selectedFileSize) selectedFileSize.textContent = formatBytes(file.size);
+  if (selectedFileMd5) selectedFileMd5.textContent = 'CALCULATING MD5 HASH...';
+
+  if (fileSelectedBox) fileSelectedBox.style.display = 'flex';
+  if (firmwareDropzone) firmwareDropzone.style.display = 'none';
+
+  logActivity(`Selected firmware binary: ${file.name} (${formatBytes(file.size)})`);
+
+  // Calculate browser preview MD5 / SHA-256 for integrity verification
+  calculateFileHash(file).then(hash => {
+    if (selectedFileMd5) selectedFileMd5.textContent = `HASH: ${hash}`;
+  });
+
+  validateDeployForm();
+}
+
+async function calculateFileHash(file) {
+  try {
+    const buffer = await file.arrayBuffer();
+    const digest = await crypto.subtle.digest('SHA-256', buffer);
+    const hashArray = Array.from(new Uint8Array(digest));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').substring(0, 32);
+  } catch (err) {
+    return 'READY FOR UPLOAD';
   }
 }
 
-if (selectAllCheckbox) {
-  selectAllCheckbox.addEventListener('change', (e) => {
-    if (e.target.checked) {
-      devices.forEach(d => selectedDeviceIds.add(d.deviceId));
+function validateDeployForm() {
+  const hasTarget = Boolean(selectedTargetDeviceId);
+  const targetDev = devices.find(d => d.deviceId === selectedTargetDeviceId);
+  const targetIsOnline = Boolean(targetDev && targetDev.isOnline);
+  const hasFile = Boolean(selectedFile);
+
+  const canDeploy = hasTarget && targetIsOnline && hasFile && !isDeploying;
+
+  if (deployFirmwareBtn) deployFirmwareBtn.disabled = !canDeploy;
+
+  if (deployHelperText) {
+    if (!hasTarget) {
+      deployHelperText.textContent = 'Select an active device on the left to begin';
+    } else if (!targetIsOnline) {
+      deployHelperText.textContent = 'Selected device is currently offline';
+    } else if (!hasFile) {
+      deployHelperText.textContent = 'Select a .bin firmware binary above to deploy';
+    } else if (isDeploying) {
+      deployHelperText.textContent = 'Deployment in progress...';
     } else {
-      selectedDeviceIds.clear();
+      deployHelperText.textContent = `Ready to push firmware to [${targetDev?.nickname || selectedTargetDeviceId}]`;
     }
-    renderDevices();
-  });
-}
-
-if (clearBatchSelectionBtn) {
-  clearBatchSelectionBtn.addEventListener('click', () => {
-    selectedDeviceIds.clear();
-    renderDevices();
-  });
-}
-
-if (batchRebootBtn) {
-  batchRebootBtn.addEventListener('click', async () => {
-    const targets = Array.from(selectedDeviceIds);
-    if (targets.length === 0) return;
-    if (!confirm(`Are you sure you want to reboot all ${targets.length} selected nodes?`)) return;
-
-    try {
-      const res = await fetch('/api/devices/batch-action', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'reboot', targetDeviceIds: targets })
-      });
-      const data = await res.json();
-      showToastAlert('INFO', `Dispatched reboot command to ${data.dispatchedCount} nodes`);
-    } catch (err) {
-      showToastAlert('ERROR', 'Failed to dispatch batch reboot: ' + err.message);
-    }
-  });
-}
-
-if (batchPingBtn) {
-  batchPingBtn.addEventListener('click', async () => {
-    const targets = Array.from(selectedDeviceIds);
-    if (targets.length === 0) return;
-
-    try {
-      const res = await fetch('/api/devices/batch-action', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'ping', targetDeviceIds: targets })
-      });
-      const data = await res.json();
-      showToastAlert('INFO', `Dispatched telemetry ping to ${data.dispatchedCount} nodes`);
-    } catch (err) {
-      showToastAlert('ERROR', 'Failed to dispatch batch ping: ' + err.message);
-    }
-  });
-}
-
-if (batchDeployBtn) {
-  batchDeployBtn.addEventListener('click', () => {
-    const targets = Array.from(selectedDeviceIds);
-    if (targets.length === 0) return;
-    openLibraryModal();
-    showToastAlert('INFO', `Select a firmware binary to deploy to ${targets.length} selected nodes`);
-  });
+  }
 }
 
 // =========================================================
-// 8. DEVICE METADATA EDIT MODAL
+// 7. REAL-TIME UPLOADING & FLASHING PROGRESS BAR (USER REQUIREMENT #4)
+// =========================================================
+if (deployFirmwareBtn) {
+  deployFirmwareBtn.addEventListener('click', () => {
+    if (!selectedTargetDeviceId || !selectedFile || isDeploying) return;
+    startUploadAndDeploymentPipeline();
+  });
+}
+
+function startUploadAndDeploymentPipeline() {
+  isDeploying = true;
+  validateDeployForm();
+
+  const targetDeviceId = selectedTargetDeviceId;
+  const targetDev = devices.find(d => d.deviceId === targetDeviceId);
+  const devName = targetDev?.nickname || targetDeviceId;
+
+  if (deployBtnText) deployBtnText.textContent = 'DEPLOYMENT IN PROGRESS...';
+  if (otaPipelineStatus) otaPipelineStatus.textContent = 'UPLOADING';
+  if (otaPipelineSub) otaPipelineSub.textContent = `TRANSMITTING TO ${devName.toUpperCase()}`;
+
+  // Reset Progress Card UI
+  if (uploadProgressSection) uploadProgressSection.style.display = 'flex';
+  if (progressResultBanner) progressResultBanner.style.display = 'none';
+
+  setStepperStage('stepUpload');
+  updateProgressUI(0, `Uploading ${selectedFile.name} to HAWA Hub...`, `0 KB / ${formatBytes(selectedFile.size)}`, 'UPLOADING');
+  logActivity(`Initiated upload of ${selectedFile.name} to hub for node ${devName}`);
+
+  // Initiate real-time XMLHttpRequest upload
+  const xhr = new XMLHttpRequest();
+  const formData = new FormData();
+  formData.append('firmware', selectedFile);
+
+  const releaseTag = releaseVersionInput ? releaseVersionInput.value.trim() : '';
+  if (releaseTag) formData.append('targetVersion', releaseTag);
+
+  xhr.upload.onprogress = (event) => {
+    if (event.lengthComputable) {
+      const uploadPercent = Math.round((event.loaded / event.total) * 100);
+      // Upload phase maps to 0% - 45% of total pipeline progress
+      const overallPercent = Math.round(uploadPercent * 0.45);
+      const speedStr = `${formatBytes(event.loaded)} / ${formatBytes(event.total)}`;
+      updateProgressUI(overallPercent, `Uploading binary to hub: ${uploadPercent}% (${speedStr})`, speedStr, 'UPLOADING');
+    }
+  };
+
+  xhr.onload = async () => {
+    if (xhr.status >= 200 && xhr.status < 300) {
+      try {
+        uploadedFileMeta = JSON.parse(xhr.responseText);
+        if (uploadedFileMeta.error) throw new Error(uploadedFileMeta.error);
+
+        // Upload complete, now trigger OTA over WebSocket/HTTP
+        setStepperStage('stepOta');
+        updateProgressUI(50, `Binary verified (MD5: ${uploadedFileMeta.md5}). Dispatching OTA packet...`, `${formatBytes(selectedFile.size)} stored`, 'OTA DISPATCH');
+        logActivity(`Binary stored on hub. Dispatching OTA to ${devName}...`);
+
+        await dispatchOtaToDevice(targetDeviceId, uploadedFileMeta.filename, releaseTag);
+      } catch (err) {
+        handleDeploymentFailure('Server response error: ' + err.message);
+      }
+    } else {
+      let errMsg = `Upload failed (HTTP ${xhr.status})`;
+      try {
+        const errJson = JSON.parse(xhr.responseText);
+        if (errJson.error) errMsg = errJson.error;
+      } catch (_) {}
+      handleDeploymentFailure(errMsg);
+    }
+  };
+
+  xhr.onerror = () => {
+    handleDeploymentFailure('Network connection error while uploading to hub');
+  };
+
+  xhr.open('POST', '/api/firmware/upload');
+  xhr.send(formData);
+}
+
+async function dispatchOtaToDevice(targetDeviceId, filename, targetVersion) {
+  try {
+    const res = await fetch('/api/ota/deploy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        targetDeviceId,
+        filename,
+        targetVersion: targetVersion || 'v_latest'
+      })
+    });
+
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    setStepperStage('stepFlash');
+    updateProgressUI(55, `OTA update session started. Waiting for device flash ACK...`, 'STREAMING', 'FLASHING');
+    logActivity(`OTA payload dispatched to node ${targetDeviceId}. Flashing flash memory...`);
+  } catch (err) {
+    handleDeploymentFailure('Failed to dispatch OTA: ' + err.message);
+  }
+}
+
+function handleOtaProgress(deviceId, percent, bytesRead, totalBytes) {
+  if (selectedTargetDeviceId === deviceId && isDeploying) {
+    setStepperStage('stepFlash');
+    // Device flash progress maps to 55% - 95% of total pipeline progress
+    const flashProgress = 55 + Math.round((percent / 100) * 40);
+    const bytesStr = totalBytes ? `${formatBytes(bytesRead || 0)} / ${formatBytes(totalBytes)}` : `${percent}%`;
+    updateProgressUI(flashProgress, `Flashing hardware flash partition: ${percent}%`, bytesStr, 'FLASHING');
+  }
+}
+
+function handleOtaComplete(deviceId, status, message) {
+  if (selectedTargetDeviceId === deviceId) {
+    if (status === 'SUCCESS') {
+      setStepperStage('stepReboot');
+      updateProgressUI(100, 'Flashing complete! Device is rebooting with new firmware.', '100% SUCCESS', 'REBOOTING');
+      showDeploymentSuccess(`Firmware successfully flashed! Device [${deviceId}] is rebooting.`);
+      logActivity(`Device ${deviceId} completed firmware flash successfully`);
+    } else {
+      handleDeploymentFailure(message || 'OTA flashing failed on hardware node.');
+    }
+  }
+}
+
+function updateProgressUI(percent, statusMsg, telemetryStr, statusTag) {
+  const bounded = Math.min(100, Math.max(0, percent));
+  if (progressBarFill) progressBarFill.style.width = `${bounded}%`;
+  if (progressPercentVal) progressPercentVal.textContent = `${bounded}%`;
+  if (progressStatusMsg) progressStatusMsg.textContent = statusMsg;
+  if (progressStatusTag && statusTag) progressStatusTag.textContent = statusTag;
+  if (progressBytesDisplay && telemetryStr) progressBytesDisplay.textContent = telemetryStr;
+}
+
+function setStepperStage(stageId) {
+  const steps = [stepUpload, stepOta, stepFlash, stepReboot];
+  let stageReached = false;
+
+  steps.forEach(step => {
+    if (!step) return;
+    if (step.id === stageId) {
+      step.className = 'step-pill active';
+      stageReached = true;
+    } else if (!stageReached) {
+      step.className = 'step-pill done';
+    } else {
+      step.className = 'step-pill';
+    }
+  });
+}
+
+function showDeploymentSuccess(msg) {
+  isDeploying = false;
+  if (progressResultBanner) {
+    progressResultBanner.className = 'progress-result-banner success';
+    progressResultBanner.style.display = 'flex';
+    if (resultMsg) resultMsg.textContent = msg;
+  }
+  if (deployBtnText) deployBtnText.textContent = 'DEPLOY ANOTHER FIRMWARE';
+  if (otaPipelineStatus) otaPipelineStatus.textContent = 'SUCCESS';
+  if (otaPipelineSub) otaPipelineSub.textContent = 'NODE REBOOTED WITH NEW BINARY';
+  validateDeployForm();
+  showToastAlert('INFO', msg);
+}
+
+function handleDeploymentFailure(errMsg) {
+  isDeploying = false;
+  if (progressResultBanner) {
+    progressResultBanner.className = 'progress-result-banner error';
+    progressResultBanner.style.display = 'flex';
+    if (resultMsg) resultMsg.textContent = errMsg;
+  }
+  if (progressStatusTag) progressStatusTag.textContent = 'ERROR';
+  if (deployBtnText) deployBtnText.textContent = 'RETRY DEPLOYMENT';
+  if (otaPipelineStatus) otaPipelineStatus.textContent = 'FAILED';
+  if (otaPipelineSub) otaPipelineSub.textContent = errMsg;
+  validateDeployForm();
+  showToastAlert('ERROR', errMsg);
+  logActivity(`[DEPLOY ERROR] ${errMsg}`);
+}
+
+// =========================================================
+// 8. HARDWARE CONTROLS (REBOOT, LED)
+// =========================================================
+window.rebootDevice = async function(deviceId) {
+  if (!confirm(`Remotely restart hardware node "${deviceId}"?`)) return;
+  try {
+    const res = await fetch(`/api/device/${deviceId}/reboot`, { method: 'POST' });
+    const data = await res.json();
+    showToastAlert('INFO', data.message || `Reboot command dispatched to ${deviceId}`);
+    logActivity(`Dispatched remote restart to ${deviceId}`);
+  } catch (err) {
+    showToastAlert('ERROR', 'Error: ' + err.message);
+  }
+};
+
+window.toggleLed = async function(deviceId) {
+  try {
+    await fetch(`/api/device/${deviceId}/toggle-led`, { method: 'POST' });
+    showToastAlert('INFO', `Toggled diagnostic LED on ${deviceId}`);
+  } catch (err) {
+    showToastAlert('ERROR', 'Error: ' + err.message);
+  }
+};
+
+// =========================================================
+// 9. DEVICE NICKNAME EDIT MODAL
 // =========================================================
 window.openDeviceEditModal = function(deviceId) {
   const dev = devices.find(d => d.deviceId === deviceId);
@@ -703,9 +789,6 @@ window.openDeviceEditModal = function(deviceId) {
   editDeviceIdHidden.value = deviceId;
   editNicknameInput.value = dev.nickname || dev.name || '';
   editTagsInput.value = (dev.tags || []).join(', ');
-  if (editModalSubtitle) {
-    editModalSubtitle.textContent = `Configuring [${dev.chip || 'ESP'}] // ${dev.deviceId}`;
-  }
 
   deviceEditModal.classList.add('active');
   deviceEditModal.classList.add('open');
@@ -743,582 +826,21 @@ if (deviceEditForm) {
       if (data.error) throw new Error(data.error);
 
       closeDeviceEditModal();
-      showToastAlert('INFO', `Updated metadata for node ${id}`);
+      showToastAlert('INFO', `Updated nickname for node ${id}`);
+      logActivity(`Updated metadata for ${id}`);
     } catch (err) {
-      alert('Error updating device metadata: ' + err.message);
+      alert('Error updating nickname: ' + err.message);
     }
   });
 }
 
 // =========================================================
-// 9. FIRMWARE LIBRARY & ROLLBACK PIPELINE
-// =========================================================
-function openLibraryModal() {
-  if (!firmwareLibraryModal) return;
-  firmwareLibraryModal.classList.add('active');
-  firmwareLibraryModal.classList.add('open');
-  renderFirmwareLibrary();
-}
-
-function closeLibraryModal() {
-  if (!firmwareLibraryModal) return;
-  firmwareLibraryModal.classList.remove('active');
-  firmwareLibraryModal.classList.remove('open');
-  const sideNavLibrary = document.getElementById('sideNavLibrary');
-  if (sideNavLibrary) sideNavLibrary.classList.remove('active');
-}
-
-if (openLibraryBtn) openLibraryBtn.addEventListener('click', openLibraryModal);
-if (closeLibraryModalBtn) closeLibraryModalBtn.addEventListener('click', closeLibraryModal);
-if (firmwareLibraryModal) {
-  firmwareLibraryModal.addEventListener('click', (e) => {
-    if (e.target === firmwareLibraryModal) closeLibraryModal();
-  });
-}
-
-if (libraryUploadBtn) {
-  libraryUploadBtn.addEventListener('click', () => {
-    closeLibraryModal();
-    openDeployModal();
-  });
-}
-
-function renderFirmwareLibrary() {
-  if (!firmwareLibraryList) return;
-
-  if (libraryCountTag) {
-    libraryCountTag.textContent = `${firmwares.length} BINAR${firmwares.length === 1 ? 'Y' : 'IES'} STORED`;
-  }
-
-  if (firmwares.length === 0) {
-    firmwareLibraryList.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-        </div>
-        <h3>NO BINARIES IN LIBRARY</h3>
-        <p>Deploy a firmware binary or upload one to persist it for fast rollback and redeployment.</p>
-      </div>
-    `;
-    return;
-  }
-
-  firmwareLibraryList.innerHTML = firmwares.map(fw => {
-    const sizeKb = (fw.size / 1024).toFixed(1);
-    const dateStr = fw.uploadedAt ? new Date(fw.uploadedAt).toLocaleString() : 'N/A';
-
-    return `
-      <div class="firmware-card" id="fw-card-${escapeHtml(fw.filename)}">
-        <div class="firmware-card-header">
-          <div class="firmware-name-group">
-            <span class="firmware-filename">${escapeHtml(fw.originalName || fw.filename)}</span>
-            <span class="firmware-version-badge">${escapeHtml(fw.version || 'v_latest')}</span>
-          </div>
-          <span class="status-pill online">READY</span>
-        </div>
-
-        <div class="firmware-card-meta">
-          <div class="firmware-meta-item">
-            <span>SIZE:</span>
-            <strong style="color: var(--text-main);">${sizeKb} KB</strong>
-          </div>
-          <div class="firmware-meta-item">
-            <span>MD5:</span>
-            <code class="firmware-md5-code" onclick="navigator.clipboard.writeText('${fw.md5}'); showToastAlert('INFO', 'MD5 copied to clipboard');" title="Click to copy MD5">${escapeHtml(fw.md5)}</code>
-          </div>
-          <div class="firmware-meta-item">
-            <span>SAVED:</span>
-            <span>${escapeHtml(dateStr)}</span>
-          </div>
-        </div>
-
-        <div class="firmware-card-actions">
-          <button type="button" class="btn-primary btn-sm" onclick="deployFromLibrary('${fw.filename}', '${escapeHtml(fw.originalName || fw.filename)}', '${fw.md5}', ${fw.size})" title="Deploy this saved binary to target device">
-            DEPLOY TO NODE
-          </button>
-          <button type="button" class="btn-secondary btn-sm" onclick="batchRolloutFromLibrary('${fw.filename}', '${escapeHtml(fw.version || 'v_latest')}')" title="Batch deploy this binary to all online or selected nodes">
-            BATCH ROLLOUT
-          </button>
-          <a href="/api/firmware/download/${fw.filename}" download="${fw.originalName || fw.filename}" class="btn-secondary btn-sm" title="Download .bin file">
-            DOWNLOAD
-          </a>
-          <button type="button" class="btn-text btn-sm" onclick="deleteFirmware('${fw.filename}')" style="color: var(--text-muted); margin-left: auto;" title="Delete binary from disk">
-            DELETE
-          </button>
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-window.deployFromLibrary = function(filename, originalName, md5, size) {
-  closeLibraryModal();
-  openDeployModal();
-
-  uploadedFileMeta = { filename, originalName, md5, size };
-  selectedFileName.textContent = originalName;
-  selectedFileSize.textContent = `${(size / 1024).toFixed(1)} KB`;
-  selectedFileMd5.textContent = `MD5: ${md5}`;
-  fileSelectedInfo.style.display = 'block';
-
-  validateDeployForm();
-};
-
-window.batchRolloutFromLibrary = async function(filename, version) {
-  let targetIds = Array.from(selectedDeviceIds);
-  if (targetIds.length === 0) {
-    targetIds = devices.filter(d => d.isOnline).map(d => d.deviceId);
-  }
-
-  if (targetIds.length === 0) {
-    alert('No online nodes available to deploy.');
-    return;
-  }
-
-  if (!confirm(`Are you sure you want to rollout firmware "${filename}" to ${targetIds.length} nodes?`)) return;
-
-  try {
-    const res = await fetch('/api/ota/deploy-batch', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        targetDeviceIds: targetIds,
-        filename,
-        targetVersion: version
-      })
-    });
-    const data = await res.json();
-    if (data.error) throw new Error(data.error);
-
-    closeLibraryModal();
-    showToastAlert('INFO', `Batch OTA rollout initiated for ${data.count} nodes!`);
-  } catch (err) {
-    alert('Failed to initiate batch rollout: ' + err.message);
-  }
-};
-
-window.deleteFirmware = async function(filename) {
-  if (!confirm(`Delete binary "${filename}" from server library?`)) return;
-  try {
-    const res = await fetch(`/api/firmware/${filename}`, { method: 'DELETE' });
-    const data = await res.json();
-    if (data.error) throw new Error(data.error);
-    showToastAlert('INFO', `Removed ${filename} from library`);
-  } catch (err) {
-    alert('Failed to delete firmware: ' + err.message);
-  }
-};
-
-// =========================================================
-// 10. OTA DEPLOY MODAL HANDLING
-// =========================================================
-function openDeployModal() {
-  if (!deployModal) return;
-  deployModal.classList.add('active');
-  deployModal.classList.add('open');
-  populateDeviceSelects();
-}
-
-function closeDeployModal() {
-  if (!deployModal) return;
-  deployModal.classList.remove('active');
-  deployModal.classList.remove('open');
-  const sideNavDeploy = document.getElementById('sideNavDeploy');
-  if (sideNavDeploy) sideNavDeploy.classList.remove('active');
-}
-
-if (openDeployModalBtn) openDeployModalBtn.addEventListener('click', openDeployModal);
-if (closeDeployModalBtn) closeDeployModalBtn.addEventListener('click', closeDeployModal);
-if (deployModal) {
-  deployModal.addEventListener('click', (e) => {
-    if (e.target === deployModal) closeDeployModal();
-  });
-}
-
-// Dropzone Handling
-if (dropzone) {
-  dropzone.addEventListener('click', () => firmwareFileInput.click());
-
-  dropzone.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    dropzone.classList.add('dragover');
-  });
-
-  dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
-
-  dropzone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    dropzone.classList.remove('dragover');
-    if (e.dataTransfer.files.length) {
-      handleFileSelected(e.dataTransfer.files[0]);
-    }
-  });
-}
-
-if (firmwareFileInput) {
-  firmwareFileInput.addEventListener('change', () => {
-    if (firmwareFileInput.files.length) {
-      handleFileSelected(firmwareFileInput.files[0]);
-    }
-  });
-}
-
-async function handleFileSelected(file) {
-  if (!file.name.endsWith('.bin')) {
-    alert('Please select a compiled .bin firmware binary.');
-    return;
-  }
-
-  selectedFile = file;
-  selectedFileName.textContent = file.name;
-  selectedFileSize.textContent = `${(file.size / 1024).toFixed(1)} KB`;
-  selectedFileMd5.textContent = 'CALCULATING MD5 HASH & PERSISTING TO LIBRARY...';
-  fileSelectedInfo.style.display = 'block';
-
-  const formData = new FormData();
-  formData.append('firmware', file);
-  if (targetVersionInput.value.trim()) {
-    formData.append('targetVersion', targetVersionInput.value.trim());
-  }
-
-  try {
-    const res = await fetch('/api/firmware/upload', {
-      method: 'POST',
-      body: formData
-    });
-    uploadedFileMeta = await res.json();
-    if (uploadedFileMeta.error) throw new Error(uploadedFileMeta.error);
-
-    selectedFileMd5.textContent = `MD5: ${uploadedFileMeta.md5}`;
-    validateDeployForm();
-    showToastAlert('INFO', `Firmware binary saved to library: ${file.name}`);
-  } catch (err) {
-    alert('Failed to upload firmware: ' + err.message);
-    fileSelectedInfo.style.display = 'none';
-    uploadedFileMeta = null;
-  }
-}
-
-if (targetDeviceSelect) targetDeviceSelect.addEventListener('change', validateDeployForm);
-
-function validateDeployForm() {
-  const ready = Boolean(uploadedFileMeta && targetDeviceSelect.value);
-  startDeployBtn.disabled = !ready;
-}
-
-if (startDeployBtn) {
-  startDeployBtn.addEventListener('click', async () => {
-    if (!uploadedFileMeta || !targetDeviceSelect.value) return;
-
-    const targetDeviceId = targetDeviceSelect.value;
-    activeOtaDeviceId = targetDeviceId;
-
-    startDeployBtn.disabled = true;
-    modalOtaProgress.style.display = 'block';
-    modalProgressPercent.textContent = '0%';
-    modalProgressBarFill.style.width = '0%';
-    modalProgressText.textContent = 'TRANSMITTING FIRMWARE...';
-
-    try {
-      const res = await fetch('/api/ota/deploy', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          targetDeviceId,
-          filename: uploadedFileMeta.filename,
-          targetVersion: targetVersionInput.value.trim() || 'v_latest'
-        })
-      });
-
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
-
-      console.log('[OTA] Dispatched successfully:', data);
-    } catch (err) {
-      alert('Failed to trigger OTA: ' + err.message);
-      startDeployBtn.disabled = false;
-    }
-  });
-}
-
-function updateOtaProgress(deviceId, percent, written, total) {
-  const box = document.getElementById(`progress-box-${deviceId}`);
-  const txt = document.getElementById(`progress-txt-${deviceId}`);
-  const bar = document.getElementById(`progress-bar-${deviceId}`);
-
-  if (box && txt && bar) {
-    box.classList.add('active');
-    txt.textContent = `${percent}%`;
-    bar.style.width = `${percent}%`;
-  }
-
-  if (activeOtaDeviceId === deviceId) {
-    modalOtaProgress.style.display = 'block';
-    modalProgressPercent.textContent = `${percent}%`;
-    modalProgressBarFill.style.width = `${percent}%`;
-  }
-}
-
-function handleOtaFinished(deviceId, status, message) {
-  const isSuccess = status === 'SUCCESS';
-  const box = document.getElementById(`progress-box-${deviceId}`);
-  if (box) box.classList.remove('active');
-
-  const dev = devices.find(d => d.deviceId === deviceId);
-  if (dev) {
-    dev.status = isSuccess ? 'online' : 'error';
-    const pillEl = document.getElementById(`pill-${deviceId}`);
-    if (pillEl) {
-      pillEl.className = `status-pill ${isSuccess ? 'online' : 'offline'}`;
-      pillEl.textContent = isSuccess ? 'ONLINE' : 'ERROR';
-    }
-  }
-
-  if (activeOtaDeviceId === deviceId) {
-    modalProgressText.textContent = isSuccess ? 'COMPLETE!' : 'FAILED';
-    setTimeout(() => {
-      closeDeployModal();
-      activeOtaDeviceId = null;
-      startDeployBtn.disabled = false;
-    }, 2000);
-  }
-}
-
-// =========================================================
-// 11. REMOTE SERIAL TELEMETRY STREAM & LOG FILTERS
-// =========================================================
-function appendLog(deviceId, log) {
-  if (!consoleLogs) return;
-
-  const target = consoleDeviceSelect.value;
-  const text = typeof log === 'object' ? log.text : String(log);
-  const time = typeof log === 'object' ? log.timestamp : Date.now();
-
-  // Detect log level
-  let level = 'info';
-  const upper = text.toUpperCase();
-  if (upper.includes('ERROR') || upper.includes('FAIL') || upper.includes('ERR')) level = 'error';
-  else if (upper.includes('WARN')) level = 'warn';
-
-  historicalLogs.push({ deviceId, text, timestamp: time, level });
-  if (historicalLogs.length > 500) historicalLogs.shift();
-
-  // Check filter match
-  if (target && target !== deviceId) return;
-  if (activeLogLevel !== 'all' && level !== activeLogLevel) return;
-
-  renderSingleLogEntry(deviceId, text, time, level);
-}
-
-function renderSingleLogEntry(deviceId, text, time, level) {
-  const timeStr = new Date(time).toLocaleTimeString();
-  const entry = document.createElement('div');
-  entry.className = `log-entry ${level}`;
-  entry.textContent = `[${timeStr}] [${deviceId}] ${text}`;
-
-  consoleLogs.appendChild(entry);
-  if (autoScrollLogs) {
-    consoleLogs.scrollTop = consoleLogs.scrollHeight;
-  }
-}
-
-function filterConsoleLogs() {
-  if (!consoleLogs) return;
-  consoleLogs.innerHTML = '';
-  const target = consoleDeviceSelect.value;
-
-  historicalLogs.forEach(item => {
-    if (target && target !== item.deviceId) return;
-    if (activeLogLevel !== 'all' && item.level !== activeLogLevel) return;
-    renderSingleLogEntry(item.deviceId, item.text, item.timestamp, item.level);
-  });
-}
-
-// Log Level Filter Pills
-logLevelBtns.forEach(btn => {
-  btn.addEventListener('click', () => {
-    logLevelBtns.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    activeLogLevel = btn.dataset.level || 'all';
-    filterConsoleLogs();
-  });
-});
-
-if (consoleDeviceSelect) {
-  consoleDeviceSelect.addEventListener('change', filterConsoleLogs);
-}
-
-// Auto-Scroll Toggle
-if (toggleAutoScrollBtn) {
-  toggleAutoScrollBtn.addEventListener('click', () => {
-    autoScrollLogs = !autoScrollLogs;
-    toggleAutoScrollBtn.classList.toggle('active', autoScrollLogs);
-    toggleAutoScrollBtn.textContent = `AUTO-SCROLL: ${autoScrollLogs ? 'ON' : 'OFF'}`;
-  });
-}
-
-// Export Logs to .txt file
-if (exportLogsBtn) {
-  exportLogsBtn.addEventListener('click', () => {
-    if (historicalLogs.length === 0) {
-      alert('No logs recorded to export.');
-      return;
-    }
-    const lines = historicalLogs.map(l => `[${new Date(l.timestamp).toISOString()}] [${l.deviceId}] ${l.text}`);
-    const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `hawa_telemetry_logs_${Date.now()}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
-    showToastAlert('INFO', `Exported ${historicalLogs.length} log lines to text file`);
-  });
-}
-
-// Console Input Execution
-if (consoleInput) {
-  consoleInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      const cmd = consoleInput.value.trim();
-      if (!cmd) return;
-      sendConsoleCommand(cmd);
-      consoleInput.value = '';
-    }
-  });
-}
-
-// Command Macro Buttons
-macroBtns.forEach(btn => {
-  btn.addEventListener('click', () => {
-    const cmd = btn.dataset.cmd;
-    if (cmd) sendConsoleCommand(cmd);
-  });
-});
-
-function sendConsoleCommand(cmd) {
-  const target = consoleDeviceSelect.value;
-  const entry = document.createElement('div');
-  entry.className = 'log-entry system';
-  entry.textContent = `[TX] > ${cmd} ${target ? `(Target: ${target})` : '(Broadcast)'}`;
-  consoleLogs.appendChild(entry);
-  if (autoScrollLogs) consoleLogs.scrollTop = consoleLogs.scrollHeight;
-
-  if (ws && ws.readyState === WebSocket.OPEN) {
-    ws.send(JSON.stringify({ type: 'CMD', command: cmd, targetDeviceId: target || null }));
-  }
-}
-
-if (clearLogsBtn) {
-  clearLogsBtn.addEventListener('click', () => {
-    consoleLogs.innerHTML = '<div class="log-entry system">[SYSTEM] Buffer cleared.</div>';
-    historicalLogs = [];
-  });
-}
-
-// =========================================================
-// 12. HARDWARE CONTROL ACTIONS
-// =========================================================
-window.rebootDevice = async function(deviceId) {
-  if (!confirm(`Remotely reboot node "${deviceId}"?`)) return;
-  try {
-    const res = await fetch(`/api/device/${deviceId}/reboot`, { method: 'POST' });
-    const data = await res.json();
-    showToastAlert('INFO', data.message || `Reboot command sent to ${deviceId}`);
-  } catch (err) {
-    showToastAlert('ERROR', 'Error: ' + err.message);
-  }
-};
-
-window.toggleLed = async function(deviceId) {
-  try {
-    await fetch(`/api/device/${deviceId}/toggle-led`, { method: 'POST' });
-    showToastAlert('INFO', `Toggled LED diagnostic on ${deviceId}`);
-  } catch (err) {
-    showToastAlert('ERROR', 'Error: ' + err.message);
-  }
-};
-
-window.openDeployForDevice = function(deviceId) {
-  openDeployModal();
-  targetDeviceSelect.value = deviceId;
-  validateDeployForm();
-};
-
-function updateStats() {
-  const onlineCount = devices.filter(d => d.isOnline).length;
-  if (statOnline) statOnline.textContent = onlineCount;
-  if (statTotal) statTotal.textContent = devices.length;
-}
-
-function populateDeviceSelects() {
-  const selects = [consoleDeviceSelect, targetDeviceSelect];
-  selects.forEach(sel => {
-    if (!sel) return;
-    const currentVal = sel.value;
-    const isTargetSel = sel === targetDeviceSelect;
-
-    sel.innerHTML = isTargetSel
-      ? '<option value="">SELECT AN ONLINE NODE...</option>'
-      : '<option value="">ALL FLEET NODES</option>';
-
-    devices.forEach(dev => {
-      const opt = document.createElement('option');
-      opt.value = dev.deviceId;
-      opt.textContent = `${dev.nickname || dev.name || dev.deviceId} (${dev.chip || 'ESP'}${dev.isOnline ? ' - ONLINE' : ' - OFFLINE'})`;
-      if (isTargetSel && !dev.isOnline) opt.disabled = true;
-      sel.appendChild(opt);
-    });
-
-    if (currentVal) sel.value = currentVal;
-  });
-}
-
-// Refresh Fleet State
-const refreshBtn = document.getElementById('refreshDevicesBtn');
-if (refreshBtn) {
-  refreshBtn.addEventListener('click', () => {
-    fetch('/api/devices').then(r => r.json()).then(data => {
-      devices = data;
-      renderDevices();
-      renderTagChips();
-      updateStats();
-      populateDeviceSelects();
-      showToastAlert('INFO', 'Synced fleet node state');
-    });
-  });
-}
-
-// Utilities
-function formatUptime(seconds) {
-  const m = Math.floor(seconds / 60);
-  const h = Math.floor(m / 60);
-  if (h > 0) return `${h}H ${m % 60}M`;
-  return `${m}M ${seconds % 60}S`;
-}
-
-function escapeHtml(str) {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
-// =========================================================
-// 12. SYSTEM SETTINGS & GATEWAY CONFIGURATION
+// 10. SYSTEM SETTINGS MODAL
 // =========================================================
 function openSettingsModal() {
   if (!settingsModal) return;
-  // Dismiss other open modals
-  if (deployModal) closeDeployModal();
-  if (firmwareLibraryModal) closeLibraryModal();
-  if (deviceEditModal) closeDeviceEditModal();
-
   settingsModal.classList.add('active');
   settingsModal.classList.add('open');
-  setActiveNavCapsule(sideNavSettings);
   fetchSettings();
 }
 
@@ -1326,7 +848,15 @@ function closeSettingsModal() {
   if (!settingsModal) return;
   settingsModal.classList.remove('active');
   settingsModal.classList.remove('open');
-  if (sideNavSettings) sideNavSettings.classList.remove('active');
+}
+
+if (openSettingsBtn) openSettingsBtn.addEventListener('click', openSettingsModal);
+if (closeSettingsModalBtn) closeSettingsModalBtn.addEventListener('click', closeSettingsModal);
+if (cancelSettingsBtn) cancelSettingsBtn.addEventListener('click', closeSettingsModal);
+if (settingsModal) {
+  settingsModal.addEventListener('click', (e) => {
+    if (e.target === settingsModal) closeSettingsModal();
+  });
 }
 
 async function fetchSettings() {
@@ -1346,65 +876,8 @@ function populateSettingsForm(s) {
   if (settingGatewayUrl && s.publicUrl) settingGatewayUrl.value = s.publicUrl;
   if (settingHeartbeatSec && s.heartbeatInterval) settingHeartbeatSec.value = s.heartbeatInterval;
   if (settingTimeoutSec && s.pongTimeout) settingTimeoutSec.value = s.pongTimeout;
-  if (settingMaxLogs && s.maxLogLines) settingMaxLogs.value = String(s.maxLogLines);
-  if (settingAutoScroll) settingAutoScroll.checked = s.autoScrollLogs !== false;
 }
 
-if (closeSettingsModalBtn) closeSettingsModalBtn.addEventListener('click', closeSettingsModal);
-if (cancelSettingsBtn) cancelSettingsBtn.addEventListener('click', closeSettingsModal);
-if (settingsModal) {
-  settingsModal.addEventListener('click', (e) => {
-    if (e.target === settingsModal) closeSettingsModal();
-  });
-}
-
-// Gateway Reachability Probe
-if (testGatewayBtn) {
-  testGatewayBtn.addEventListener('click', async () => {
-    const targetUrl = (settingGatewayUrl?.value || '').trim();
-    if (!targetUrl) {
-      alert('Please enter a Public Gateway URL first.');
-      return;
-    }
-
-    const origText = testGatewayBtn.textContent;
-    testGatewayBtn.disabled = true;
-    testGatewayBtn.textContent = 'PROBING...';
-
-    const startTime = performance.now();
-    try {
-      const probeUrl = targetUrl.replace(/\/+$/, '') + '/api/settings';
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
-
-      const res = await fetch(probeUrl, {
-        method: 'GET',
-        signal: controller.signal
-      });
-      clearTimeout(timeoutId);
-
-      const elapsed = Math.round(performance.now() - startTime);
-      if (res.ok) {
-        testGatewayBtn.textContent = `ONLINE [${elapsed}MS]`;
-        showToastAlert('INFO', `Gateway endpoint verified: ${targetUrl} (${elapsed}ms)`);
-      } else {
-        testGatewayBtn.textContent = `HTTP ${res.status}`;
-        showToastAlert('WARN', `Gateway responded with HTTP status ${res.status}`);
-      }
-    } catch (err) {
-      testGatewayBtn.textContent = 'UNREACHABLE';
-      const msg = err.name === 'AbortError' ? 'Connection timed out (5s)' : err.message;
-      showToastAlert('WARN', `Gateway probe failed: ${msg}`);
-    } finally {
-      setTimeout(() => {
-        testGatewayBtn.disabled = false;
-        testGatewayBtn.textContent = origText;
-      }, 3500);
-    }
-  });
-}
-
-// Gateway Quick Presets
 if (presetLocalHost) {
   presetLocalHost.addEventListener('click', () => {
     if (settingGatewayUrl) settingGatewayUrl.value = 'http://localhost:3000';
@@ -1417,18 +890,42 @@ if (presetOrigin) {
   });
 }
 
-// System Settings Form Submission
+if (testGatewayBtn) {
+  testGatewayBtn.addEventListener('click', async () => {
+    const targetUrl = (settingGatewayUrl?.value || '').trim();
+    if (!targetUrl) return;
+
+    const orig = testGatewayBtn.textContent;
+    testGatewayBtn.disabled = true;
+    testGatewayBtn.textContent = 'PROBING...';
+
+    try {
+      const res = await fetch(targetUrl.replace(/\/+$/, '') + '/api/settings');
+      if (res.ok) {
+        testGatewayBtn.textContent = 'REACHABLE';
+        showToastAlert('INFO', 'Gateway endpoint reached successfully');
+      } else {
+        testGatewayBtn.textContent = `HTTP ${res.status}`;
+      }
+    } catch (err) {
+      testGatewayBtn.textContent = 'UNREACHABLE';
+      showToastAlert('WARN', 'Could not reach gateway: ' + err.message);
+    } finally {
+      setTimeout(() => {
+        testGatewayBtn.disabled = false;
+        testGatewayBtn.textContent = orig;
+      }, 3000);
+    }
+  });
+}
+
 if (systemSettingsForm) {
   systemSettingsForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (saveSettingsBtn) saveSettingsBtn.disabled = true;
-
     const payload = {
       publicUrl: settingGatewayUrl ? settingGatewayUrl.value.trim() : '',
       heartbeatInterval: settingHeartbeatSec ? parseInt(settingHeartbeatSec.value, 10) : 15,
-      pongTimeout: settingTimeoutSec ? parseInt(settingTimeoutSec.value, 10) : 45,
-      maxLogLines: settingMaxLogs ? parseInt(settingMaxLogs.value, 10) : 200,
-      autoScrollLogs: settingAutoScroll ? settingAutoScroll.checked : true
+      pongTimeout: settingTimeoutSec ? parseInt(settingTimeoutSec.value, 10) : 45
     };
 
     try {
@@ -1441,23 +938,15 @@ if (systemSettingsForm) {
       if (data.error) throw new Error(data.error);
 
       if (payload.publicUrl) updatePublicUrl(payload.publicUrl);
-      autoScrollLogs = payload.autoScrollLogs;
-      if (toggleAutoScrollBtn) {
-        toggleAutoScrollBtn.classList.toggle('active', autoScrollLogs);
-        toggleAutoScrollBtn.textContent = `AUTO-SCROLL: ${autoScrollLogs ? 'ON' : 'OFF'}`;
-      }
-
-      showToastAlert('INFO', 'System settings updated across fleet hub');
       closeSettingsModal();
+      showToastAlert('INFO', 'System settings updated');
+      logActivity('Gateway settings updated');
     } catch (err) {
       alert('Failed to save settings: ' + err.message);
-    } finally {
-      if (saveSettingsBtn) saveSettingsBtn.disabled = false;
     }
   });
 }
 
-// Danger Zone: Purge Offline Nodes
 if (purgeOfflineDevicesBtn) {
   purgeOfflineDevicesBtn.addEventListener('click', async () => {
     const offlineCount = devices.filter(d => !d.isOnline).length;
@@ -1465,147 +954,96 @@ if (purgeOfflineDevicesBtn) {
       alert('No offline nodes detected in fleet storage.');
       return;
     }
+    if (!confirm(`Permanently remove ${offlineCount} offline node(s) from registry?`)) return;
 
-    if (!confirm(`Permanently remove ${offlineCount} offline node(s) from persistent registry?`)) {
-      return;
-    }
-
-    purgeOfflineDevicesBtn.disabled = true;
     try {
       const res = await fetch('/api/devices/purge-offline', { method: 'POST' });
       const data = await res.json();
-      if (data.error) throw new Error(data.error);
-
       showToastAlert('INFO', `Purged ${data.purgedCount} offline node(s)`);
-      if (Array.isArray(data.remainingDevices)) {
-        devices = data.remainingDevices;
-        renderDevices();
-        renderTagChips();
-        updateStats();
-        populateDeviceSelects();
-      }
+      logActivity(`Purged ${data.purgedCount} offline nodes from registry`);
+      refreshDevicesBtn.click();
     } catch (err) {
       alert('Failed to purge offline nodes: ' + err.message);
-    } finally {
-      purgeOfflineDevicesBtn.disabled = false;
     }
-  });
-}
-
-// Danger Zone: Clear Logs Buffer
-if (clearAllLogsBtn) {
-  clearAllLogsBtn.addEventListener('click', () => {
-    historicalLogs = [];
-    if (consoleLogs) consoleLogs.innerHTML = '';
-    showToastAlert('INFO', 'Telemetry log buffer cleared');
   });
 }
 
 // =========================================================
-// 13. TACTILE SIDEBAR MENU - CAPSULE BUTTON CONTROLS (USER SKETCH)
+// 11. TOAST NOTIFICATIONS & ACTIVITY TICKER
 // =========================================================
-const sideNavFleet = document.getElementById('sideNavFleet');
-const sideNavConsole = document.getElementById('sideNavConsole');
-const sideNavLibrary = document.getElementById('sideNavLibrary');
-const sideNavDeploy = document.getElementById('sideNavDeploy');
-const sideNavFlasher = document.getElementById('sideNavFlasher');
-const sidebarThemeBtn = document.getElementById('sidebarThemeBtn');
-const devicesSection = document.getElementById('devicesSection') || document.querySelector('.devices-section');
-const consolePanelEl = document.getElementById('consolePanel');
+function showToastAlert(type, message) {
+  if (!toastContainer) return;
 
-function setActiveNavCapsule(activeBtn) {
-  [sideNavFleet, sideNavConsole, sideNavLibrary, sideNavDeploy, sideNavSettings].forEach(btn => {
-    if (btn) btn.classList.remove('active');
-  });
-  if (activeBtn) activeBtn.classList.add('active');
+  const card = document.createElement('div');
+  const typeClass = (type || 'INFO').toLowerCase();
+  card.className = `toast-card ${typeClass}`;
+
+  const header = document.createElement('div');
+  header.className = 'toast-header';
+
+  const tag = document.createElement('span');
+  tag.className = 'toast-tag';
+  tag.textContent = `ALERT // ${type.toUpperCase()}`;
+
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'toast-close';
+  closeBtn.innerHTML = '&times;';
+  closeBtn.addEventListener('click', () => card.remove());
+
+  header.appendChild(tag);
+  header.appendChild(closeBtn);
+
+  const body = document.createElement('div');
+  body.className = 'toast-msg';
+  body.textContent = message;
+
+  card.appendChild(header);
+  card.appendChild(body);
+  toastContainer.appendChild(card);
+
+  setTimeout(() => {
+    card.style.opacity = '0';
+    card.style.transform = 'translateX(25px)';
+    setTimeout(() => card.remove(), 250);
+  }, 4500);
 }
 
-// 1. Fleet Matrix Capsule Click
-if (sideNavFleet) {
-  sideNavFleet.addEventListener('click', () => {
-    setActiveNavCapsule(sideNavFleet);
-    if (devicesSection) {
-      devicesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      devicesSection.classList.add('section-highlight-ping');
-      setTimeout(() => devicesSection.classList.remove('section-highlight-ping'), 1200);
-    }
-  });
+function logActivity(text) {
+  if (!tickerContent) return;
+  const time = new Date().toLocaleTimeString();
+  tickerContent.textContent = `[${time}] ${text}`;
 }
 
-// 2. Serial Telemetry Stream Capsule Click
-if (sideNavConsole) {
-  sideNavConsole.addEventListener('click', () => {
-    setActiveNavCapsule(sideNavConsole);
-    if (consolePanelEl) {
-      consolePanelEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      if (consoleInput) setTimeout(() => consoleInput.focus(), 350);
-      consolePanelEl.classList.add('section-highlight-ping');
-      setTimeout(() => consolePanelEl.classList.remove('section-highlight-ping'), 1200);
-    }
-  });
+// =========================================================
+// 12. UTILITIES
+// =========================================================
+function formatBytes(bytes) {
+  if (!bytes || bytes === 0) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
 }
 
-// 3. Firmware Library Capsule Click
-if (sideNavLibrary) {
-  sideNavLibrary.addEventListener('click', () => {
-    setActiveNavCapsule(sideNavLibrary);
-    openLibraryModal();
-  });
+function formatUptime(seconds) {
+  const m = Math.floor(seconds / 60);
+  const h = Math.floor(m / 60);
+  if (h > 0) return `${h}H ${m % 60}M`;
+  return `${m}M ${seconds % 60}S`;
 }
 
-// 4. OTA Deployer Capsule Click
-if (sideNavDeploy) {
-  sideNavDeploy.addEventListener('click', () => {
-    openDeployModal();
-    setActiveNavCapsule(sideNavDeploy);
-  });
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
-// 5. System Settings Capsule Click
-if (sideNavSettings) {
-  sideNavSettings.addEventListener('click', () => {
-    openSettingsModal();
-  });
-}
-
-// 6. Web Flasher Bench Capsule Click
-if (sideNavFlasher) {
-  sideNavFlasher.addEventListener('click', () => {
-    sideNavFlasher.classList.add('active');
-    setTimeout(() => sideNavFlasher.classList.remove('active'), 500);
-  });
-}
-
-// 7. Sidebar Bottom Theme Toggle Click
-if (sidebarThemeBtn) {
-  sidebarThemeBtn.addEventListener('click', () => {
-    const active = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-    applyTheme(active);
-  });
-}
-
-// 8. ScrollSpy: Auto-illuminate active capsule as operator scrolls views
-if (window.IntersectionObserver && devicesSection && consolePanelEl) {
-  const scrollSpyObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting && entry.intersectionRatio > 0.35) {
-        if (entry.target === devicesSection) {
-          if (!sideNavLibrary?.classList.contains('active') && !sideNavDeploy?.classList.contains('active') && !sideNavSettings?.classList.contains('active')) {
-            setActiveNavCapsule(sideNavFleet);
-          }
-        } else if (entry.target === consolePanelEl) {
-          if (!sideNavLibrary?.classList.contains('active') && !sideNavDeploy?.classList.contains('active') && !sideNavSettings?.classList.contains('active')) {
-            setActiveNavCapsule(sideNavConsole);
-          }
-        }
-      }
-    });
-  }, { threshold: [0.35, 0.7] });
-
-  scrollSpyObserver.observe(devicesSection);
-  scrollSpyObserver.observe(consolePanelEl);
-}
-
-// Fetch initial settings & connect WebSocket on load
+// =========================================================
+// INITIALIZE
+// =========================================================
 fetchSettings();
 connectWebSocket();
+logActivity('HAWA Fleet Console operational. Scanning for active hardware...');
