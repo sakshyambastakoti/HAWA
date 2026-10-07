@@ -1,17 +1,17 @@
 :root {
-  --bg-primary: #202020;
-  --bg-secondary: #191919;
-  --bg-card: rgba(39, 39, 39, 0.88);
-  --bg-card-hover: rgba(48, 48, 48, 0.95);
-  --border-color: rgba(255, 255, 255, 0.14);
-  --border-glow: rgba(255, 255, 255, 0.28);
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #050505;
+  --bg-card: rgba(18, 18, 18, 0.92);
+  --bg-card-hover: rgba(26, 26, 26, 0.96);
+  --border-color: rgba(255, 255, 255, 0.12);
+  --border-glow: rgba(255, 255, 255, 0.25);
   --accent-cyan: #38bdf8;
   --accent-indigo: #818cf8;
   --accent-emerald: #10b981;
   --accent-amber: #f59e0b;
   --accent-rose: #f43f5e;
-  --text-main: #f2f0e8;
-  --text-muted: #949285;
+  --text-main: #ffffff;
+  --text-muted: #88888e;
   --font-family: 'Space Grotesk', 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
   --font-dot: 'Doto', 'DotGothic16', monospace, sans-serif;
@@ -30,7 +30,7 @@ body {
   font-family: var(--font-family);
   min-height: 100vh;
   line-height: 1.5;
-  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(255, 255, 255, 0.09) 1px, transparent 1px);
   background-size: 24px 24px;
 }
 
@@ -40,7 +40,7 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 1.25rem 2.5rem;
-  background: rgba(32, 32, 32, 0.94);
+  background: rgba(10, 10, 10, 0.94);
   backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border-color);
   position: sticky;

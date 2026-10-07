@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Doto:wght@300;400;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/flasher.css?v=8">
+  <link rel="stylesheet" href="/css/flasher.css?v=9">
   <script>
     (function() {
       const saved = localStorage.getItem('hawa_theme') || 'light';
@@ -424,28 +424,6 @@
                     </div>
                   </div>
                 </div>
-
-                <!-- 4. Optional Wi-Fi Setup for Custom Bin -->
-                <details class="custom-wifi-accordion">
-                  <summary class="custom-wifi-summary">
-                    <span>Optional: Provision Wi-Fi Credentials via Serial</span>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="6 9 12 15 18 9"></polyline>
-                    </svg>
-                  </summary>
-                  <div class="custom-wifi-body">
-                    <div class="form-row" style="margin-bottom: 0;">
-                      <div class="form-group" style="margin-bottom: 0;">
-                        <label class="form-label" for="wifiSsidCustom">Wi-Fi Name (SSID)</label>
-                        <input type="text" id="wifiSsidCustom" class="form-input" placeholder="e.g. Home_WiFi">
-                      </div>
-                      <div class="form-group" style="margin-bottom: 0;">
-                        <label class="form-label" for="wifiPassCustom">Wi-Fi Password</label>
-                        <input type="password" id="wifiPassCustom" class="form-input" placeholder="Leave blank if open">
-                      </div>
-                    </div>
-                  </div>
-                </details>
 
                 <!-- Custom Flash CTA -->
                 <button type="button" id="startFlashCustomBtn" class="btn-flash">
