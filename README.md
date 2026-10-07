@@ -1,10 +1,59 @@
-# 🌬️ HAWA (हावा) — Global Over-The-Air (OTA) IoT Platform
+# HAWA (हावा) — Global Over-The-Air (OTA) IoT Platform
 
-**Hawa** is an end-to-end Over-The-Air platform that makes remote microcontroller programming frictionless. Your friends never need to install Arduino IDE, Python, or USB drivers. They plug their board into a browser once, and you can remotely flash firmware and view live serial debug logs from anywhere in the world.
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/sakshyambastakoti/HAWA)
+[![Arduino Library](https://img.shields.io/badge/Arduino%20Library-Hawa%20v1.0.0-00979D.svg)](https://github.com/sakshyambastakoti/Hawa-Arduino-Library)
+
+**Hawa** is an end-to-end Over-The-Air platform that makes remote microcontroller programming frictionless. Your users never need to install Arduino IDE, Python, or USB drivers. They plug their board into a browser once, and you can remotely flash firmware and view live serial debug logs from anywhere in the world.
 
 ---
 
-## 🚀 Quick Start Guide
+## 🌐 24/7 Cloud Deployment (Render.com)
+
+You can host the entire Hawa platform on **Render.com** in under 2 minutes:
+
+### Option A: 1-Click Blueprint Deploy
+Click the button below:
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/sakshyambastakoti/HAWA)
+
+### Option B: Connect via Render Dashboard
+1. Log in to [Render.com](https://render.com)
+2. Click **New +** -> **Web Service**
+3. Select your GitHub repository: `sakshyambastakoti/HAWA`
+4. Configure service settings:
+   - **Environment:** `Node`
+   - **Build Command:** `npm install`
+   - **Start Command:** `npm start`
+   - **Plan:** `Free`
+5. Click **Deploy Web Service**
+6. Render will assign you a permanent 24/7 HTTPS URL (e.g. `https://hawa-platform.onrender.com`).
+   - Dashboard: `https://hawa-platform.onrender.com`
+   - In-Browser Web Serial Flasher: `https://hawa-platform.onrender.com/flash.html`
+
+---
+
+## 📦 Official Arduino Library
+
+Hawa is officially indexed in the **Arduino Library Manager**:
+1. Open **Arduino IDE**
+2. Go to **Sketch** -> **Include Library** -> **Manage Libraries...**
+3. Search for **`Hawa`** and click **Install**.
+4. In your sketch:
+```cpp
+#include <Hawa.h>
+
+void setup() {
+  Hawa.begin("Your_WiFi_SSID", "Your_WiFi_Password", "https://hawa-platform.onrender.com");
+}
+
+void loop() {
+  Hawa.handle();
+}
+```
+
+---
+
+## Quick Start (Local Development)
 
 ### 1. Start the Server & Public Tunnel
 In PowerShell in `d:\HAWA`:
