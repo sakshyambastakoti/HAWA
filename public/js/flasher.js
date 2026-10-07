@@ -453,15 +453,37 @@ async function executeFlash(params) {
   }
 }
 
+// Helper to send text over serial port without stream lock leaks
+async function writeSerialText(serialPort, text) {
+  if (!serialPort || !serialPort.writable) return;
+  const encoder = new TextEncoder();
+  const writer = serialPort.writable.getWriter();
+  try {
+    await writer.write(encoder.encode(text));
+  } finally {
+    writer.releaseLock();
+  }
+}
+
+let isMonitoringActive = false;
+
 // Serial provisioning
 async function performSerialProvisioning(serialPort, ssid, pass, server, name, activeBtn) {
   try {
-    logToConsole('[SERIAL] Opening port at 115200 baud to inject configuration...');
-    await serialPort.open({ baudRate: 115200 });
+    logToConsole('[SERIAL] Opening port at 115200 baud for configuration & logs...');
+    if (!serialPort.readable || !serialPort.writable) {
+      try {
+        await serialPort.open({ baudRate: 115200 });
+      } catch (openErr) {
+        if (!openErr.message.includes('already open')) throw openErr;
+      }
+    }
 
-    const textEncoder = new TextEncoderStream();
-    textEncoder.readable.pipeTo(serialPort.writable);
-    const writer = textEncoder.writable.getWriter();
+    // Start serial monitoring immediately so boot logs and ACKs are displayed live!
+    startLiveSerialMonitoring(serialPort);
+
+    // Wait a brief moment for ESP bootloader to initialize
+    await new Promise(r => setTimeout(r, 1200));
 
     const configPayload = JSON.stringify({
       ssid,
@@ -471,57 +493,76 @@ async function performSerialProvisioning(serialPort, ssid, pass, server, name, a
     });
 
     const configCommand = `HAWA_CONFIG:${configPayload}\n`;
-    logToConsole(`[CONFIG] Sending: SSID "${ssid}", Server "${server}"...`);
+    logToConsole(`[CONFIG] Sending network credentials over serial...`);
+    logToConsole(`[CONFIG] SSID: "${ssid}", Server: "${server}"`);
 
-    await new Promise(r => setTimeout(r, 1000));
-    await writer.write(configCommand);
-    await new Promise(r => setTimeout(r, 500));
-    await writer.write(configCommand);
-
-    writer.releaseLock();
-    await serialPort.close();
+    // Send configuration command
+    await writeSerialText(serialPort, configCommand);
+    await new Promise(r => setTimeout(r, 600));
+    await writeSerialText(serialPort, configCommand);
 
     if (flasherPercent) flasherPercent.textContent = '100%';
     if (flasherBarFill) flasherBarFill.style.width = '100%';
-    if (flasherStatusText) flasherStatusText.textContent = 'Complete! Board Connected to Hawa!';
+    if (flasherStatusText) flasherStatusText.textContent = 'Config sent! Board connecting to Wi-Fi...';
     if (bubble3) bubble3.classList.add('done');
 
     logToConsole('\n------------------------------------------------------');
-    logToConsole('[SUCCESS] Wi-Fi and Hawa Hub configuration saved.');
-    logToConsole('Board connecting to network and linking to hub.');
-    logToConsole('------------------------------------------------------');
-
-    alert('Success: Your board is configured and linked to Hawa.');
-
-    await new Promise(r => setTimeout(r, 600));
-    startLiveSerialMonitoring(serialPort);
+    logToConsole('[SUCCESS] Wi-Fi and Hawa Hub credentials sent to board.');
+    logToConsole('Live serial monitor active below:');
+    logToConsole('------------------------------------------------------\n');
 
   } catch (err) {
-    logToConsole(`[WARN] Serial configuration note: ${err.message}`);
-    if (flasherStatusText) flasherStatusText.textContent = 'Board flashed! Please restart board.';
+    logToConsole(`[WARN] Serial note: ${err.message}`);
+    if (flasherStatusText) flasherStatusText.textContent = 'Board flashed! Please check monitor.';
+    startLiveSerialMonitoring(serialPort);
   } finally {
     if (activeBtn) activeBtn.disabled = false;
   }
 }
 
-// Live serial stream listener
+// Live serial stream listener (lock-free, direct chunk decoder)
 async function startLiveSerialMonitoring(serialPort) {
+  if (isMonitoringActive) return;
+  if (!serialPort) return;
+
+  if (!serialPort.readable) {
+    try {
+      await serialPort.open({ baudRate: 115200 });
+    } catch (openErr) {
+      if (!openErr.message.includes('already open')) {
+        logToConsole(`[MONITOR] Could not open port: ${openErr.message}`);
+        return;
+      }
+    }
+  }
+
+  isMonitoringActive = true;
+  logToConsole('[MONITOR] Live serial stream connected at 115200 baud.\n');
+
+  const decoder = new TextDecoder();
   try {
-    logToConsole('[MONITOR] Starting live serial stream at 115200 baud...');
-    await serialPort.open({ baudRate: 115200 });
-    const textDecoder = new TextDecoderStream();
-    serialPort.readable.pipeTo(textDecoder.writable);
-    const reader = textDecoder.readable.getReader();
-    logToConsole('[SERIAL STREAM ACTIVE] Ready for incoming data:\n');
-    while (true) {
-      const { value, done } = await reader.read();
-      if (done) break;
-      if (value) {
-        serialConsole.textContent += value;
-        serialConsole.scrollTop = serialConsole.scrollHeight;
+    while (serialPort.readable && isMonitoringActive) {
+      const reader = serialPort.readable.getReader();
+      try {
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          if (value && serialConsole) {
+            const chunk = decoder.decode(value, { stream: true });
+            serialConsole.textContent += chunk;
+            serialConsole.scrollTop = serialConsole.scrollHeight;
+          }
+        }
+      } catch (readErr) {
+        console.warn('Serial read error:', readErr);
+        break;
+      } finally {
+        reader.releaseLock();
       }
     }
   } catch (err) {
-    // Port closed or disconnected
+    console.warn('Monitoring stream error:', err);
+  } finally {
+    isMonitoringActive = false;
   }
 }

@@ -90,7 +90,12 @@ void checkSerialProvisioning() {
                 String newName = doc["name"] | "ESP32-Device";
 
                 config.saveCredentials(newSsid, newPass, newServer, newName);
-                Serial.println("HAWA_ACK:CONFIG_SAVED");
+                Serial.println("\n==================================");
+                Serial.println("✅ [HAWA] Wi-Fi CONFIG SAVED TO NVS!");
+                Serial.println("SSID: " + newSsid);
+                Serial.println("Server: " + newServer);
+                Serial.println("Rebooting board to connect to Wi-Fi...");
+                Serial.println("==================================\n");
                 delay(1000);
                 ESP.restart();
             } else {
@@ -179,6 +184,7 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
 
 void setup() {
     Serial.begin(115200);
+    Serial.setTimeout(100);
     pinMode(LED_PIN, OUTPUT);
     digitalWrite(LED_PIN, LOW);
 
@@ -186,6 +192,7 @@ void setup() {
     HawaOTA::validateCurrentApp();
 
     config.begin();
+    WiFi.mode(WIFI_STA);
     currentDeviceId = "hawa-esp32-" + WiFi.macAddress();
     currentDeviceId.replace(":", "");
     currentDeviceId.toLowerCase();
