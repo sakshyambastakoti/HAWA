@@ -1164,6 +1164,9 @@ body {
 .flasher-terminal-col {
   display: flex;
   flex-direction: column;
+  position: sticky;
+  top: 1.5rem;
+  align-self: start;
 }
 
 .terminal-wrapper {
@@ -1172,8 +1175,11 @@ body {
   box-shadow: var(--shadow-frame);
   display: flex;
   flex-direction: column;
-  height: 100%;
-  min-height: 480px;
+  height: 560px;
+  max-height: 560px;
+  overflow: hidden;
+  position: relative;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .terminal-header {
@@ -1183,6 +1189,7 @@ body {
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
 }
 
 .terminal-window-controls {
@@ -1208,6 +1215,16 @@ body {
 
 .term-dot-green {
   background: #22c55e;
+}
+
+.term-dot-expand {
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.term-dot-expand:hover {
+  transform: scale(1.35);
+  box-shadow: 0 0 8px #22c55e;
 }
 
 .term-prompt-label {
@@ -1238,12 +1255,20 @@ body {
   padding: 0.3rem 0.75rem;
   cursor: pointer;
   transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
 }
 
 .terminal-mini-btn:hover {
   background: #ffffff;
   color: #000000;
   border-color: #ffffff;
+}
+
+.terminal-expand-btn svg {
+  stroke-width: 2.2;
 }
 
 .serial-console {
@@ -1256,8 +1281,11 @@ body {
   letter-spacing: 0.015em;
   color: #ffffff !important;
   text-shadow: 0 0 1px rgba(255, 255, 255, 0.25);
-  height: 240px;
+  flex: 1 1 0%;
+  min-height: 0;
+  height: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   white-space: pre-wrap;
   word-break: break-all;
   tab-size: 4;
@@ -1290,10 +1318,10 @@ body {
 }
 
 .flasher-terminal-col .serial-console {
-  flex: 1;
-  height: 100%;
-  min-height: 380px;
-  max-height: 520px;
+  flex: 1 1 0%;
+  min-height: 0;
+  height: 0;
+  max-height: none;
 }
 
 .terminal-footer-bar {
@@ -1308,12 +1336,136 @@ body {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: #71717a;
+  flex-shrink: 0;
 }
 
 .terminal-footer-bar span {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
+}
+
+.terminal-input-bar {
+  display: flex;
+  gap: 0.45rem;
+  padding: 0.5rem 0.85rem;
+  background: var(--terminal-header-bg);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.terminal-input-bar input {
+  flex: 1;
+  min-width: 0;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 0.45rem 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.terminal-input-bar input:focus {
+  border-color: var(--border-active);
+}
+
+.terminal-input-bar button {
+  padding: 0.45rem 0.85rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+#terminalSendBtn {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  border: none;
+}
+
+#terminalSendBtn:hover {
+  opacity: 0.9;
+}
+
+#terminalInjectWifiBtn {
+  background: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+  border: 1px solid var(--btn-secondary-border);
+}
+
+#terminalInjectWifiBtn:hover {
+  background: var(--border-color);
+}
+
+/* =========================================================
+   FULLSCREEN TERMINAL VIEWPORT OVERLAY
+   ========================================================= */
+body.terminal-fullscreen-active {
+  overflow: hidden !important;
+}
+
+.terminal-wrapper.is-fullscreen {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  z-index: 999999 !important;
+  margin: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.terminal-wrapper.is-fullscreen .terminal-header {
+  padding: 0.85rem 1.75rem;
+}
+
+.terminal-wrapper.is-fullscreen .serial-console {
+  padding: 1.5rem 2rem;
+  font-size: 0.875rem;
+  line-height: 1.75;
+}
+
+.terminal-wrapper.is-fullscreen .terminal-footer-bar {
+  padding: 0.65rem 1.75rem;
+  font-size: 0.78rem;
+}
+
+.terminal-wrapper.is-fullscreen .terminal-input-bar {
+  padding: 0.75rem 1.75rem;
+  gap: 0.75rem;
+}
+
+.terminal-wrapper.is-fullscreen .terminal-input-bar input {
+  padding: 0.6rem 1rem;
+  font-size: 0.875rem;
+}
+
+.terminal-wrapper.is-fullscreen .terminal-input-bar button {
+  padding: 0.6rem 1.25rem;
+  font-size: 0.825rem;
+}
+
+.terminal-wrapper.is-fullscreen .terminal-expand-btn {
+  background: var(--nothing-red);
+  border-color: var(--nothing-red);
+  color: #ffffff;
+}
+
+.terminal-wrapper.is-fullscreen .terminal-expand-btn:hover {
+  background: #ffffff;
+  color: #000000;
+  border-color: #ffffff;
 }
 
 /* =========================================================
@@ -1597,12 +1749,19 @@ body {
     grid-template-columns: 1fr;
     gap: 1.75rem;
   }
+  .flasher-terminal-col {
+    position: static;
+  }
   .flasher-terminal-col .terminal-wrapper {
-    min-height: 300px;
+    height: 480px;
+    max-height: 480px;
+    min-height: 480px;
   }
   .flasher-terminal-col .serial-console {
-    min-height: 240px;
-    height: 280px;
+    flex: 1 1 0%;
+    min-height: 0;
+    height: 0;
+    max-height: none;
   }
   .excel-grid {
     grid-template-columns: repeat(2, 1fr);

@@ -458,15 +458,24 @@
 
           <!-- Right Column: Live Serial Monitor -->
           <div class="flasher-terminal-col">
-            <div class="terminal-wrapper">
+            <div class="terminal-wrapper" id="terminalWrapper">
               <div class="terminal-header">
                 <div class="terminal-window-controls">
-                  <span class="term-dot term-dot-red"></span>
-                  <span class="term-dot term-dot-yellow"></span>
-                  <span class="term-dot term-dot-green"></span>
+                  <span class="term-dot term-dot-red" title="Serial Status"></span>
+                  <span class="term-dot term-dot-yellow" title="Baud Rate: 115200"></span>
+                  <span class="term-dot term-dot-green term-dot-expand" id="termDotExpand" title="Expand to Fullscreen (Esc to exit)" role="button" tabindex="0"></span>
                   <span class="term-prompt-label">esp-serial@ttyUSB0</span>
                 </div>
                 <div class="terminal-actions">
+                  <button type="button" class="terminal-mini-btn terminal-expand-btn" id="expandConsoleBtn" title="Toggle Fullscreen (Esc to exit)">
+                    <svg class="expand-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="15 3 21 3 21 9"></polyline>
+                      <polyline points="9 21 3 21 3 15"></polyline>
+                      <line x1="21" y1="3" x2="14" y2="10"></line>
+                      <line x1="3" y1="21" x2="10" y2="14"></line>
+                    </svg>
+                    <span id="expandBtnLabel">EXPAND</span>
+                  </button>
                   <button type="button" class="terminal-mini-btn" id="copyConsoleBtn">Copy Logs</button>
                   <button type="button" class="terminal-mini-btn" id="clearConsoleBtn">Clear</button>
                 </div>
@@ -478,10 +487,10 @@
                 <span>Baud: 115200 · RTS/DTR Auto</span>
                 <span>Live Serial Stream</span>
               </div>
-              <div class="terminal-input-bar" style="display: flex; gap: 0.4rem; padding: 0.5rem 0.75rem; background: var(--terminal-header-bg); border-top: 1px solid var(--terminal-border);">
-                <input type="text" id="terminalCmdInput" placeholder="Send serial command (e.g. WIFI:sakshyam,pass)..." style="flex: 1; min-width: 0; background: var(--bg-surface); border: 1px solid var(--border-color); color: var(--text-primary); padding: 0.4rem 0.65rem; font-family: var(--font-mono); font-size: 0.78rem; outline: none;">
-                <button type="button" id="terminalSendBtn" style="padding: 0.4rem 0.85rem; background: var(--btn-primary-bg); color: var(--btn-primary-text); border: none; font-family: var(--font-mono); font-size: 0.75rem; font-weight: 700; cursor: pointer;">SEND</button>
-                <button type="button" id="terminalInjectWifiBtn" style="padding: 0.4rem 0.85rem; background: var(--btn-secondary-bg); color: var(--btn-secondary-text); border: 1px solid var(--btn-secondary-border); font-family: var(--font-mono); font-size: 0.75rem; cursor: pointer; white-space: nowrap;" title="Inject Wi-Fi credentials from form above">INJECT WI-FI</button>
+              <div class="terminal-input-bar">
+                <input type="text" id="terminalCmdInput" placeholder="Send serial command (e.g. WIFI:sakshyam,pass)...">
+                <button type="button" id="terminalSendBtn">SEND</button>
+                <button type="button" id="terminalInjectWifiBtn" title="Inject Wi-Fi credentials from form above">INJECT WI-FI</button>
               </div>
             </div>
           </div>
@@ -723,7 +732,7 @@
     </div>
   </footer>
 
-  <script type="module" src="/js/flasher.js?v=8"></script>
+  <script type="module" src="/js/flasher.js?v=9"></script>
 
   <!-- Clean UI interactivity script without emojis or board cards -->
   <script>
@@ -779,6 +788,51 @@
         }
       });
     }
+
+    // Terminal Fullscreen Toggle Handler
+    const expandConsoleBtn = document.getElementById('expandConsoleBtn');
+    const termDotExpand = document.getElementById('termDotExpand');
+    const terminalWrapper = document.getElementById('terminalWrapper');
+    const expandBtnLabel = document.getElementById('expandBtnLabel');
+
+    function toggleTerminalFullscreen() {
+      if (!terminalWrapper) return;
+      const isFullscreen = terminalWrapper.classList.toggle('is-fullscreen');
+      document.body.classList.toggle('terminal-fullscreen-active', isFullscreen);
+
+      const expandBtn = document.getElementById('expandConsoleBtn');
+      const icon = expandBtn ? expandBtn.querySelector('svg') : null;
+
+      if (isFullscreen) {
+        if (expandBtnLabel) expandBtnLabel.textContent = 'COLLAPSE';
+        if (expandBtn) expandBtn.setAttribute('title', 'Exit Fullscreen (Esc)');
+        if (icon) {
+          icon.innerHTML = '<polyline points="4 14 10 14 10 20"></polyline><polyline points="20 10 14 10 14 4"></polyline><line x1="14" y1="10" x2="21" y2="3"></line><line x1="10" y1="14" x2="3" y2="21"></line>';
+        }
+      } else {
+        if (expandBtnLabel) expandBtnLabel.textContent = 'EXPAND';
+        if (expandBtn) expandBtn.setAttribute('title', 'Toggle Fullscreen (Esc to exit)');
+        if (icon) {
+          icon.innerHTML = '<polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line>';
+        }
+      }
+
+      // Automatically keep internal console scrolled to latest output
+      const consoleEl = document.getElementById('serialConsole');
+      if (consoleEl) {
+        consoleEl.scrollTop = consoleEl.scrollHeight;
+      }
+    }
+
+    if (expandConsoleBtn) expandConsoleBtn.addEventListener('click', toggleTerminalFullscreen);
+    if (termDotExpand) termDotExpand.addEventListener('click', toggleTerminalFullscreen);
+
+    // Escape key closes fullscreen mode
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && terminalWrapper && terminalWrapper.classList.contains('is-fullscreen')) {
+        toggleTerminalFullscreen();
+      }
+    });
 
     // Copy Console Logs
     const copyBtn = document.getElementById('copyConsoleBtn');

@@ -21,12 +21,12 @@
     "chip": "ESP32 (ESP32-D0WDQ6)",
     "mac": "24:6F:28:1A:BC:3D",
     "ip": "192.168.1.108",
-    "rssi": -55,
+    "rssi": -54,
     "firmwareVersion": "v2.0.0-blink-heartbeat",
-    "freeHeap": 216982,
-    "uptime": 150,
-    "status": "rebooting",
-    "lastSeen": 1791379351050,
+    "freeHeap": 218803,
+    "uptime": 2025,
+    "status": "online",
+    "lastSeen": 1791382742919,
     "firstSeen": 1791366576891,
     "metrics": null,
     "lastOta": {
@@ -38,5 +38,22 @@
       "completedAt": 1791379365631,
       "errorMessage": null
     }
+  },
+  "hawa-esp32-000000000000": {
+    "deviceId": "hawa-esp32-000000000000",
+    "name": "sakshyam",
+    "nickname": null,
+    "tags": [],
+    "chip": "ESP32 (ESP32-D0WD-V3)",
+    "mac": "88:57:21:B6:43:70",
+    "ip": "192.168.137.186",
+    "rssi": -55,
+    "firmwareVersion": "1.0.0",
+    "freeHeap": 189428,
+    "uptime": 120,
+    "status": "offline",
+    "lastSeen": 1791382752134,
+    "firstSeen": 1791382566177,
+    "metrics": null
   }
 }
