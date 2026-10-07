@@ -1,0 +1,7 @@
+{
+  "publicUrl": "http://localhost:3000",
+  "heartbeatInterval": 20,
+  "pongTimeout": 50,
+  "maxLogLines": 500,
+  "autoScrollLogs": true
+}

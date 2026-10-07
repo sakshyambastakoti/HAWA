@@ -117,6 +117,24 @@ const editNicknameInput = document.getElementById('editNicknameInput');
 const editTagsInput = document.getElementById('editTagsInput');
 const editModalSubtitle = document.getElementById('editModalSubtitle');
 
+// Modals: System Settings & Gateway Modal
+const settingsModal = document.getElementById('settingsModal');
+const sideNavSettings = document.getElementById('sideNavSettings');
+const closeSettingsModalBtn = document.getElementById('closeSettingsModalBtn');
+const cancelSettingsBtn = document.getElementById('cancelSettingsBtn');
+const systemSettingsForm = document.getElementById('systemSettingsForm');
+const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+const settingGatewayUrl = document.getElementById('settingGatewayUrl');
+const testGatewayBtn = document.getElementById('testGatewayBtn');
+const presetLocalHost = document.getElementById('presetLocalHost');
+const presetOrigin = document.getElementById('presetOrigin');
+const settingHeartbeatSec = document.getElementById('settingHeartbeatSec');
+const settingTimeoutSec = document.getElementById('settingTimeoutSec');
+const settingMaxLogs = document.getElementById('settingMaxLogs');
+const settingAutoScroll = document.getElementById('settingAutoScroll');
+const purgeOfflineDevicesBtn = document.getElementById('purgeOfflineDevicesBtn');
+const clearAllLogsBtn = document.getElementById('clearAllLogsBtn');
+
 // Toast Container
 const toastContainer = document.getElementById('toastContainer');
 
@@ -155,6 +173,7 @@ function handleWsMessage(msg) {
       devices = msg.devices || [];
       if (Array.isArray(msg.firmwares)) firmwares = msg.firmwares;
       if (msg.publicUrl) updatePublicUrl(msg.publicUrl);
+      if (msg.settings) populateSettingsForm(msg.settings);
       renderDevices();
       renderTagChips();
       renderFirmwareLibrary();
@@ -211,6 +230,13 @@ function handleWsMessage(msg) {
 
     case 'FLEET_ALERT':
       showToastAlert(msg.alertType, msg.message);
+      break;
+
+    case 'SERVER_CONFIG_UPDATED':
+      if (msg.settings) {
+        if (msg.settings.publicUrl) updatePublicUrl(msg.settings.publicUrl);
+        populateSettingsForm(msg.settings);
+      }
       break;
   }
 }
@@ -1269,6 +1295,201 @@ function escapeHtml(str) {
 }
 
 // =========================================================
+// 12. SYSTEM SETTINGS & GATEWAY CONFIGURATION
+// =========================================================
+function openSettingsModal() {
+  if (!settingsModal) return;
+  // Dismiss other open modals
+  if (deployModal) closeDeployModal();
+  if (firmwareLibraryModal) closeLibraryModal();
+  if (deviceEditModal) closeDeviceEditModal();
+
+  settingsModal.classList.add('active');
+  settingsModal.classList.add('open');
+  setActiveNavCapsule(sideNavSettings);
+  fetchSettings();
+}
+
+function closeSettingsModal() {
+  if (!settingsModal) return;
+  settingsModal.classList.remove('active');
+  settingsModal.classList.remove('open');
+  if (sideNavSettings) sideNavSettings.classList.remove('active');
+}
+
+async function fetchSettings() {
+  try {
+    const res = await fetch('/api/settings');
+    const data = await res.json();
+    if (data && data.settings) {
+      populateSettingsForm(data.settings);
+    }
+  } catch (err) {
+    console.error('[SETTINGS] Fetch error:', err);
+  }
+}
+
+function populateSettingsForm(s) {
+  if (!s) return;
+  if (settingGatewayUrl && s.publicUrl) settingGatewayUrl.value = s.publicUrl;
+  if (settingHeartbeatSec && s.heartbeatInterval) settingHeartbeatSec.value = s.heartbeatInterval;
+  if (settingTimeoutSec && s.pongTimeout) settingTimeoutSec.value = s.pongTimeout;
+  if (settingMaxLogs && s.maxLogLines) settingMaxLogs.value = String(s.maxLogLines);
+  if (settingAutoScroll) settingAutoScroll.checked = s.autoScrollLogs !== false;
+}
+
+if (closeSettingsModalBtn) closeSettingsModalBtn.addEventListener('click', closeSettingsModal);
+if (cancelSettingsBtn) cancelSettingsBtn.addEventListener('click', closeSettingsModal);
+if (settingsModal) {
+  settingsModal.addEventListener('click', (e) => {
+    if (e.target === settingsModal) closeSettingsModal();
+  });
+}
+
+// Gateway Reachability Probe
+if (testGatewayBtn) {
+  testGatewayBtn.addEventListener('click', async () => {
+    const targetUrl = (settingGatewayUrl?.value || '').trim();
+    if (!targetUrl) {
+      alert('Please enter a Public Gateway URL first.');
+      return;
+    }
+
+    const origText = testGatewayBtn.textContent;
+    testGatewayBtn.disabled = true;
+    testGatewayBtn.textContent = 'PROBING...';
+
+    const startTime = performance.now();
+    try {
+      const probeUrl = targetUrl.replace(/\/+$/, '') + '/api/settings';
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+      const res = await fetch(probeUrl, {
+        method: 'GET',
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+
+      const elapsed = Math.round(performance.now() - startTime);
+      if (res.ok) {
+        testGatewayBtn.textContent = `ONLINE [${elapsed}MS]`;
+        showToastAlert('INFO', `Gateway endpoint verified: ${targetUrl} (${elapsed}ms)`);
+      } else {
+        testGatewayBtn.textContent = `HTTP ${res.status}`;
+        showToastAlert('WARN', `Gateway responded with HTTP status ${res.status}`);
+      }
+    } catch (err) {
+      testGatewayBtn.textContent = 'UNREACHABLE';
+      const msg = err.name === 'AbortError' ? 'Connection timed out (5s)' : err.message;
+      showToastAlert('WARN', `Gateway probe failed: ${msg}`);
+    } finally {
+      setTimeout(() => {
+        testGatewayBtn.disabled = false;
+        testGatewayBtn.textContent = origText;
+      }, 3500);
+    }
+  });
+}
+
+// Gateway Quick Presets
+if (presetLocalHost) {
+  presetLocalHost.addEventListener('click', () => {
+    if (settingGatewayUrl) settingGatewayUrl.value = 'http://localhost:3000';
+  });
+}
+
+if (presetOrigin) {
+  presetOrigin.addEventListener('click', () => {
+    if (settingGatewayUrl) settingGatewayUrl.value = window.location.origin;
+  });
+}
+
+// System Settings Form Submission
+if (systemSettingsForm) {
+  systemSettingsForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (saveSettingsBtn) saveSettingsBtn.disabled = true;
+
+    const payload = {
+      publicUrl: settingGatewayUrl ? settingGatewayUrl.value.trim() : '',
+      heartbeatInterval: settingHeartbeatSec ? parseInt(settingHeartbeatSec.value, 10) : 15,
+      pongTimeout: settingTimeoutSec ? parseInt(settingTimeoutSec.value, 10) : 45,
+      maxLogLines: settingMaxLogs ? parseInt(settingMaxLogs.value, 10) : 200,
+      autoScrollLogs: settingAutoScroll ? settingAutoScroll.checked : true
+    };
+
+    try {
+      const res = await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      if (payload.publicUrl) updatePublicUrl(payload.publicUrl);
+      autoScrollLogs = payload.autoScrollLogs;
+      if (toggleAutoScrollBtn) {
+        toggleAutoScrollBtn.classList.toggle('active', autoScrollLogs);
+        toggleAutoScrollBtn.textContent = `AUTO-SCROLL: ${autoScrollLogs ? 'ON' : 'OFF'}`;
+      }
+
+      showToastAlert('INFO', 'System settings updated across fleet hub');
+      closeSettingsModal();
+    } catch (err) {
+      alert('Failed to save settings: ' + err.message);
+    } finally {
+      if (saveSettingsBtn) saveSettingsBtn.disabled = false;
+    }
+  });
+}
+
+// Danger Zone: Purge Offline Nodes
+if (purgeOfflineDevicesBtn) {
+  purgeOfflineDevicesBtn.addEventListener('click', async () => {
+    const offlineCount = devices.filter(d => !d.isOnline).length;
+    if (offlineCount === 0) {
+      alert('No offline nodes detected in fleet storage.');
+      return;
+    }
+
+    if (!confirm(`Permanently remove ${offlineCount} offline node(s) from persistent registry?`)) {
+      return;
+    }
+
+    purgeOfflineDevicesBtn.disabled = true;
+    try {
+      const res = await fetch('/api/devices/purge-offline', { method: 'POST' });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      showToastAlert('INFO', `Purged ${data.purgedCount} offline node(s)`);
+      if (Array.isArray(data.remainingDevices)) {
+        devices = data.remainingDevices;
+        renderDevices();
+        renderTagChips();
+        updateStats();
+        populateDeviceSelects();
+      }
+    } catch (err) {
+      alert('Failed to purge offline nodes: ' + err.message);
+    } finally {
+      purgeOfflineDevicesBtn.disabled = false;
+    }
+  });
+}
+
+// Danger Zone: Clear Logs Buffer
+if (clearAllLogsBtn) {
+  clearAllLogsBtn.addEventListener('click', () => {
+    historicalLogs = [];
+    if (consoleLogs) consoleLogs.innerHTML = '';
+    showToastAlert('INFO', 'Telemetry log buffer cleared');
+  });
+}
+
+// =========================================================
 // 13. TACTILE SIDEBAR MENU - CAPSULE BUTTON CONTROLS (USER SKETCH)
 // =========================================================
 const sideNavFleet = document.getElementById('sideNavFleet');
@@ -1281,7 +1502,7 @@ const devicesSection = document.getElementById('devicesSection') || document.que
 const consolePanelEl = document.getElementById('consolePanel');
 
 function setActiveNavCapsule(activeBtn) {
-  [sideNavFleet, sideNavConsole, sideNavLibrary, sideNavDeploy].forEach(btn => {
+  [sideNavFleet, sideNavConsole, sideNavLibrary, sideNavDeploy, sideNavSettings].forEach(btn => {
     if (btn) btn.classList.remove('active');
   });
   if (activeBtn) activeBtn.classList.add('active');
@@ -1328,7 +1549,14 @@ if (sideNavDeploy) {
   });
 }
 
-// 5. Web Flasher Bench Capsule Click
+// 5. System Settings Capsule Click
+if (sideNavSettings) {
+  sideNavSettings.addEventListener('click', () => {
+    openSettingsModal();
+  });
+}
+
+// 6. Web Flasher Bench Capsule Click
 if (sideNavFlasher) {
   sideNavFlasher.addEventListener('click', () => {
     sideNavFlasher.classList.add('active');
@@ -1336,7 +1564,7 @@ if (sideNavFlasher) {
   });
 }
 
-// 6. Sidebar Bottom Theme Toggle Click
+// 7. Sidebar Bottom Theme Toggle Click
 if (sidebarThemeBtn) {
   sidebarThemeBtn.addEventListener('click', () => {
     const active = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
@@ -1344,17 +1572,17 @@ if (sidebarThemeBtn) {
   });
 }
 
-// 7. ScrollSpy: Auto-illuminate active capsule as operator scrolls views
+// 8. ScrollSpy: Auto-illuminate active capsule as operator scrolls views
 if (window.IntersectionObserver && devicesSection && consolePanelEl) {
   const scrollSpyObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting && entry.intersectionRatio > 0.35) {
         if (entry.target === devicesSection) {
-          if (!sideNavLibrary?.classList.contains('active') && !sideNavDeploy?.classList.contains('active')) {
+          if (!sideNavLibrary?.classList.contains('active') && !sideNavDeploy?.classList.contains('active') && !sideNavSettings?.classList.contains('active')) {
             setActiveNavCapsule(sideNavFleet);
           }
         } else if (entry.target === consolePanelEl) {
-          if (!sideNavLibrary?.classList.contains('active') && !sideNavDeploy?.classList.contains('active')) {
+          if (!sideNavLibrary?.classList.contains('active') && !sideNavDeploy?.classList.contains('active') && !sideNavSettings?.classList.contains('active')) {
             setActiveNavCapsule(sideNavConsole);
           }
         }
@@ -1366,5 +1594,6 @@ if (window.IntersectionObserver && devicesSection && consolePanelEl) {
   scrollSpyObserver.observe(consolePanelEl);
 }
 
-// Connect WebSocket on load
+// Fetch initial settings & connect WebSocket on load
+fetchSettings();
 connectWebSocket();

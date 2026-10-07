@@ -603,7 +603,8 @@ wss.on('connection', (ws, req) => {
             isOnline: activeEspSockets.has(dev.deviceId)
           })),
           firmwares,
-          publicUrl: config.PUBLIC_URL
+          publicUrl: config.PUBLIC_URL,
+          settings: systemSettings
         }));
         break;
       }
