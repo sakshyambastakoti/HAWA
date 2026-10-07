@@ -9,44 +9,44 @@
    ========================================================= */
 
 :root {
-  /* Default: Obsidian Matrix Dark Theme */
-  --bg-page: #000000;
-  --bg-surface: #0a0b10;
-  --bg-card: #0f1017;
-  --bg-card-elevated: #151722;
-  --bg-input: #08090d;
+  /* Default: Warm Vintage Charcoal Dark Theme (Companion to #e7e5d6) */
+  --bg-page: #151513;
+  --bg-surface: #1b1b18;
+  --bg-card: #20201c;
+  --bg-card-elevated: #282823;
+  --bg-input: #121210;
   
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-color: rgba(255, 255, 255, 0.15);
-  --border-frame: rgba(255, 255, 255, 0.2);
-  --border-light: rgba(255, 255, 255, 0.3);
-  --border-active: #ffffff;
+  --border-subtle: rgba(231, 229, 214, 0.08);
+  --border-color: rgba(231, 229, 214, 0.16);
+  --border-frame: rgba(231, 229, 214, 0.22);
+  --border-light: rgba(231, 229, 214, 0.32);
+  --border-active: #e7e5d6;
   
-  --text-primary: #ffffff;
-  --text-secondary: #d4d4d8;
-  --text-muted: #a1a1aa;
-  --text-subtle: #71717a;
+  --text-primary: #e7e5d6;
+  --text-secondary: #c8c5b6;
+  --text-muted: #9e9b8c;
+  --text-subtle: #757368;
   
-  --btn-primary-bg: #ffffff;
-  --btn-primary-text: #000000;
-  --btn-primary-hover: #e4e4e7;
+  --btn-primary-bg: #e7e5d6;
+  --btn-primary-text: #151513;
+  --btn-primary-hover: #f0eee3;
   
-  --btn-secondary-bg: rgba(255, 255, 255, 0.04);
-  --btn-secondary-border: rgba(255, 255, 255, 0.2);
-  --btn-secondary-text: #ffffff;
+  --btn-secondary-bg: #20201c;
+  --btn-secondary-border: rgba(231, 229, 214, 0.22);
+  --btn-secondary-text: #e7e5d6;
   
   --nothing-red: #d71921;
   --nothing-red-glow: rgba(215, 25, 33, 0.45);
   --accent-green: #22c55e;
   --accent-yellow: #eab308;
   
-  --dot-matrix-color: rgba(255, 255, 255, 0.12);
+  --dot-matrix-color: rgba(231, 229, 214, 0.11);
   
-  --terminal-bg: #050608;
-  --terminal-header-bg: #0d0e14;
-  --terminal-border: rgba(255, 255, 255, 0.14);
+  --terminal-bg: #0d0d0b;
+  --terminal-header-bg: #161613;
+  --terminal-border: rgba(231, 229, 214, 0.18);
   --terminal-text: #ffffff;
-  --terminal-footer-bg: #0a0b10;
+  --terminal-footer-bg: #121210;
   
   --font-dot: 'Doto', 'DotGothic16', monospace, sans-serif;
   --font-sans: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -152,7 +152,7 @@ body {
 }
 
 [data-theme="dark"] .site-header {
-  background: rgba(0, 0, 0, 0.88);
+  background: rgba(21, 21, 19, 0.94);
 }
 [data-theme="light"] .site-header {
   background: rgba(231, 229, 214, 0.94);

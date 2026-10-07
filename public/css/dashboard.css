@@ -1,17 +1,17 @@
 :root {
-  --bg-primary: #0a0d14;
-  --bg-secondary: #101622;
-  --bg-card: rgba(18, 24, 38, 0.75);
-  --bg-card-hover: rgba(24, 32, 50, 0.85);
-  --border-color: rgba(255, 255, 255, 0.08);
-  --border-glow: rgba(56, 189, 248, 0.25);
+  --bg-primary: #151513;
+  --bg-secondary: #1b1b18;
+  --bg-card: rgba(32, 32, 28, 0.85);
+  --bg-card-hover: rgba(40, 40, 35, 0.92);
+  --border-color: rgba(231, 229, 214, 0.14);
+  --border-glow: rgba(231, 229, 214, 0.3);
   --accent-cyan: #38bdf8;
   --accent-indigo: #818cf8;
   --accent-emerald: #10b981;
   --accent-amber: #f59e0b;
   --accent-rose: #f43f5e;
-  --text-main: #f1f5f9;
-  --text-muted: #94a3b8;
+  --text-main: #e7e5d6;
+  --text-muted: #9e9b8c;
   --font-family: 'Space Grotesk', 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
   --font-dot: 'Doto', 'DotGothic16', monospace, sans-serif;
@@ -30,10 +30,8 @@ body {
   font-family: var(--font-family);
   min-height: 100vh;
   line-height: 1.5;
-  background-image: 
-    radial-gradient(circle at 15% 15%, rgba(56, 189, 248, 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 85% 85%, rgba(129, 140, 248, 0.08) 0%, transparent 40%);
-  background-attachment: fixed;
+  background-image: radial-gradient(rgba(231, 229, 214, 0.11) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
 /* Header */
@@ -42,7 +40,7 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 1.25rem 2.5rem;
-  background: rgba(10, 13, 20, 0.8);
+  background: rgba(21, 21, 19, 0.94);
   backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border-color);
   position: sticky;
