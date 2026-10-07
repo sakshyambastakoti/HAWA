@@ -27,14 +27,14 @@ unsigned long lastHeartbeat = 0;
 bool isOtaRunning = false;
 String currentDeviceId;
 
-void sendJsonToWs(const String& jsonStr) {
+void sendJsonToWs(String jsonStr) {
     if (webSocket.isConnected()) {
         webSocket.sendTXT(jsonStr);
     }
 }
 
 // Log message to both local Serial and remote Web Dashboard
-void hawaLog(const String& msg) {
+void hawaLog(String msg) {
     Serial.println(msg);
     if (webSocket.isConnected() && !isOtaRunning) {
         DynamicJsonDocument doc(512);

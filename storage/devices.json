@@ -21,13 +21,22 @@
     "chip": "ESP32 (ESP32-D0WDQ6)",
     "mac": "24:6F:28:1A:BC:3D",
     "ip": "192.168.1.108",
-    "rssi": -61,
-    "firmwareVersion": "1.0.0",
-    "freeHeap": 218906,
-    "uptime": 135,
-    "status": "offline",
-    "lastSeen": 1791366600640,
+    "rssi": -55,
+    "firmwareVersion": "v2.0.0-blink-heartbeat",
+    "freeHeap": 216982,
+    "uptime": 150,
+    "status": "rebooting",
+    "lastSeen": 1791379351050,
     "firstSeen": 1791366576891,
-    "metrics": null
+    "metrics": null,
+    "lastOta": {
+      "otaId": "ota_1791379361591",
+      "startedAt": 1791379361591,
+      "filename": "1791379352045_esp32_blink_app_0x10000.bin",
+      "progress": 100,
+      "status": "completed",
+      "completedAt": 1791379365631,
+      "errorMessage": null
+    }
   }
 }
