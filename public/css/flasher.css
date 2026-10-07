@@ -23,6 +23,7 @@
   
   --accent-green: #12b76a;
   --accent-blue: #0284c7;
+  --accent-yellow: #eab308;
   
   --terminal-bg: #09090b;
   --terminal-border: #27272a;
@@ -299,14 +300,14 @@ body {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background-color: var(--accent-green);
+  background-color: var(--accent-yellow);
 }
 
 /* =========================================================
    3. PRODUCT FRAME (The Sleek Bezel from Reference Image)
    ========================================================= */
 .flasher-wrapper {
-  max-width: 960px;
+  max-width: 1260px;
   margin: 0 auto 6rem;
   padding: 0 1.5rem;
   width: 100%;
@@ -549,6 +550,360 @@ body {
   color: var(--text-muted);
 }
 
+/* =========================================================
+   TOP-LEVEL WORKFLOW TABS (HAWA OTA vs Custom Firmware)
+   ========================================================= */
+.flasher-main-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.75rem;
+}
+
+.flasher-tab-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.15rem 1.35rem;
+  background: #f8fafc;
+  border: 2px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  outline: none;
+}
+
+.flasher-tab-card:hover {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.flasher-tab-card.active {
+  background: #ffffff;
+  border-color: #000000;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+.tab-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.tab-card-icon.hawa-icon {
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+}
+
+.flasher-tab-card.active .tab-card-icon.hawa-icon {
+  background: #000000;
+  color: #ffffff;
+  border-color: #000000;
+}
+
+.tab-card-icon.custom-icon {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+}
+
+.flasher-tab-card.active .tab-card-icon.custom-icon {
+  background: #000000;
+  color: #ffffff;
+  border-color: #000000;
+}
+
+.tab-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex: 1;
+}
+
+.tab-card-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.tab-card-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.015em;
+}
+
+.tab-card-pill {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.15rem 0.55rem;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.tab-card-pill.hawa-pill {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.tab-card-pill.custom-pill {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.tab-card-desc {
+  font-size: 0.815rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
+/* Tab Form View Container */
+.tab-form-view {
+  animation: fadeInView 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeInView {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Custom Binary Dropzone */
+.bin-dropzone {
+  border: 2px dashed #cbd5e1;
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 1.35rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.bin-dropzone:hover, .bin-dropzone.dragover {
+  border-color: #000000;
+  background: #f9fafb;
+}
+
+.dropzone-inner-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--text-muted);
+}
+
+.dropzone-inner-content svg {
+  color: #64748b;
+  transition: transform 0.15s ease;
+}
+
+.bin-dropzone:hover .dropzone-inner-content svg {
+  transform: translateY(-2px);
+  color: #000000;
+}
+
+.dropzone-primary-text {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.dropzone-primary-text code {
+  background: #f1f5f9;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  color: #0f172a;
+}
+
+.dropzone-sub-text {
+  font-size: 0.75rem;
+  color: var(--text-subtle);
+}
+
+/* Selected File Card */
+.selected-bin-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+}
+
+.bin-file-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  overflow: hidden;
+}
+
+.bin-file-icon {
+  font-size: 1.25rem;
+}
+
+.bin-file-details {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  overflow: hidden;
+}
+
+.bin-file-name {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 250px;
+}
+
+.bin-file-size {
+  font-size: 0.75rem;
+  color: #15803d;
+  font-weight: 600;
+}
+
+.btn-remove-file {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  border-radius: 4px;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.btn-remove-file:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #b91c1c;
+}
+
+/* Bin Options (Offset & Erase) */
+.bin-options-box {
+  background: #f8fafc;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 1rem 1.15rem;
+  margin-bottom: 1.25rem;
+}
+
+.offset-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.offset-input-wrap .form-input {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  padding: 0.55rem 0.75rem;
+  max-width: 130px;
+}
+
+.offset-quick-tags {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.tag-btn {
+  background: #e2e8f0;
+  border: 1px solid transparent;
+  color: #334155;
+  font-size: 0.72rem;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  padding: 0.35rem 0.55rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.tag-btn:hover {
+  background: #cbd5e1;
+  color: #0f172a;
+}
+
+.checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.825rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #000000;
+  cursor: pointer;
+}
+
+/* Custom Wi-Fi Accordion */
+.custom-wifi-accordion {
+  background: #f8fafc;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 0.85rem 1.15rem;
+  margin-bottom: 1.25rem;
+  transition: all 0.2s ease;
+}
+
+.custom-wifi-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+}
+
+.custom-wifi-summary::-webkit-details-marker {
+  display: none;
+}
+
+.custom-wifi-summary svg {
+  transition: transform 0.2s ease;
+}
+
+.custom-wifi-accordion[open] .custom-wifi-summary svg {
+  transform: rotate(180deg);
+}
+
+.custom-wifi-body {
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid #e2e8f0;
+}
+
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -694,17 +1049,45 @@ body {
   transition: width 0.25s ease;
 }
 
+/* Side-by-Side Workbench Layout */
+.flasher-workbench-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+  gap: 2.25rem;
+  align-items: stretch;
+}
+
+.flasher-controls-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.flasher-terminal-col {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
 .terminal-wrapper {
   margin-top: 1.75rem;
   border-radius: var(--radius-sm);
   overflow: hidden;
   border: 1px solid var(--terminal-border);
   background: var(--terminal-bg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.flasher-terminal-col .terminal-wrapper {
+  margin-top: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 480px;
 }
 
 .terminal-header {
   background: #18181b;
-  padding: 0.65rem 1rem;
+  padding: 0.75rem 1.15rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -714,8 +1097,8 @@ body {
 .terminal-title-area {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.775rem;
+  gap: 0.6rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: #a1a1aa;
   font-family: var(--font-mono);
@@ -729,31 +1112,58 @@ body {
 
 .terminal-mini-btn {
   background: rgba(255, 255, 255, 0.08);
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   color: #d4d4d8;
   font-size: 0.725rem;
   font-family: var(--font-mono);
-  padding: 0.25rem 0.6rem;
+  padding: 0.3rem 0.65rem;
   border-radius: 4px;
   cursor: pointer;
+  transition: all 0.15s ease;
 }
 
 .terminal-mini-btn:hover {
-  background: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.18);
   color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.25);
 }
 
 .serial-console {
   background: var(--terminal-bg);
-  padding: 1rem;
+  padding: 1.15rem;
   font-family: var(--font-mono);
-  font-size: 0.815rem;
-  line-height: 1.6;
+  font-size: 0.825rem;
+  line-height: 1.65;
   color: var(--terminal-text);
-  height: 190px;
+  height: 240px;
   overflow-y: auto;
   white-space: pre-wrap;
   word-break: break-all;
+}
+
+.flasher-terminal-col .serial-console {
+  flex: 1;
+  height: 100%;
+  min-height: 380px;
+  max-height: 520px;
+}
+
+.terminal-footer-bar {
+  background: #121215;
+  padding: 0.5rem 1.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-family: var(--font-mono);
+  font-size: 0.725rem;
+  color: #71717a;
+}
+
+.terminal-footer-bar span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 /* =========================================================
@@ -1020,6 +1430,17 @@ body {
    6. RESPONSIVE DESIGN
    ========================================================= */
 @media (max-width: 992px) {
+  .flasher-workbench-grid {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+  }
+  .flasher-terminal-col .terminal-wrapper {
+    min-height: 300px;
+  }
+  .flasher-terminal-col .serial-console {
+    min-height: 240px;
+    height: 280px;
+  }
   .excel-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -1035,6 +1456,10 @@ body {
   }
   .hero-headline {
     font-size: 2.45rem;
+  }
+  .flasher-main-tabs {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
   }
   .step-nav-bar {
     grid-template-columns: 1fr;

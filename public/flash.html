@@ -109,7 +109,7 @@
         </div>
         <div class="frame-status-indicator">
           <span class="status-dot-pulse"></span>
-          <span>Web Serial: Ready</span>
+          <span>Web Serial Flash & Diagnostic Workbench</span>
         </div>
       </div>
 
@@ -126,157 +126,343 @@
           </div>
         </div>
 
+        <!-- Top-Level Workflow Mode Tabs -->
+        <div class="flasher-main-tabs" role="tablist">
+          <button type="button" class="flasher-tab-card active" id="tabHawaOta" role="tab" aria-selected="true">
+            <div class="tab-card-icon hawa-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"></path>
+              </svg>
+            </div>
+            <div class="tab-card-info">
+              <div class="tab-card-title-row">
+                <span class="tab-card-title">HAWA OTA Platform</span>
+                <span class="tab-card-pill hawa-pill">Cloud Fleet</span>
+              </div>
+              <span class="tab-card-desc">Zero-config Wi-Fi provisioning & remote OTA links</span>
+            </div>
+          </button>
+
+          <button type="button" class="flasher-tab-card" id="tabCustomBin" role="tab" aria-selected="false">
+            <div class="tab-card-icon custom-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+            </div>
+            <div class="tab-card-info">
+              <div class="tab-card-title-row">
+                <span class="tab-card-title">Custom Firmware (.bin)</span>
+                <span class="tab-card-pill custom-pill">Local PC</span>
+              </div>
+              <span class="tab-card-desc">Flash your own compiled binary from Arduino or PlatformIO</span>
+            </div>
+          </button>
+        </div>
+
         <!-- 3-Step Progress Indicator -->
         <div class="step-nav-bar">
           <div class="step-card active" id="stepCard1">
             <div class="step-bubble active" id="bubble1">1</div>
             <div class="step-meta">
-              <span class="step-label">Step 01</span>
-              <span class="step-name">Select Board</span>
+              <span class="step-label" id="stepLabel1">Step 01</span>
+              <span class="step-name" id="stepName1">Select Board</span>
             </div>
           </div>
           <div class="step-card" id="stepCard2">
             <div class="step-bubble" id="bubble2">2</div>
             <div class="step-meta">
-              <span class="step-label">Step 02</span>
-              <span class="step-name">Wi-Fi & Config</span>
+              <span class="step-label" id="stepLabel2">Step 02</span>
+              <span class="step-name" id="stepName2">Wi-Fi & Config</span>
             </div>
           </div>
           <div class="step-card" id="stepCard3">
             <div class="step-bubble" id="bubble3">3</div>
             <div class="step-meta">
-              <span class="step-label">Step 03</span>
-              <span class="step-name">Flash & Link</span>
+              <span class="step-label" id="stepLabel3">Step 03</span>
+              <span class="step-name" id="stepName3">Flash & Link</span>
             </div>
           </div>
         </div>
 
-        <form id="flasherForm" onsubmit="return false;">
-          <!-- 1. Board Selection Section -->
-          <div class="form-group" style="margin-bottom: 1.5rem;">
-            <div class="form-section-header">
-              <span class="section-label">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
-                  <rect x="9" y="9" width="6" height="6"></rect>
-                  <line x1="9" y1="1" x2="9" y2="4"></line>
-                  <line x1="15" y1="1" x2="15" y2="4"></line>
-                  <line x1="9" y1="20" x2="9" y2="23"></line>
-                  <line x1="15" y1="20" x2="15" y2="23"></line>
-                  <line x1="20" y1="9" x2="23" y2="9"></line>
-                  <line x1="20" y1="14" x2="23" y2="14"></line>
-                  <line x1="1" y1="9" x2="4" y2="9"></line>
-                  <line x1="1" y1="14" x2="4" y2="14"></line>
-                </svg>
-                Target Microcontroller
-              </span>
-              <span class="section-hint">Select your hardware model</span>
-            </div>
+        <!-- Side-by-Side Workbench Layout -->
+        <div class="flasher-workbench-grid">
+          <!-- Left Column: Dedicated Form Views -->
+          <div class="flasher-controls-col">
 
-            <div class="select-wrapper">
-              <select id="boardType" class="form-select">
-                <option value="esp32" selected>ESP32 (Standard DevKit / NodeMCU-32S / WROOM)</option>
-                <option value="esp8266">ESP8266 (NodeMCU / Wemos D1 Mini / ESP-12)</option>
-                <option value="esp32s3">ESP32-S3 (Dual-Core LX7 + Native USB)</option>
-                <option value="esp32c3">ESP32-C3 (RISC-V 160MHz Single-Core)</option>
-              </select>
-              <svg class="select-chevron" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
-            </div>
-          </div>
+            <!-- TAB 1 VIEW: HAWA OTA Setup -->
+            <div id="hawaOtaFormView" class="tab-form-view">
+              <form id="hawaFlasherForm" onsubmit="return false;">
+                <!-- 1. Board Selection Section -->
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                  <div class="form-section-header">
+                    <span class="section-label">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                        <rect x="9" y="9" width="6" height="6"></rect>
+                        <line x1="9" y1="1" x2="9" y2="4"></line>
+                        <line x1="15" y1="1" x2="15" y2="4"></line>
+                        <line x1="9" y1="20" x2="9" y2="23"></line>
+                        <line x1="15" y1="20" x2="15" y2="23"></line>
+                        <line x1="20" y1="9" x2="23" y2="9"></line>
+                        <line x1="20" y1="14" x2="23" y2="14"></line>
+                        <line x1="1" y1="9" x2="4" y2="9"></line>
+                        <line x1="1" y1="14" x2="4" y2="14"></line>
+                      </svg>
+                      Target Microcontroller
+                    </span>
+                    <span class="section-hint">Select hardware model</span>
+                  </div>
 
-          <!-- 2. Wi-Fi Credentials Section -->
-          <div class="form-section-header" style="margin-top: 1.5rem;">
-            <span class="section-label">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
-                <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
-                <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
-                <line x1="12" y1="20" x2="12.01" y2="20"></line>
-              </svg>
-              Network Credentials
-            </span>
-            <span class="section-hint">Board connects to this network</span>
-          </div>
+                  <div class="select-wrapper">
+                    <select id="boardTypeHawa" class="form-select">
+                      <option value="esp32" selected>ESP32 (Standard DevKit / NodeMCU-32S / WROOM)</option>
+                      <option value="esp8266">ESP8266 (NodeMCU / Wemos D1 Mini / ESP-12)</option>
+                      <option value="esp32s3">ESP32-S3 (Dual-Core LX7 + Native USB)</option>
+                      <option value="esp32c3">ESP32-C3 (RISC-V 160MHz Single-Core)</option>
+                    </select>
+                    <svg class="select-chevron" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </div>
+                </div>
 
-          <div class="form-row">
-            <div class="form-group" style="margin-bottom: 0;">
-              <label class="form-label" for="wifiSsid">Wi-Fi / Hotspot Name (SSID) *</label>
-              <input type="text" id="wifiSsid" class="form-input" placeholder="e.g. Home_WiFi or Phone_Hotspot" required>
-            </div>
-            <div class="form-group" style="margin-bottom: 0;">
-              <label class="form-label" for="wifiPass">Wi-Fi Password</label>
-              <div class="input-container">
-                <input type="password" id="wifiPass" class="form-input" placeholder="Password (leave blank if open)">
-                <button type="button" class="input-icon-btn" id="togglePasswordBtn" title="Toggle password visibility" aria-label="Toggle password visibility">
-                  <svg id="eyeIconSvg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                    <circle cx="12" cy="10" r="3"></circle>
+                <!-- 2. Wi-Fi Credentials Section -->
+                <div class="form-section-header" style="margin-top: 1.5rem;">
+                  <span class="section-label">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+                      <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
+                      <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+                      <line x1="12" y1="20" x2="12.01" y2="20"></line>
+                    </svg>
+                    Network Credentials
+                  </span>
+                  <span class="section-hint">Board connects to this network</span>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="wifiSsidHawa">Wi-Fi / Hotspot Name (SSID) *</label>
+                    <input type="text" id="wifiSsidHawa" class="form-input" placeholder="e.g. Home_WiFi or Phone_Hotspot" required>
+                  </div>
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="wifiPassHawa">Wi-Fi Password</label>
+                    <div class="input-container">
+                      <input type="password" id="wifiPassHawa" class="form-input" placeholder="Password (leave blank if open)">
+                      <button type="button" class="input-icon-btn toggle-password-btn" data-target="wifiPassHawa" title="Toggle password visibility" aria-label="Toggle password visibility">
+                        <svg class="eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path>
+                          <circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 3. Device Identification & Hub Server -->
+                <div class="form-section-header" style="margin-top: 1.5rem;">
+                  <span class="section-label">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                      <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                      <line x1="6" y1="6" x2="6.01" y2="6"></line>
+                      <line x1="6" y1="18" x2="6.01" y2="18"></line>
+                    </svg>
+                    Device Identity & Server Hub
+                  </span>
+                  <span class="section-hint">Cloud registry identifier</span>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="deviceNameHawa">Board Nickname</label>
+                    <input type="text" id="deviceNameHawa" class="form-input" placeholder="e.g. LivingRoom-ESP32" required>
+                  </div>
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="serverUrlHawa">Hawa Hub Server URL</label>
+                    <input type="text" id="serverUrlHawa" class="form-input" placeholder="wss://your-tunnel.trycloudflare.com">
+                  </div>
+                </div>
+
+                <!-- CTA Button -->
+                <button type="button" id="startFlashHawaBtn" class="btn-flash">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
                   </svg>
+                  Connect USB & Flash Hawa Agent
                 </button>
+              </form>
+            </div>
+
+            <!-- TAB 2 VIEW: Custom Firmware (.bin) Setup -->
+            <div id="customBinFormView" class="tab-form-view" style="display: none;">
+              <form id="customFlasherForm" onsubmit="return false;">
+                <!-- 1. Chip Selection -->
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                  <div class="form-section-header">
+                    <span class="section-label">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                        <rect x="9" y="9" width="6" height="6"></rect>
+                        <line x1="9" y1="1" x2="9" y2="4"></line>
+                        <line x1="15" y1="1" x2="15" y2="4"></line>
+                        <line x1="9" y1="20" x2="9" y2="23"></line>
+                        <line x1="15" y1="20" x2="15" y2="23"></line>
+                      </svg>
+                      Target Microcontroller
+                    </span>
+                    <span class="section-hint">Select chip model</span>
+                  </div>
+
+                  <div class="select-wrapper">
+                    <select id="boardTypeCustom" class="form-select">
+                      <option value="esp32" selected>ESP32 (Standard DevKit / NodeMCU-32S / WROOM)</option>
+                      <option value="esp8266">ESP8266 (NodeMCU / Wemos D1 Mini / ESP-12)</option>
+                      <option value="esp32s3">ESP32-S3 (Dual-Core LX7 + Native USB)</option>
+                      <option value="esp32c3">ESP32-C3 (RISC-V 160MHz Single-Core)</option>
+                    </select>
+                    <svg class="select-chevron" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </div>
+                </div>
+
+                <!-- 2. File Upload Dropzone -->
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                  <div class="form-section-header">
+                    <span class="section-label">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                      </svg>
+                      Choose .bin File from PC
+                    </span>
+                    <span class="section-hint">Compiled binary image</span>
+                  </div>
+
+                  <div id="binDropzone" class="bin-dropzone">
+                    <input type="file" id="customBinInput" accept=".bin" style="display: none;">
+                    <div class="dropzone-inner-content" id="dropzonePrompt">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                      </svg>
+                      <div class="dropzone-text-group">
+                        <span class="dropzone-primary-text">Click to browse or drop your <code>.bin</code> file</span>
+                        <span class="dropzone-sub-text">Arduino IDE (Sketch &gt; Export Compiled Binary) or PlatformIO</span>
+                      </div>
+                    </div>
+
+                    <!-- Selected File Info Card -->
+                    <div id="selectedBinInfo" class="selected-bin-card" style="display: none;">
+                      <div class="bin-file-meta">
+                        <span class="bin-file-icon">📦</span>
+                        <div class="bin-file-details">
+                          <span id="binFileName" class="bin-file-name">firmware.bin</span>
+                          <span id="binFileSize" class="bin-file-size">0 KB</span>
+                        </div>
+                      </div>
+                      <button type="button" class="btn-remove-file" id="removeBinFileBtn" title="Change file">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                        Change
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 3. Memory Offset & Erase Settings -->
+                <div class="bin-options-box">
+                  <div class="form-row" style="margin-bottom: 0;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                      <label class="form-label" for="flashOffsetInput">Flash Address (Offset)</label>
+                      <div class="offset-input-wrap">
+                        <input type="text" id="flashOffsetInput" class="form-input" value="0x10000" placeholder="0x10000">
+                        <div class="offset-quick-tags">
+                          <button type="button" class="tag-btn" id="setOffsetAppBtn" title="ESP32 App partition default">0x10000 (App)</button>
+                          <button type="button" class="tag-btn" id="setOffsetBootBtn" title="Base / ESP8266 default">0x0000 (Base)</button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0; display: flex; align-items: flex-end;">
+                      <label class="checkbox-label" style="padding-bottom: 0.65rem;">
+                        <input type="checkbox" id="eraseFlashCheck">
+                        <span>Erase chip memory before flash</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 4. Optional Wi-Fi Setup for Custom Bin -->
+                <details class="custom-wifi-accordion">
+                  <summary class="custom-wifi-summary">
+                    <span>Optional: Provision Wi-Fi Credentials via Serial</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </summary>
+                  <div class="custom-wifi-body">
+                    <div class="form-row" style="margin-bottom: 0;">
+                      <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label" for="wifiSsidCustom">Wi-Fi Name (SSID)</label>
+                        <input type="text" id="wifiSsidCustom" class="form-input" placeholder="e.g. Home_WiFi">
+                      </div>
+                      <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label" for="wifiPassCustom">Wi-Fi Password</label>
+                        <input type="password" id="wifiPassCustom" class="form-input" placeholder="Leave blank if open">
+                      </div>
+                    </div>
+                  </div>
+                </details>
+
+                <!-- Custom Flash CTA -->
+                <button type="button" id="startFlashCustomBtn" class="btn-flash">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                  </svg>
+                  Connect USB & Flash Custom .bin
+                </button>
+              </form>
+            </div>
+
+            <!-- Progress Section -->
+            <div id="flasherProgress" class="flasher-progress">
+              <div class="progress-header">
+                <span id="flasherStatusText">Initializing Web Serial...</span>
+                <span id="flasherPercent" class="progress-percent-pill">0%</span>
+              </div>
+              <div class="progress-bar-bg">
+                <div id="flasherBarFill" class="progress-bar-fill"></div>
               </div>
             </div>
           </div>
 
-          <!-- 3. Device Identification & Hub Server -->
-          <div class="form-section-header" style="margin-top: 1.5rem;">
-            <span class="section-label">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
-                <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
-                <line x1="6" y1="6" x2="6.01" y2="6"></line>
-                <line x1="6" y1="18" x2="6.01" y2="18"></line>
-              </svg>
-              Device Identity & Server Hub
-            </span>
-            <span class="section-hint">Cloud registry identifier</span>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group" style="margin-bottom: 0;">
-              <label class="form-label" for="deviceName">Board Nickname</label>
-              <input type="text" id="deviceName" class="form-input" placeholder="e.g. LivingRoom-ESP32" required>
-            </div>
-            <div class="form-group" style="margin-bottom: 0;">
-              <label class="form-label" for="serverUrl">Hawa Hub Server URL</label>
-              <input type="text" id="serverUrl" class="form-input" placeholder="wss://your-tunnel.trycloudflare.com">
+          <!-- Right Column: Live Serial Monitor -->
+          <div class="flasher-terminal-col">
+            <div class="terminal-wrapper">
+              <div class="terminal-header">
+                <div class="terminal-title-area">
+                  <span class="status-dot-pulse" style="width: 6px; height: 6px;"></span>
+                  <span>Live Serial Monitor (115200 baud)</span>
+                </div>
+                <div class="terminal-actions">
+                  <button type="button" class="terminal-mini-btn" id="copyConsoleBtn">Copy Logs</button>
+                  <button type="button" class="terminal-mini-btn" id="clearConsoleBtn">Clear</button>
+                </div>
+              </div>
+              <div id="serialConsole" class="serial-console">[Ready] Connect your ESP board to your computer's USB port, then click "Connect USB & Flash Board" to start flashing and streaming serial output.</div>
+              <div class="terminal-footer-bar">
+                <span>Baud: 115200 · RTS/DTR Auto</span>
+                <span>Live Serial Stream</span>
+              </div>
             </div>
           </div>
-
-          <!-- Main CTA Flash Button -->
-          <button type="button" id="startFlashBtn" class="btn-flash">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-            </svg>
-            Connect USB & Flash Board
-          </button>
-        </form>
-
-        <!-- Progress Section -->
-        <div id="flasherProgress" class="flasher-progress">
-          <div class="progress-header">
-            <span id="flasherStatusText">Initializing Web Serial...</span>
-            <span id="flasherPercent" class="progress-percent-pill">0%</span>
-          </div>
-          <div class="progress-bar-bg">
-            <div id="flasherBarFill" class="progress-bar-fill"></div>
-          </div>
-        </div>
-
-        <!-- Sleek Live Serial Monitor -->
-        <div class="terminal-wrapper">
-          <div class="terminal-header">
-            <div class="terminal-title-area">
-              <span class="status-dot-pulse" style="width: 6px; height: 6px;"></span>
-              <span>Live Serial Monitor (115200 baud)</span>
-            </div>
-            <div class="terminal-actions">
-              <button type="button" class="terminal-mini-btn" id="copyConsoleBtn">Copy Logs</button>
-              <button type="button" class="terminal-mini-btn" id="clearConsoleBtn">Clear</button>
-            </div>
-          </div>
-          <div id="serialConsole" class="serial-console">[Ready] Connect your ESP board to your computer's USB port, then click "Connect USB & Flash Board" above.</div>
         </div>
 
       </div>
