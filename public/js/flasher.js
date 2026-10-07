@@ -482,8 +482,9 @@ async function performSerialProvisioning(serialPort, ssid, pass, server, name, a
     // Start serial monitoring immediately so boot logs and ACKs are displayed live!
     startLiveSerialMonitoring(serialPort);
 
-    // Wait a brief moment for ESP bootloader to initialize
-    await new Promise(r => setTimeout(r, 1200));
+    // Wait for ESP bootloader and startup to finish running (typically 2.5 - 3 seconds)
+    logToConsole('[BOOT] Waiting 2.5s for board bootloader to initialize...');
+    await new Promise(r => setTimeout(r, 2500));
 
     const configPayload = JSON.stringify({
       ssid,
@@ -493,13 +494,18 @@ async function performSerialProvisioning(serialPort, ssid, pass, server, name, a
     });
 
     const configCommand = `HAWA_CONFIG:${configPayload}\n`;
-    logToConsole(`[CONFIG] Sending network credentials over serial...`);
-    logToConsole(`[CONFIG] SSID: "${ssid}", Server: "${server}"`);
+    const simpleCommand = `WIFI:${ssid},${pass}\n`;
 
-    // Send configuration command
-    await writeSerialText(serialPort, configCommand);
-    await new Promise(r => setTimeout(r, 600));
-    await writeSerialText(serialPort, configCommand);
+    logToConsole(`[CONFIG] Injecting network credentials over serial...`);
+    logToConsole(`[CONFIG] Target SSID: "${ssid}" | Server: "${server}"`);
+
+    // Repeated transmission loop to guarantee receipt regardless of boot timing
+    for (let attempt = 1; attempt <= 4; attempt++) {
+      await writeSerialText(serialPort, configCommand);
+      await new Promise(r => setTimeout(r, 400));
+      await writeSerialText(serialPort, simpleCommand);
+      await new Promise(r => setTimeout(r, 600));
+    }
 
     if (flasherPercent) flasherPercent.textContent = '100%';
     if (flasherBarFill) flasherBarFill.style.width = '100%';
@@ -518,6 +524,105 @@ async function performSerialProvisioning(serialPort, ssid, pass, server, name, a
   } finally {
     if (activeBtn) activeBtn.disabled = false;
   }
+}
+
+// Dedicated function to inject Wi-Fi credentials without re-flashing
+async function injectWifiCredentialsOnly() {
+  const ssid = wifiSsidHawa ? wifiSsidHawa.value.trim() : '';
+  const pass = wifiPassHawa ? wifiPassHawa.value : '';
+  const name = deviceNameHawa && deviceNameHawa.value.trim() ? deviceNameHawa.value.trim() : 'ESP32-Device';
+  let server = serverUrlHawa && serverUrlHawa.value.trim() ? serverUrlHawa.value.trim() : window.location.origin;
+
+  if (!ssid) {
+    alert('Please enter your Wi-Fi / Hotspot Network Name (SSID) first.');
+    if (wifiSsidHawa) wifiSsidHawa.focus();
+    return;
+  }
+
+  if (server.startsWith('http://')) server = server.replace('http://', 'ws://');
+  if (server.startsWith('https://')) server = server.replace('https://', 'wss://');
+  if (!server.startsWith('ws://') && !server.startsWith('wss://')) {
+    server = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + server;
+  }
+
+  try {
+    if (!port) {
+      logToConsole('[SERIAL] Requesting USB port...');
+      port = await navigator.serial.requestPort();
+    }
+
+    if (!port.readable || !port.writable) {
+      try {
+        await port.open({ baudRate: 115200 });
+      } catch (e) {
+        if (!e.message.includes('already open')) throw e;
+      }
+    }
+
+    startLiveSerialMonitoring(port);
+
+    const configPayload = JSON.stringify({ ssid, pass, server, name });
+    const configCommand = `HAWA_CONFIG:${configPayload}\n`;
+    const simpleCommand = `WIFI:${ssid},${pass}\n`;
+
+    logToConsole(`\n[INJECT] Sending Wi-Fi credentials to board (SSID: "${ssid}")...`);
+    await writeSerialText(port, configCommand);
+    await new Promise(r => setTimeout(r, 400));
+    await writeSerialText(port, simpleCommand);
+    await new Promise(r => setTimeout(r, 400));
+    await writeSerialText(port, configCommand);
+
+    logToConsole(`[INJECT] Credentials transmitted! Watching board response below:`);
+  } catch (err) {
+    logToConsole(`[ERROR] Injection failed: ${err.message}`);
+  }
+}
+
+// Function to send arbitrary commands typed into terminal input box
+async function sendManualTerminalCommand() {
+  const cmdInput = document.getElementById('terminalCmdInput');
+  if (!cmdInput || !cmdInput.value.trim()) return;
+  const cmd = cmdInput.value.trim() + '\n';
+  cmdInput.value = '';
+
+  try {
+    if (!port) {
+      logToConsole('[SERIAL] Requesting USB port...');
+      port = await navigator.serial.requestPort();
+    }
+    if (!port.readable || !port.writable) {
+      try {
+        await port.open({ baudRate: 115200 });
+      } catch (e) {
+        if (!e.message.includes('already open')) throw e;
+      }
+    }
+    startLiveSerialMonitoring(port);
+    logToConsole(`[TX] > ${cmd.trim()}`);
+    await writeSerialText(port, cmd);
+  } catch (err) {
+    logToConsole(`[ERROR] Send failed: ${err.message}`);
+  }
+}
+
+// Bind Wi-Fi Injection & Terminal Send buttons
+const injectWifiOnlyBtn = document.getElementById('injectWifiOnlyBtn');
+if (injectWifiOnlyBtn) injectWifiOnlyBtn.addEventListener('click', injectWifiCredentialsOnly);
+
+const terminalInjectWifiBtn = document.getElementById('terminalInjectWifiBtn');
+if (terminalInjectWifiBtn) terminalInjectWifiBtn.addEventListener('click', injectWifiCredentialsOnly);
+
+const terminalSendBtn = document.getElementById('terminalSendBtn');
+if (terminalSendBtn) terminalSendBtn.addEventListener('click', sendManualTerminalCommand);
+
+const terminalCmdInput = document.getElementById('terminalCmdInput');
+if (terminalCmdInput) {
+  terminalCmdInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      sendManualTerminalCommand();
+    }
+  });
 }
 
 // Live serial stream listener (lock-free, direct chunk decoder)

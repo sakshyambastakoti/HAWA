@@ -306,6 +306,15 @@
                   </svg>
                   Connect USB & Flash Hawa Agent
                 </button>
+                <button type="button" id="injectWifiOnlyBtn" class="btn-secondary" style="width: 100%; margin-top: 0.6rem; padding: 0.75rem 1rem; font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; border: 1px solid var(--border-color);">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+                    <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
+                    <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+                    <line x1="12" y1="20" x2="12.01" y2="20"></line>
+                  </svg>
+                  Inject Wi-Fi Only (Board Already Flashed)
+                </button>
               </form>
             </div>
 
@@ -468,6 +477,11 @@
               <div class="terminal-footer-bar">
                 <span>Baud: 115200 · RTS/DTR Auto</span>
                 <span>Live Serial Stream</span>
+              </div>
+              <div class="terminal-input-bar" style="display: flex; gap: 0.4rem; padding: 0.5rem 0.75rem; background: var(--terminal-header-bg); border-top: 1px solid var(--terminal-border);">
+                <input type="text" id="terminalCmdInput" placeholder="Send serial command (e.g. WIFI:sakshyam,pass)..." style="flex: 1; min-width: 0; background: var(--bg-surface); border: 1px solid var(--border-color); color: var(--text-primary); padding: 0.4rem 0.65rem; font-family: var(--font-mono); font-size: 0.78rem; outline: none;">
+                <button type="button" id="terminalSendBtn" style="padding: 0.4rem 0.85rem; background: var(--btn-primary-bg); color: var(--btn-primary-text); border: none; font-family: var(--font-mono); font-size: 0.75rem; font-weight: 700; cursor: pointer;">SEND</button>
+                <button type="button" id="terminalInjectWifiBtn" style="padding: 0.4rem 0.85rem; background: var(--btn-secondary-bg); color: var(--btn-secondary-text); border: 1px solid var(--btn-secondary-border); font-family: var(--font-mono); font-size: 0.75rem; cursor: pointer; white-space: nowrap;" title="Inject Wi-Fi credentials from form above">INJECT WI-FI</button>
               </div>
             </div>
           </div>
@@ -709,7 +723,7 @@
     </div>
   </footer>
 
-  <script type="module" src="/js/flasher.js?v=6"></script>
+  <script type="module" src="/js/flasher.js?v=8"></script>
 
   <!-- Clean UI interactivity script without emojis or board cards -->
   <script>
