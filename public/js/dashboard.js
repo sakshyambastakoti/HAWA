@@ -260,6 +260,18 @@ if (tunnelBadge) {
   });
 }
 
+if (statTunnel) {
+  statTunnel.style.cursor = 'pointer';
+  statTunnel.title = 'Click to copy gateway URL';
+  statTunnel.addEventListener('click', () => {
+    if (publicUrl && publicUrl !== 'LOADING...') {
+      navigator.clipboard.writeText(publicUrl).then(() => {
+        showToastAlert('INFO', 'Gateway URL copied to clipboard');
+      });
+    }
+  });
+}
+
 // =========================================================
 // 4. FLOATING FLEET HEALTH TOAST ALERTS
 // =========================================================
