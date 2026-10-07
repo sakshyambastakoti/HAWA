@@ -72,21 +72,27 @@ void onOTAStatus(bool success, const String& message) {
     sendJsonToWs(out);
 }
 
-// Parse Serial input for Web Serial Flasher provisioning
+// Parse Serial input for Web Serial Flasher and manual provisioning
 void checkSerialProvisioning() {
     if (Serial.available()) {
         String line = Serial.readStringUntil('\n');
         line.trim();
+        if (line.length() == 0) return;
 
-        if (line.startsWith("HAWA_CONFIG:")) {
-            String jsonPart = line.substring(12);
+        Serial.println("[SERIAL RX] " + line);
+
+        // 1. JSON format from Web Serial Flasher: HAWA_CONFIG:{...}
+        int hawaIdx = line.indexOf("HAWA_CONFIG:");
+        if (hawaIdx != -1) {
+            String jsonPart = line.substring(hawaIdx + 12);
+            jsonPart.trim();
             DynamicJsonDocument doc(512);
             DeserializationError err = deserializeJson(doc, jsonPart);
 
             if (!err) {
                 String newSsid = doc["ssid"] | "";
                 String newPass = doc["pass"] | "";
-                String newServer = doc["server"] | "";
+                String newServer = doc["server"] | "wss://leaves-pensions-honest-leadership.trycloudflare.com";
                 String newName = doc["name"] | "ESP32-Device";
 
                 config.saveCredentials(newSsid, newPass, newServer, newName);
@@ -98,10 +104,73 @@ void checkSerialProvisioning() {
                 Serial.println("==================================\n");
                 delay(1000);
                 ESP.restart();
+                return;
             } else {
-                Serial.println("HAWA_ERR:INVALID_JSON");
+                Serial.println("HAWA_ERR:INVALID_JSON (" + String(err.c_str()) + ")");
             }
         }
+
+        // 2. Simple human-readable format: WIFI:ssid,password or WIFI:ssid,password,server
+        int wifiIdx = line.indexOf("WIFI:");
+        if (wifiIdx != -1) {
+            String params = line.substring(wifiIdx + 5);
+            params.trim();
+            int comma1 = params.indexOf(',');
+            if (comma1 != -1) {
+                String newSsid = params.substring(0, comma1);
+                String rest = params.substring(comma1 + 1);
+                int comma2 = rest.indexOf(',');
+                String newPass = (comma2 != -1) ? rest.substring(0, comma2) : rest;
+                String newServer = (comma2 != -1) ? rest.substring(comma2 + 1) : "wss://leaves-pensions-honest-leadership.trycloudflare.com";
+                newSsid.trim();
+                newPass.trim();
+                newServer.trim();
+
+                config.saveCredentials(newSsid, newPass, newServer, "ESP32-Device");
+                Serial.println("\n==================================");
+                Serial.println("✅ [HAWA] Wi-Fi SAVED VIA SERIAL COMMAND!");
+                Serial.println("SSID: " + newSsid);
+                Serial.println("Server: " + newServer);
+                Serial.println("Rebooting board to connect to Wi-Fi...");
+                Serial.println("==================================\n");
+                delay(1000);
+                ESP.restart();
+                return;
+            }
+        }
+
+        // 3. Status inspection
+        if (line.equalsIgnoreCase("STATUS")) {
+            Serial.println("\n[HAWA STATUS]");
+            Serial.println("Device ID   : " + currentDeviceId);
+            Serial.println("NVS SSID    : " + (config.ssid.length() > 0 ? config.ssid : "<NONE>"));
+            Serial.println("NVS Server  : " + (config.serverUrl.length() > 0 ? config.serverUrl : "<NONE>"));
+            Serial.println("WiFi Status : " + String(WiFi.status() == WL_CONNECTED ? "CONNECTED (" + WiFi.localIP().toString() + ")" : "DISCONNECTED"));
+            Serial.println("Free Heap   : " + String(ESP.getFreeHeap()) + " bytes\n");
+            return;
+        }
+
+        // 4. Maintenance commands
+        if (line.equalsIgnoreCase("CLEAR")) {
+            config.clear();
+            Serial.println("[HAWA] NVS Credentials cleared. Restarting...");
+            delay(1000);
+            ESP.restart();
+            return;
+        }
+
+        if (line.equalsIgnoreCase("REBOOT")) {
+            Serial.println("[HAWA] Restarting ESP...");
+            delay(500);
+            ESP.restart();
+            return;
+        }
+
+        // Fallback guidance
+        Serial.println("\n[HAWA SERIAL COMMAND HELP]");
+        Serial.println("👉 Send Wi-Fi:   WIFI:your_ssid,your_password");
+        Serial.println("👉 Or JSON:      HAWA_CONFIG:{\"ssid\":\"name\",\"pass\":\"pw\",\"server\":\"wss://...\"}");
+        Serial.println("👉 Other:        STATUS | REBOOT | CLEAR\n");
     }
 }
 
