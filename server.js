@@ -90,6 +90,38 @@ function saveFirmwares() {
 }
 loadFirmwares();
 
+// System Settings Store (Persistent)
+let systemSettings = {
+  publicUrl: config.PUBLIC_URL,
+  heartbeatInterval: config.HEARTBEAT_INTERVAL / 1000,
+  pongTimeout: config.PONG_TIMEOUT / 1000,
+  maxLogLines: 200,
+  autoScrollLogs: true
+};
+
+function loadSettings() {
+  try {
+    if (fs.existsSync(config.SETTINGS_FILE)) {
+      const saved = JSON.parse(fs.readFileSync(config.SETTINGS_FILE, 'utf8'));
+      systemSettings = { ...systemSettings, ...saved };
+      if (saved.publicUrl) config.PUBLIC_URL = saved.publicUrl;
+      if (saved.heartbeatInterval) config.HEARTBEAT_INTERVAL = saved.heartbeatInterval * 1000;
+      if (saved.pongTimeout) config.PONG_TIMEOUT = saved.pongTimeout * 1000;
+    }
+  } catch (err) {
+    console.error('[Store] Error loading settings:', err.message);
+  }
+}
+
+function saveSettings() {
+  try {
+    fs.writeFileSync(config.SETTINGS_FILE, JSON.stringify(systemSettings, null, 2), 'utf8');
+  } catch (err) {
+    console.error('[Store] Error saving settings:', err.message);
+  }
+}
+loadSettings();
+
 // In-Memory Connection Tracking
 const activeEspSockets = new Map(); // deviceId -> WebSocket
 const activeDashboardSockets = new Set(); // Set of WebSockets
@@ -156,6 +188,86 @@ app.post('/api/tunnel/set-url', (req, res) => {
     return res.json({ success: true, publicUrl: config.PUBLIC_URL });
   }
   res.status(400).json({ error: 'URL required' });
+});
+
+// System Settings API (Get & Update)
+app.get('/api/settings', (req, res) => {
+  res.json({
+    settings: systemSettings,
+    server: {
+      uptime: process.uptime(),
+      localPort: config.PORT,
+      host: config.HOST,
+      activeEspCount: activeEspSockets.size,
+      totalDevicesCount: Object.keys(devices).length,
+      firmwaresCount: firmwares.length
+    }
+  });
+});
+
+app.post('/api/settings', (req, res) => {
+  const { publicUrl, heartbeatInterval, pongTimeout, maxLogLines, autoScrollLogs } = req.body;
+
+  if (publicUrl && typeof publicUrl === 'string') {
+    config.PUBLIC_URL = publicUrl.trim().replace(/\/$/, '');
+    systemSettings.publicUrl = config.PUBLIC_URL;
+  }
+  if (heartbeatInterval && !isNaN(heartbeatInterval)) {
+    const sec = Math.max(5, Math.min(300, Number(heartbeatInterval)));
+    config.HEARTBEAT_INTERVAL = sec * 1000;
+    systemSettings.heartbeatInterval = sec;
+  }
+  if (pongTimeout && !isNaN(pongTimeout)) {
+    const sec = Math.max(10, Math.min(600, Number(pongTimeout)));
+    config.PONG_TIMEOUT = sec * 1000;
+    systemSettings.pongTimeout = sec;
+  }
+  if (maxLogLines && !isNaN(maxLogLines)) {
+    systemSettings.maxLogLines = Math.max(50, Math.min(1000, Number(maxLogLines)));
+  }
+  if (typeof autoScrollLogs === 'boolean') {
+    systemSettings.autoScrollLogs = autoScrollLogs;
+  }
+
+  saveSettings();
+
+  broadcastToDashboards({
+    type: 'SERVER_CONFIG_UPDATED',
+    publicUrl: config.PUBLIC_URL,
+    settings: systemSettings
+  });
+
+  broadcastToDashboards({
+    type: 'FLEET_ALERT',
+    alertType: 'INFO',
+    message: 'System settings & gateway configuration updated'
+  });
+
+  res.json({ success: true, settings: systemSettings, publicUrl: config.PUBLIC_URL });
+});
+
+// Purge Stale Offline Devices
+app.post('/api/devices/purge-offline', (req, res) => {
+  const initialCount = Object.keys(devices).length;
+  Object.keys(devices).forEach(id => {
+    if (!activeEspSockets.has(id)) {
+      delete devices[id];
+    }
+  });
+  saveDevices();
+
+  broadcastToDashboards({
+    type: 'INIT_STATE',
+    devices: Object.values(devices).map(dev => ({
+      ...dev,
+      isOnline: activeEspSockets.has(dev.deviceId)
+    })),
+    firmwares,
+    publicUrl: config.PUBLIC_URL
+  });
+
+  const purgedCount = initialCount - Object.keys(devices).length;
+  res.json({ success: true, purgedCount });
 });
 
 // List all devices

@@ -2006,4 +2006,111 @@ body {
   line-height: 1.35;
 }
 
+/* =========================================================
+   15. SYSTEM SETTINGS & GATEWAY CONFIGURATION MODAL
+   ========================================================= */
+.settings-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  padding: 1.15rem;
+  margin-bottom: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.settings-section-title {
+  font-family: var(--font-dot);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 0.45rem;
+}
+
+.input-with-action {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.input-with-action .form-input {
+  flex: 1;
+}
+
+.quick-presets-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+}
+
+.preset-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.preset-btn {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-main);
+  text-decoration: underline;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.preset-btn:hover {
+  color: var(--border-active);
+}
+
+.settings-grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+@media (max-width: 650px) {
+  .settings-grid-2col {
+    grid-template-columns: 1fr;
+  }
+}
+
+.settings-toggle-group {
+  margin-top: 0.4rem;
+}
+
+.toggle-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-main);
+  cursor: pointer;
+}
+
+.toggle-checkbox-label input {
+  accent-color: var(--btn-primary-bg);
+  width: 15px;
+  height: 15px;
+}
+
+.settings-section.danger-zone {
+  border-color: var(--border-color);
+}
+
+.maintenance-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+
 

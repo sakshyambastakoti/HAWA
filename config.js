@@ -7,6 +7,7 @@ module.exports = {
   UPLOADS_DIR: path.join(__dirname, 'storage', 'uploads'),
   DEVICES_FILE: path.join(__dirname, 'storage', 'devices.json'),
   FIRMWARES_FILE: path.join(__dirname, 'storage', 'firmwares.json'),
+  SETTINGS_FILE: path.join(__dirname, 'storage', 'settings.json'),
   PUBLIC_BINARIES_DIR: path.join(__dirname, 'public', 'binaries'),
   HEARTBEAT_INTERVAL: 15000, // 15 seconds ping
   PONG_TIMEOUT: 45000, // 45 seconds timeout

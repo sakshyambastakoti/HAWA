@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Doto:wght@300;400;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/dashboard.css?v=11">
+  <link rel="stylesheet" href="/css/dashboard.css?v=12">
   <script>
     (function() {
       const saved = localStorage.getItem('hawa_theme') || 'light';
@@ -81,15 +81,31 @@
 
         <div class="sidebar-rail-line middle"></div>
 
-        <!-- Tertiary Pod: External Bench -->
-        <div class="sidebar-capsule-pod tertiary" title="External Hardware Workbench">
-          <!-- Capsule 5: Web Flasher Bench -->
+        <!-- Tertiary Pod: System Settings & External Bench -->
+        <div class="sidebar-capsule-pod tertiary" title="System Settings & Workbench">
+          <!-- Capsule 5: Settings & Gateway Config -->
+          <button type="button" class="sidebar-capsule-btn" id="sideNavSettings" title="Configure Gateway, Timers & Fleet" aria-label="System Settings">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="4" y1="21" x2="4" y2="14"></line>
+              <line x1="4" y1="10" x2="4" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12" y2="3"></line>
+              <line x1="20" y1="21" x2="20" y2="16"></line>
+              <line x1="20" y1="12" x2="20" y2="3"></line>
+              <line x1="1" y1="14" x2="7" y2="14"></line>
+              <line x1="9" y1="8" x2="15" y2="8"></line>
+              <line x1="17" y1="16" x2="23" y2="16"></line>
+            </svg>
+            <span class="sidebar-tooltip">05 // SYSTEM SETTINGS</span>
+          </button>
+
+          <!-- Capsule 6: Web Flasher Bench -->
           <a href="/flash.html" target="_blank" class="sidebar-capsule-btn" id="sideNavFlasher" title="Open Web Serial Flasher" aria-label="Web Flasher">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="16 18 22 12 16 6"></polyline>
               <polyline points="8 6 2 12 8 18"></polyline>
             </svg>
-            <span class="sidebar-tooltip">05 // FLASH BENCH</span>
+            <span class="sidebar-tooltip">06 // FLASH BENCH</span>
           </a>
         </div>
 
@@ -547,9 +563,103 @@
     </div>
   </div>
 
-  <!-- 8. Floating Toast Notifications Container -->
+  <!-- 8. Modal: System Settings & Gateway Configuration -->
+  <div id="settingsModal" class="modal-overlay">
+    <div class="modal-content modal-large">
+      <button type="button" class="modal-close" id="closeSettingsModalBtn" aria-label="Close modal">&times;</button>
+      
+      <div class="modal-header-tag">SYSTEM PARAMETERS // CONTROL PANEL</div>
+      <h2 class="modal-title">SYSTEM SETTINGS & GATEWAY</h2>
+      <p class="modal-desc">
+        Configure public gateway endpoints, heartbeat timing, telemetry logging capacities, and offline node retention.
+      </p>
+
+      <form id="systemSettingsForm">
+        <!-- 1. Gateway & Network Configuration -->
+        <div class="settings-section">
+          <div class="settings-section-title">01 // GATEWAY & TUNNEL ENDPOINT</div>
+          <div class="form-group">
+            <label class="form-label" for="settingGatewayUrl">PUBLIC GATEWAY URL</label>
+            <div class="input-with-action">
+              <input type="url" id="settingGatewayUrl" class="form-input monospace" placeholder="e.g. https://hawa-tunnel.trycloudflare.com or http://192.168.1.100:3000" required>
+              <button type="button" class="btn-secondary btn-sm" id="testGatewayBtn">TEST REACHABILITY</button>
+            </div>
+            <div class="form-hint">The base URL microcontrollers use to stream WebSocket telemetry and download OTA binaries.</div>
+          </div>
+
+          <div class="quick-presets-row">
+            <span class="preset-label">PRESETS:</span>
+            <button type="button" class="btn-text btn-xs preset-btn" id="presetLocalHost">LOCALHOST</button>
+            <button type="button" class="btn-text btn-xs preset-btn" id="presetOrigin">CURRENT ORIGIN</button>
+          </div>
+        </div>
+
+        <!-- 2. Fleet Timing & Heartbeat Intervals -->
+        <div class="settings-section">
+          <div class="settings-section-title">02 // HEARTBEAT & INCIDENT THRESHOLDS</div>
+          <div class="settings-grid-2col">
+            <div class="form-group">
+              <label class="form-label" for="settingHeartbeatSec">PING INTERVAL (SECONDS)</label>
+              <input type="number" id="settingHeartbeatSec" class="form-input monospace" min="5" max="300" step="1" value="15">
+              <div class="form-hint">How often the hub pings active microcontrollers.</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="settingTimeoutSec">TIMEOUT THRESHOLD (SECONDS)</label>
+              <input type="number" id="settingTimeoutSec" class="form-input monospace" min="10" max="600" step="5" value="45">
+              <div class="form-hint">Inactivity duration before declaring a node offline.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Telemetry Stream & Log Retention -->
+        <div class="settings-section">
+          <div class="settings-section-title">03 // TELEMETRY & LOG RETENTION</div>
+          <div class="settings-grid-2col">
+            <div class="form-group">
+              <label class="form-label" for="settingMaxLogs">MAX LOG BUFFER DEPTH</label>
+              <select id="settingMaxLogs" class="form-select monospace">
+                <option value="100">100 LINES</option>
+                <option value="200" selected>200 LINES (RECOMMENDED)</option>
+                <option value="500">500 LINES</option>
+                <option value="1000">1000 LINES</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">LOG PERSISTENCE</label>
+              <div class="settings-toggle-group">
+                <label class="toggle-checkbox-label">
+                  <input type="checkbox" id="settingAutoScroll" checked>
+                  <span>ENABLE AUTO-SCROLL BY DEFAULT</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Fleet Maintenance Actions -->
+        <div class="settings-section danger-zone">
+          <div class="settings-section-title">04 // FLEET MAINTENANCE</div>
+          <div class="maintenance-actions-row">
+            <button type="button" class="btn-secondary btn-sm" id="purgeOfflineDevicesBtn">
+              PURGE OFFLINE NODES
+            </button>
+            <button type="button" class="btn-secondary btn-sm" id="clearAllLogsBtn">
+              CLEAR LOGS BUFFER
+            </button>
+          </div>
+        </div>
+
+        <div class="modal-actions-row">
+          <button type="button" class="btn-secondary" id="cancelSettingsBtn">DISCARD</button>
+          <button type="submit" class="btn-primary" id="saveSettingsBtn">SAVE CONFIGURATION</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 9. Floating Toast Notifications Container -->
   <div class="toast-container" id="toastContainer" aria-live="polite"></div>
 
-  <script src="/js/dashboard.js?v=11"></script>
+  <script src="/js/dashboard.js?v=12"></script>
 </body>
 </html>
