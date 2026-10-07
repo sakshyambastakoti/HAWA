@@ -8,7 +8,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Doto:wght@300;400;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/flasher.css?v=4">
+  <link rel="stylesheet" href="/css/flasher.css?v=5">
+  <script>
+    (function() {
+      const saved = localStorage.getItem('hawa_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', saved);
+    })();
+  </script>
 </head>
 <body>
 
@@ -34,6 +40,25 @@
       </nav>
 
       <div class="nav-actions">
+        <button type="button" class="theme-toggle-btn" id="themeToggleBtn" title="Toggle Light / Dark theme" aria-label="Toggle theme">
+          <span class="theme-toggle-icon">
+            <svg class="sun-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <svg class="moon-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </span>
+          <span class="theme-toggle-label" id="themeToggleLabel">LIGHT</span>
+        </button>
         <a href="/" class="nav-text-btn">Command Center</a>
         <a href="#flasher" class="nav-cta-btn">Connect Device</a>
       </div>
@@ -714,10 +739,40 @@
     </div>
   </footer>
 
-  <script type="module" src="/js/flasher.js?v=4"></script>
+  <script type="module" src="/js/flasher.js?v=5"></script>
 
   <!-- Clean UI interactivity script without emojis or board cards -->
   <script>
+    // Theme Toggle Handler
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const themeToggleLabel = document.getElementById('themeToggleLabel');
+    const sunIcon = document.querySelector('.sun-icon');
+    const moonIcon = document.querySelector('.moon-icon');
+
+    function applyTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('hawa_theme', theme);
+      if (themeToggleLabel) themeToggleLabel.textContent = (theme === 'light' ? 'DARK' : 'LIGHT');
+      if (sunIcon && moonIcon) {
+        if (theme === 'light') {
+          sunIcon.style.display = 'none';
+          moonIcon.style.display = 'inline-block';
+        } else {
+          sunIcon.style.display = 'inline-block';
+          moonIcon.style.display = 'none';
+        }
+      }
+    }
+
+    const currentTheme = localStorage.getItem('hawa_theme') || 'dark';
+    applyTheme(currentTheme);
+
+    if (themeToggleBtn) {
+      themeToggleBtn.addEventListener('click', () => {
+        const active = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        applyTheme(active);
+      });
+    }
     // Toggle Password Visibility using clean SVGs
     const togglePassBtn = document.getElementById('togglePasswordBtn');
     const wifiPassInput = document.getElementById('wifiPass');

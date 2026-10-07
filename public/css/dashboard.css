@@ -21,6 +21,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  border-radius: 0 !important;
 }
 
 body {
@@ -596,7 +597,6 @@ body {
   text-align: center;
   padding: 4rem 2rem;
   background: var(--bg-card);
-  border-radius: 20px;
   border: 1px dashed var(--border-color);
 }
 
@@ -604,4 +604,122 @@ body {
   font-size: 3rem;
   margin-bottom: 1rem;
   opacity: 0.6;
+}
+
+/* Theme Toggle Button */
+.theme-toggle-btn {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  font-family: var(--font-dot);
+  font-size: 0.725rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.5rem 0.85rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.15s ease;
+}
+
+.theme-toggle-btn:hover {
+  background: var(--text-main);
+  color: var(--bg-primary);
+  border-color: var(--text-main);
+}
+
+.theme-toggle-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-toggle-icon svg {
+  stroke: currentColor;
+}
+
+/* Light Theme Overrides for Dashboard */
+[data-theme="light"] {
+  --bg-primary: #f5f5f7;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #fafafa;
+  --border-color: rgba(0, 0, 0, 0.12);
+  --border-glow: rgba(0, 0, 0, 0.25);
+  --text-main: #000000;
+  --text-muted: #52525b;
+}
+
+[data-theme="light"] body {
+  background-color: #f5f5f7;
+  background-image: radial-gradient(rgba(0, 0, 0, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+[data-theme="light"] .navbar {
+  background: rgba(245, 245, 247, 0.9);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="light"] .logo-text h1 {
+  color: #000000;
+}
+
+[data-theme="light"] .stat-card {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .stat-info p {
+  color: #000000;
+}
+
+[data-theme="light"] .device-card {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="light"] .device-name {
+  color: #000000;
+}
+
+[data-theme="light"] .console-card {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="light"] .console-body {
+  background: #08090d;
+}
+
+[data-theme="light"] .btn-primary {
+  background: #000000;
+  color: #ffffff;
+  border-color: #000000;
+}
+
+[data-theme="light"] .btn-secondary {
+  background: #ffffff;
+  color: #000000;
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="light"] .modal-content {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.2);
+  color: #000000;
+}
+
+[data-theme="light"] .modal-header h2 {
+  color: #000000;
+}
+
+[data-theme="light"] .form-input, 
+[data-theme="light"] .form-select {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.2);
+  color: #000000;
 }

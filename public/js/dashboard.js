@@ -6,6 +6,37 @@ let uploadedFileMeta = null;
 let activeOtaDeviceId = null;
 let ws = null;
 
+// Theme Toggle Handler
+const themeToggleBtn = document.getElementById('themeToggleBtn');
+const themeToggleLabel = document.getElementById('themeToggleLabel');
+const sunIcon = document.querySelector('.sun-icon');
+const moonIcon = document.querySelector('.moon-icon');
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('hawa_theme', theme);
+  if (themeToggleLabel) themeToggleLabel.textContent = (theme === 'light' ? 'DARK' : 'LIGHT');
+  if (sunIcon && moonIcon) {
+    if (theme === 'light') {
+      sunIcon.style.display = 'none';
+      moonIcon.style.display = 'inline-block';
+    } else {
+      sunIcon.style.display = 'inline-block';
+      moonIcon.style.display = 'none';
+    }
+  }
+}
+
+const currentTheme = localStorage.getItem('hawa_theme') || 'dark';
+applyTheme(currentTheme);
+
+if (themeToggleBtn) {
+  themeToggleBtn.addEventListener('click', () => {
+    const active = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    applyTheme(active);
+  });
+}
+
 // DOM Elements
 const statOnline = document.getElementById('statOnline');
 const statTotal = document.getElementById('statTotal');
