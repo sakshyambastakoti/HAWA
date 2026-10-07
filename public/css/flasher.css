@@ -594,23 +594,32 @@ body.flasher-fullscreen-active {
 .device-preview-frame.window-fullscreen .card-body {
   flex: 1 1 0%;
   min-height: 0;
-  height: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 1.25rem 2.5rem;
+  padding: 1.5rem 2.5rem;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.device-preview-frame.window-fullscreen .flasher-main-tabs,
+.device-preview-frame.window-fullscreen .step-nav-bar,
+.device-preview-frame.window-fullscreen .flasher-workbench-grid {
+  max-width: 1260px;
+  width: 100%;
 }
 
 .device-preview-frame.window-fullscreen .flasher-workbench-grid {
-  flex: 1 1 0%;
-  min-height: 0;
+  height: min(520px, calc(100vh - 240px));
+  min-height: 480px;
+  max-height: 520px;
   align-items: stretch;
 }
 
 .device-preview-frame.window-fullscreen .flasher-controls-col {
-  overflow-y: auto;
-  padding-right: 0.5rem;
+  height: 100%;
 }
 
 .device-preview-frame.window-fullscreen .flasher-terminal-col {
@@ -621,7 +630,7 @@ body.flasher-fullscreen-active {
 
 .device-preview-frame.window-fullscreen .terminal-wrapper {
   height: 100%;
-  max-height: none;
+  max-height: 520px;
   min-height: 0;
 }
 
@@ -841,16 +850,35 @@ body.flasher-fullscreen-active {
   grid-template-columns: 1fr 1fr;
   gap: 2rem;
   align-items: stretch;
+  min-height: 495px;
 }
 
 .flasher-controls-col {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  height: 100%;
 }
 
 .tab-form-view {
   animation: fadeInView 0.2s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.tab-form-view form {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.form-actions-group {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding-top: 0.5rem;
 }
 
 @keyframes fadeInView {
@@ -1214,12 +1242,12 @@ body.flasher-fullscreen-active {
 /* Flash Button (Sharp Architectural Button) */
 .btn-flash {
   width: 100%;
-  padding: 1rem 1.75rem;
+  padding: 0.85rem 1.25rem;
   background: var(--btn-primary-bg);
   color: var(--btn-primary-text);
   border: 1px solid var(--btn-primary-bg);
   font-family: var(--font-dot);
-  font-size: 0.92rem;
+  font-size: 0.88rem;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1229,7 +1257,7 @@ body.flasher-fullscreen-active {
   justify-content: center;
   gap: 0.65rem;
   transition: all 0.15s ease;
-  margin-top: 1.5rem;
+  margin-top: 0;
 }
 
 .btn-flash:hover:not(:disabled) {
@@ -1240,6 +1268,29 @@ body.flasher-fullscreen-active {
 .btn-flash:disabled {
   opacity: 0.45;
   cursor: not-allowed;
+}
+
+.btn-inject-wifi {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+  border: 1px solid var(--border-color);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.15s ease;
+}
+
+.btn-inject-wifi:hover {
+  background: var(--border-color);
+  color: var(--text-primary);
 }
 
 /* Progress Section */
@@ -1299,9 +1350,7 @@ body.flasher-fullscreen-active {
 .flasher-terminal-col {
   display: flex;
   flex-direction: column;
-  position: sticky;
-  top: 1.5rem;
-  align-self: start;
+  height: 100%;
 }
 
 .terminal-wrapper {
@@ -1310,8 +1359,7 @@ body.flasher-fullscreen-active {
   box-shadow: var(--shadow-frame);
   display: flex;
   flex-direction: column;
-  height: 560px;
-  max-height: 560px;
+  height: 100%;
   overflow: hidden;
   position: relative;
   transition: box-shadow 0.2s ease, transform 0.2s ease;
