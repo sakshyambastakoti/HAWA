@@ -105,7 +105,17 @@ function loadSettings() {
     if (fs.existsSync(config.SETTINGS_FILE)) {
       const saved = JSON.parse(fs.readFileSync(config.SETTINGS_FILE, 'utf8'));
       systemSettings = { ...systemSettings, ...saved };
-      if (saved.publicUrl) config.PUBLIC_URL = saved.publicUrl;
+      // Cloud environment variables (Render.com, Docker, or custom host) take priority over local disk settings
+      if (process.env.PUBLIC_URL) {
+        config.PUBLIC_URL = process.env.PUBLIC_URL.trim().replace(/\/$/, '');
+        systemSettings.publicUrl = config.PUBLIC_URL;
+      } else if (process.env.RENDER_EXTERNAL_URL) {
+        config.PUBLIC_URL = process.env.RENDER_EXTERNAL_URL.trim().replace(/\/$/, '');
+        systemSettings.publicUrl = config.PUBLIC_URL;
+      } else if (saved.publicUrl) {
+        config.PUBLIC_URL = saved.publicUrl;
+      }
+
       if (saved.heartbeatInterval) config.HEARTBEAT_INTERVAL = saved.heartbeatInterval * 1000;
       if (saved.pongTimeout) config.PONG_TIMEOUT = saved.pongTimeout * 1000;
     }

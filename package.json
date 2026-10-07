@@ -1,8 +1,11 @@
 {
   "name": "hawa",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "HAWA - Universal ESP32/ESP8266 Fleet OTA & Real-Time Telemetry Platform",
+  "main": "server.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "start": "node server.js",
     "tunnel": "node tunnel.js",

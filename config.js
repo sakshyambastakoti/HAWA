@@ -11,6 +11,6 @@ module.exports = {
   PUBLIC_BINARIES_DIR: path.join(__dirname, 'public', 'binaries'),
   HEARTBEAT_INTERVAL: 15000, // 15 seconds ping
   PONG_TIMEOUT: 45000, // 45 seconds timeout
-  // Default public URL (updated automatically when Cloudflare tunnel runs)
-  PUBLIC_URL: process.env.PUBLIC_URL || 'http://localhost:3000'
+  // Default public URL (auto-detects Render.com or custom environment)
+  PUBLIC_URL: (process.env.PUBLIC_URL || process.env.RENDER_EXTERNAL_URL || 'http://localhost:3000').replace(/\/$/, '')
 };
