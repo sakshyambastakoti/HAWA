@@ -600,26 +600,27 @@ body.flasher-fullscreen-active {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: safe center;
   box-sizing: border-box;
 }
 
 .device-preview-frame.window-fullscreen .flasher-main-tabs,
 .device-preview-frame.window-fullscreen .step-nav-bar,
 .device-preview-frame.window-fullscreen .flasher-workbench-grid {
-  max-width: 1260px;
+  max-width: 1200px;
   width: 100%;
 }
 
 .device-preview-frame.window-fullscreen .flasher-workbench-grid {
-  height: min(520px, calc(100vh - 240px));
+  height: 480px;
   min-height: 480px;
-  max-height: 520px;
+  max-height: 480px;
   align-items: stretch;
 }
 
 .device-preview-frame.window-fullscreen .flasher-controls-col {
   height: 100%;
+  min-height: 0;
 }
 
 .device-preview-frame.window-fullscreen .flasher-terminal-col {
@@ -630,7 +631,7 @@ body.flasher-fullscreen-active {
 
 .device-preview-frame.window-fullscreen .terminal-wrapper {
   height: 100%;
-  max-height: 520px;
+  max-height: 480px;
   min-height: 0;
 }
 
@@ -848,26 +849,39 @@ body.flasher-fullscreen-active {
 .flasher-workbench-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  gap: 1.75rem;
   align-items: stretch;
-  min-height: 495px;
+  height: 480px;
+  min-height: 480px;
+  max-height: 480px;
+  box-sizing: border-box;
 }
 
 .flasher-controls-col {
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .tab-form-view {
   animation: fadeInView 0.2s ease;
   height: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }
 
+.tab-form-view[style*="display: block"] {
+  display: flex !important;
+}
+
 .tab-form-view form {
   height: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -877,8 +891,9 @@ body.flasher-fullscreen-active {
   margin-top: auto;
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
+  gap: 0.5rem;
   padding-top: 0.5rem;
+  flex-shrink: 0;
 }
 
 @keyframes fadeInView {
@@ -963,12 +978,23 @@ body.flasher-fullscreen-active {
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.25rem;
-  margin-bottom: 1.25rem;
+  gap: 1.15rem;
+  margin-bottom: 1rem;
+}
+
+.form-row.form-row-hub {
+  grid-template-columns: 1fr 1.65fr;
+  gap: 1rem;
+}
+
+#serverUrlHawa, .input-mono {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  letter-spacing: -0.01em;
 }
 
 .form-group {
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
 }
 
 .form-label {
@@ -986,6 +1012,11 @@ body.flasher-fullscreen-active {
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
+}
+
+.input-container .form-input {
+  padding-right: 2.75rem !important;
 }
 
 .input-icon-btn {
@@ -1000,6 +1031,7 @@ body.flasher-fullscreen-active {
   justify-content: center;
   padding: 0.25rem;
   transition: color 0.15s ease;
+  z-index: 2;
 }
 
 .input-icon-btn:hover {
@@ -1351,6 +1383,7 @@ body.flasher-fullscreen-active {
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 0;
 }
 
 .terminal-wrapper {
@@ -1360,6 +1393,7 @@ body.flasher-fullscreen-active {
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 0;
   overflow: hidden;
   position: relative;
   transition: box-shadow 0.2s ease, transform 0.2s ease;
@@ -1367,7 +1401,7 @@ body.flasher-fullscreen-active {
 
 .terminal-header {
   background: var(--terminal-header-bg);
-  padding: 0.75rem 1.15rem;
+  padding: 0.65rem 1.15rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1508,24 +1542,49 @@ body.flasher-fullscreen-active {
 }
 
 .terminal-footer-bar {
-  background: var(--terminal-footer-bg);
-  padding: 0.5rem 1.25rem;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0.45rem 1.15rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
   font-family: var(--font-dot);
   font-size: 0.72rem;
-  letter-spacing: 0.06em;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #71717a;
+  color: #a1a1aa;
   flex-shrink: 0;
 }
 
 .terminal-footer-bar span {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.45rem;
+}
+
+.terminal-footer-bar span:first-child {
+  color: #d4d4d8;
+}
+
+.terminal-footer-bar span:last-child {
+  color: #22c55e;
+}
+
+.terminal-footer-bar span:last-child::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: #22c55e;
+  border-radius: 50%;
+  box-shadow: 0 0 6px #22c55e;
+  animation: pulseLiveDot 2s infinite ease-in-out;
+}
+
+@keyframes pulseLiveDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
 }
 
 .terminal-input-bar {
@@ -1533,16 +1592,16 @@ body.flasher-fullscreen-active {
   gap: 0.45rem;
   padding: 0.5rem 0.85rem;
   background: var(--terminal-header-bg);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
   flex-shrink: 0;
 }
 
 .terminal-input-bar input {
   flex: 1;
   min-width: 0;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #ffffff;
   padding: 0.45rem 0.75rem;
   font-family: var(--font-mono);
   font-size: 0.78rem;
@@ -1550,8 +1609,12 @@ body.flasher-fullscreen-active {
   transition: border-color 0.15s ease;
 }
 
+.terminal-input-bar input::placeholder {
+  color: #71717a;
+}
+
 .terminal-input-bar input:focus {
-  border-color: var(--border-active);
+  border-color: #ffffff;
 }
 
 .terminal-input-bar button {
@@ -1565,23 +1628,23 @@ body.flasher-fullscreen-active {
 }
 
 #terminalSendBtn {
-  background: var(--btn-primary-bg);
-  color: var(--btn-primary-text);
-  border: none;
+  background: #ffffff;
+  color: #000000;
+  border: 1px solid #ffffff;
 }
 
 #terminalSendBtn:hover {
-  opacity: 0.9;
+  background: rgba(255, 255, 255, 0.85);
 }
 
 #terminalInjectWifiBtn {
-  background: var(--btn-secondary-bg);
-  color: var(--btn-secondary-text);
-  border: 1px solid var(--btn-secondary-border);
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 #terminalInjectWifiBtn:hover {
-  background: var(--border-color);
+  background: rgba(255, 255, 255, 0.18);
 }
 
 
@@ -1866,14 +1929,24 @@ body.flasher-fullscreen-active {
   .flasher-workbench-grid {
     grid-template-columns: 1fr;
     gap: 1.75rem;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+  }
+  .flasher-controls-col {
+    height: auto;
+  }
+  .tab-form-view form {
+    height: auto;
   }
   .flasher-terminal-col {
     position: static;
+    height: auto;
   }
   .flasher-terminal-col .terminal-wrapper {
-    height: 480px;
-    max-height: 480px;
-    min-height: 480px;
+    height: 440px;
+    max-height: 440px;
+    min-height: 440px;
   }
   .flasher-terminal-col .serial-console {
     flex: 1 1 0%;

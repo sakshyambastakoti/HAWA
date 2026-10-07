@@ -67,11 +67,21 @@ fetch('/api/config')
   .then(cfg => {
     if (cfg.publicUrl && serverUrlHawa && !serverUrlHawa.value) {
       serverUrlHawa.value = cfg.publicUrl;
+      serverUrlHawa.title = cfg.publicUrl;
     }
   })
   .catch(() => {
-    if (serverUrlHawa) serverUrlHawa.value = window.location.origin;
+    if (serverUrlHawa) {
+      serverUrlHawa.value = window.location.origin;
+      serverUrlHawa.title = window.location.origin;
+    }
   });
+
+if (serverUrlHawa) {
+  serverUrlHawa.addEventListener('input', () => {
+    serverUrlHawa.title = serverUrlHawa.value;
+  });
+}
 
 function logToConsole(text) {
   if (!serialConsole) return;
@@ -129,7 +139,7 @@ function switchTab(tab) {
     tabCustomBin.classList.remove('active');
     tabCustomBin.setAttribute('aria-selected', 'false');
 
-    hawaOtaFormView.style.display = 'block';
+    hawaOtaFormView.style.display = 'flex';
     customBinFormView.style.display = 'none';
 
     if (stepName1) stepName1.textContent = 'Select Board';
@@ -143,7 +153,7 @@ function switchTab(tab) {
     tabHawaOta.classList.remove('active');
     tabHawaOta.setAttribute('aria-selected', 'false');
 
-    customBinFormView.style.display = 'block';
+    customBinFormView.style.display = 'flex';
     hawaOtaFormView.style.display = 'none';
 
     if (stepName1) stepName1.textContent = 'Chip & .bin File';

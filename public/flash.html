@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Doto:wght@300;400;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/flasher.css?v=11">
+  <link rel="stylesheet" href="/css/flasher.css?v=15">
   <script>
     (function() {
       const saved = localStorage.getItem('hawa_theme') || 'light';
@@ -275,7 +275,7 @@
                   <div class="form-group" style="margin-bottom: 0;">
                     <label class="form-label" for="wifiPassHawa">Wi-Fi Password</label>
                     <div class="input-container">
-                      <input type="password" id="wifiPassHawa" class="form-input" placeholder="Password (leave blank if open)">
+                      <input type="password" id="wifiPassHawa" class="form-input" placeholder="Password (blank if open)">
                       <button type="button" class="input-icon-btn toggle-password-btn" data-target="wifiPassHawa" title="Toggle password visibility" aria-label="Toggle password visibility">
                         <svg class="eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                           <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path>
@@ -300,14 +300,14 @@
                   <span class="section-hint">Cloud registry identifier</span>
                 </div>
 
-                <div class="form-row">
+                <div class="form-row form-row-hub">
                   <div class="form-group" style="margin-bottom: 0;">
                     <label class="form-label" for="deviceNameHawa">Board Nickname</label>
                     <input type="text" id="deviceNameHawa" class="form-input" placeholder="e.g. LivingRoom-ESP32" required>
                   </div>
                   <div class="form-group" style="margin-bottom: 0;">
                     <label class="form-label" for="serverUrlHawa">Hawa Hub Server URL</label>
-                    <input type="text" id="serverUrlHawa" class="form-input" placeholder="wss://your-tunnel.trycloudflare.com">
+                    <input type="text" id="serverUrlHawa" class="form-input input-mono" placeholder="wss://your-tunnel.trycloudflare.com" title="Hawa Hub Server URL">
                   </div>
                 </div>
 
@@ -739,7 +739,7 @@
     </div>
   </footer>
 
-  <script type="module" src="/js/flasher.js?v=10"></script>
+  <script type="module" src="/js/flasher.js?v=15"></script>
 
   <!-- Clean UI interactivity script without emojis or board cards -->
   <script>
