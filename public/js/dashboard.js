@@ -156,6 +156,7 @@ function updatePublicUrl(url) {
   if (statTunnel) statTunnel.textContent = url.replace('https://', '').replace('http://', '');
   if (tunnelStatusText) tunnelStatusText.textContent = `TUNNEL: ${url.replace('https://', '').replace('http://', '')}`;
   if (tunnelBadge) tunnelBadge.title = `Click to copy public gateway URL: ${url}`;
+  if (drawerTunnelVal) drawerTunnelVal.textContent = url.replace('https://', '').replace('http://', '');
 }
 
 // Copy Tunnel URL on Click
@@ -174,6 +175,95 @@ function updateStats() {
   if (statOnline) statOnline.textContent = onlineCount;
   if (statTotal) statTotal.textContent = devices.length;
   if (deviceCountBadge) deviceCountBadge.textContent = `[${devices.length} NODES]`;
+  if (drawerOnlineCount) drawerOnlineCount.textContent = `${onlineCount} ONLINE`;
+}
+
+// Edge Slide-bar Elements and Handlers
+const edgeSidebarDrawer = document.getElementById('edgeSidebarDrawer');
+const edgeDrawerBackdrop = document.getElementById('edgeDrawerBackdrop');
+const railPod = document.getElementById('railPod');
+const drawerCloseBtn = document.getElementById('drawerCloseBtn');
+const railPillFleet = document.getElementById('railPillFleet');
+const railPillConsole = document.getElementById('railPillConsole');
+const drawerLinkFleet = document.getElementById('drawerLinkFleet');
+const drawerLinkConsole = document.getElementById('drawerLinkConsole');
+const drawerLinkDeploy = document.getElementById('drawerLinkDeploy');
+const drawerDeployBtn = document.getElementById('drawerDeployBtn');
+const drawerOnlineCount = document.getElementById('drawerOnlineCount');
+const drawerTunnelVal = document.getElementById('drawerTunnelVal');
+
+function openEdgeDrawer() {
+  if (edgeSidebarDrawer) edgeSidebarDrawer.classList.add('open');
+  if (edgeDrawerBackdrop) edgeDrawerBackdrop.classList.add('open');
+}
+
+function closeEdgeDrawer() {
+  if (edgeSidebarDrawer) edgeSidebarDrawer.classList.remove('open');
+  if (edgeDrawerBackdrop) edgeDrawerBackdrop.classList.remove('open');
+}
+
+if (railPod) {
+  railPod.addEventListener('click', (e) => {
+    if (e.target.closest('.rail-pill')) return;
+    if (edgeSidebarDrawer && edgeSidebarDrawer.classList.contains('open')) {
+      closeEdgeDrawer();
+    } else {
+      openEdgeDrawer();
+    }
+  });
+}
+
+if (drawerCloseBtn) drawerCloseBtn.addEventListener('click', closeEdgeDrawer);
+if (edgeDrawerBackdrop) edgeDrawerBackdrop.addEventListener('click', closeEdgeDrawer);
+
+if (railPillFleet) {
+  railPillFleet.addEventListener('click', (e) => {
+    e.stopPropagation();
+    railPillFleet.classList.add('active');
+    if (railPillConsole) railPillConsole.classList.remove('active');
+    const target = document.querySelector('.devices-section') || document.querySelector('.ops-bar');
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
+  });
+}
+
+if (railPillConsole) {
+  railPillConsole.addEventListener('click', (e) => {
+    e.stopPropagation();
+    railPillConsole.classList.add('active');
+    if (railPillFleet) railPillFleet.classList.remove('active');
+    const target = document.getElementById('consolePanel');
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
+  });
+}
+
+if (drawerLinkFleet) {
+  drawerLinkFleet.addEventListener('click', () => {
+    closeEdgeDrawer();
+    const target = document.querySelector('.devices-section') || document.querySelector('.ops-bar');
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
+  });
+}
+
+if (drawerLinkConsole) {
+  drawerLinkConsole.addEventListener('click', () => {
+    closeEdgeDrawer();
+    const target = document.getElementById('consolePanel');
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
+  });
+}
+
+if (drawerLinkDeploy) {
+  drawerLinkDeploy.addEventListener('click', () => {
+    closeEdgeDrawer();
+    openDeployModal();
+  });
+}
+
+if (drawerDeployBtn) {
+  drawerDeployBtn.addEventListener('click', () => {
+    closeEdgeDrawer();
+    openDeployModal();
+  });
 }
 
 // Filter and Search Event Handlers
