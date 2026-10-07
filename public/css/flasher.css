@@ -1087,10 +1087,10 @@ body {
 
 .terminal-header {
   background: #18181b;
-  padding: 0.75rem 1.15rem;
+  padding: 0.65rem 1rem;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   border-bottom: 1px solid var(--terminal-border);
 }
 
