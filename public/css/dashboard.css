@@ -1257,43 +1257,8 @@ body {
   transform: scale(1.08);
 }
 
-/* Hover Tooltip */
 .sidebar-tooltip {
-  position: absolute;
-  left: calc(100% + 14px);
-  top: 50%;
-  transform: translateY(-50%);
-  background: var(--bg-card);
-  color: var(--text-main);
-  border: 1px solid var(--border-active);
-  padding: 0.42rem 0.75rem;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  white-space: nowrap;
-  pointer-events: none;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
-  z-index: 400;
-}
-
-.sidebar-tooltip::before {
-  content: '';
-  position: absolute;
-  right: 100%;
-  top: 50%;
-  transform: translateY(-50%);
-  border: 5px solid transparent;
-  border-right-color: var(--border-active);
-}
-
-.sidebar-capsule-btn:hover .sidebar-tooltip {
-  opacity: 1;
-  visibility: visible;
-  left: calc(100% + 12px);
+  display: none !important;
 }
 
 /* Section ping highlight on click */

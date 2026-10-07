@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Doto:wght@300;400;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/dashboard.css?v=16">
+  <link rel="stylesheet" href="/css/dashboard.css?v=17">
   <script>
     (function() {
       const saved = localStorage.getItem('hawa_theme') || 'light';
@@ -43,52 +43,48 @@
       <!-- The Vertical Rail Track with Single Unified Capsule Pod -->
       <div class="sidebar-rail-track">
         <!-- Single Unified Menu Capsule Pod (All Options Inside) -->
-        <div class="sidebar-capsule-pod" id="sidebarCapsulePod" title="HAWA Fleet Control Deck">
+        <div class="sidebar-capsule-pod" id="sidebarCapsulePod">
           <!-- Option 1: Fleet Matrix -->
-          <button type="button" class="sidebar-capsule-btn active" id="sideNavFleet" title="Fleet Nodes Matrix" aria-label="Fleet Matrix">
+          <button type="button" class="sidebar-capsule-btn active" id="sideNavFleet" aria-label="Fleet Matrix">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="3" y="3" width="7" height="7"></rect>
               <rect x="14" y="3" width="7" height="7"></rect>
               <rect x="14" y="14" width="7" height="7"></rect>
               <rect x="3" y="14" width="7" height="7"></rect>
             </svg>
-            <span class="sidebar-tooltip">01 // FLEET MATRIX</span>
           </button>
 
           <!-- Option 2: Live Serial Telemetry Stream -->
-          <button type="button" class="sidebar-capsule-btn" id="sideNavConsole" title="Remote Serial Telemetry Stream" aria-label="Telemetry Stream">
+          <button type="button" class="sidebar-capsule-btn" id="sideNavConsole" aria-label="Telemetry Stream">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="4 17 10 11 4 5"></polyline>
               <line x1="12" y1="19" x2="20" y2="19"></line>
             </svg>
-            <span class="sidebar-tooltip">02 // SERIAL TELEMETRY</span>
           </button>
 
           <div class="capsule-pod-divider"></div>
 
           <!-- Option 3: Firmware Library & Rollback -->
-          <button type="button" class="sidebar-capsule-btn" id="sideNavLibrary" title="Firmware Binary Library & Rollback" aria-label="Firmware Library">
+          <button type="button" class="sidebar-capsule-btn" id="sideNavLibrary" aria-label="Firmware Library">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
               <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
             </svg>
-            <span class="sidebar-tooltip">03 // FIRMWARE LIBRARY</span>
           </button>
 
           <!-- Option 4: OTA Deployer -->
-          <button type="button" class="sidebar-capsule-btn" id="sideNavDeploy" title="Deploy OTA Firmware (.bin)" aria-label="Deploy Firmware">
+          <button type="button" class="sidebar-capsule-btn" id="sideNavDeploy" aria-label="Deploy Firmware">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
               <polyline points="17 8 12 3 7 8"></polyline>
               <line x1="12" y1="3" x2="12" y2="15"></line>
             </svg>
-            <span class="sidebar-tooltip">04 // DEPLOY OTA</span>
           </button>
 
           <div class="capsule-pod-divider"></div>
 
           <!-- Option 5: Settings & Gateway Config -->
-          <button type="button" class="sidebar-capsule-btn" id="sideNavSettings" title="Configure Gateway, Timers & Fleet" aria-label="System Settings">
+          <button type="button" class="sidebar-capsule-btn" id="sideNavSettings" aria-label="System Settings">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="4" y1="21" x2="4" y2="14"></line>
               <line x1="4" y1="10" x2="4" y2="3"></line>
@@ -100,23 +96,21 @@
               <line x1="9" y1="8" x2="15" y2="8"></line>
               <line x1="17" y1="16" x2="23" y2="16"></line>
             </svg>
-            <span class="sidebar-tooltip">05 // SYSTEM SETTINGS</span>
           </button>
 
           <!-- Option 6: Web Flasher Bench -->
-          <a href="/flash.html" target="_blank" class="sidebar-capsule-btn" id="sideNavFlasher" title="Open Web Serial Flasher" aria-label="Web Flasher">
+          <a href="/flash.html" target="_blank" class="sidebar-capsule-btn" id="sideNavFlasher" aria-label="Web Flasher">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="16 18 22 12 16 6"></polyline>
               <polyline points="8 6 2 12 8 18"></polyline>
             </svg>
-            <span class="sidebar-tooltip">06 // FLASH BENCH</span>
           </a>
         </div>
       </div>
 
       <!-- Bottom Theme Toggle Button in Sidebar -->
       <div class="sidebar-footer">
-        <button type="button" class="sidebar-footer-btn" id="sidebarThemeBtn" title="Toggle Light / Dark Theme" aria-label="Toggle Theme">
+        <button type="button" class="sidebar-footer-btn" id="sidebarThemeBtn" aria-label="Toggle Theme">
           <span class="theme-toggle-icon">
             <svg class="sun-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="5"></circle>
