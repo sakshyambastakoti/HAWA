@@ -1125,268 +1125,270 @@ body {
 }
 
 /* =========================================================
-   8. ARCHITECTURAL EDGE SLIDE-BAR & DRAWER
-   - Matches user sketch: vertical rail with protruding pod
-   - Dual capsule/pill toggle controls
+   8. TACTILE SIDEBAR MENU (MATCHING USER SKETCH)
+   - Left-docked permanent admin navigation rail
+   - Vertical rail line with bulging capsule pod
+   - Directly clickable capsule/pill buttons with active states
    ========================================================= */
-.edge-drawer-backdrop {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(4px);
-  z-index: 998;
+.admin-app-layout {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
 }
 
-.edge-drawer-backdrop.open {
-  display: block;
-}
-
-.edge-sidebar-drawer {
+.sidebar-menu {
+  width: 76px;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
   position: fixed;
   top: 0;
   left: 0;
   bottom: 0;
-  width: 320px;
-  background: var(--bg-card);
-  border-right: 1px solid var(--border-active);
-  box-shadow: 12px 0 32px rgba(0, 0, 0, 0.7);
-  transform: translateX(-100%);
-  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-  z-index: 1000;
   display: flex;
   flex-direction: column;
-  padding: 1.5rem;
-  overflow-y: auto;
-}
-
-.edge-sidebar-drawer.open {
-  transform: translateX(0);
-}
-
-.drawer-header {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding-bottom: 1.25rem;
-  border-bottom: 1px solid var(--border-subtle);
-  margin-bottom: 1.5rem;
+  padding: 1.25rem 0;
+  z-index: 200;
+  flex-shrink: 0;
+  user-select: none;
+  backdrop-filter: blur(16px);
 }
 
-.drawer-brand {
+.admin-main-content {
+  flex: 1;
+  margin-left: 76px;
+  min-width: 0;
   display: flex;
-  align-items: center;
-  gap: 0.65rem;
+  flex-direction: column;
 }
 
-.drawer-badge {
-  font-family: var(--font-dot);
-  font-size: 0.68rem;
-  font-weight: 800;
-  padding: 0.15rem 0.45rem;
+/* Top Brand Badge in Sidebar */
+.sidebar-brand-badge {
+  width: 40px;
+  height: 40px;
   background: var(--btn-primary-bg);
   color: var(--btn-primary-text);
   border: 1px solid var(--border-color);
-}
-
-.drawer-title {
-  font-family: var(--font-dot);
-  font-size: 1rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  color: var(--text-main);
-  text-transform: uppercase;
-}
-
-.drawer-close-btn {
-  width: 28px;
-  height: 28px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  color: var(--text-main);
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-mono);
-  font-size: 0.95rem;
-  transition: all 0.15s ease;
-}
-
-.drawer-close-btn:hover {
-  background: var(--btn-primary-bg);
-  color: var(--btn-primary-text);
-}
-
-.drawer-nav-section {
-  display: flex;
-  flex-direction: column;
-  gap: 0.65rem;
-  margin-bottom: 1.5rem;
-}
-
-.drawer-section-label {
-  font-family: var(--font-sans);
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-
-.drawer-menu {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.drawer-link {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.65rem 0.85rem;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-main);
-  font-family: var(--font-sans);
-  font-size: 0.82rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  cursor: pointer;
   text-decoration: none;
+  margin-bottom: 1.5rem;
   transition: all 0.15s ease;
-  text-align: left;
 }
 
-.drawer-link:hover,
-.drawer-link.active {
-  background: var(--btn-primary-bg);
-  color: var(--btn-primary-text);
-  border-color: var(--border-active);
+.sidebar-brand-badge svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
 }
 
-.drawer-link-index {
-  font-family: var(--font-dot);
-  font-size: 0.72rem;
-  font-weight: 700;
-  opacity: 0.75;
+.sidebar-brand-badge:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
 }
 
-.drawer-stat-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.55rem 0.85rem;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-subtle);
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-}
-
-.drawer-stat-name {
-  color: var(--text-muted);
-}
-
-.drawer-stat-val {
-  color: var(--text-main);
-  font-weight: 600;
-}
-
-.drawer-footer {
-  margin-top: auto;
-  padding-top: 1.25rem;
-  border-top: 1px solid var(--border-subtle);
-}
-
-/* =========================================================
-   EDGE HANDLE RAIL (EXACT MATCH TO USER SKETCH)
-   - Vertical line running along the screen edge
-   - Outward bulging pod in the middle
-   - Two stacked pill buttons inside
-   ========================================================= */
-.edge-handle-rail {
-  position: fixed;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 38px;
+/* The Vertical Rail Track */
+.sidebar-rail-track {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  z-index: 1001;
-  pointer-events: none;
-  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  align-items: center;
+  width: 100%;
 }
 
-.edge-sidebar-drawer.open ~ .edge-handle-rail {
-  transform: translateX(320px);
-}
-
-.rail-line-top,
-.rail-line-bottom {
+.sidebar-rail-line {
   width: 2px;
   background: var(--border-color);
-  margin-left: 0px;
-  flex: 1;
-  transition: background 0.18s ease;
+  transition: background 0.15s ease;
 }
 
-.rail-pod {
-  pointer-events: auto;
-  width: 32px;
-  padding: 10px 4px;
+.sidebar-rail-line.top {
+  height: 40px;
+}
+
+.sidebar-rail-line.middle {
+  flex: 1;
+  min-height: 28px;
+}
+
+.sidebar-rail-line.bottom {
+  height: 40px;
+}
+
+/* The Outward Bulging Capsule Pod (Exact Sketch Match) */
+.sidebar-capsule-pod {
+  width: 52px;
+  padding: 8px 5px;
   background: var(--bg-card);
-  border: 1.5px solid var(--border-active);
-  border-left: none;
-  border-radius: 0 16px 16px 0 !important;
+  border: 2px solid var(--border-active);
+  border-radius: 28px !important;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  box-shadow: 4px 0 14px rgba(0, 0, 0, 0.45);
-  transition: all 0.18s ease;
+  gap: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  position: relative;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.rail-pod:hover {
-  background: var(--bg-card-hover);
+.sidebar-capsule-pod.secondary {
+  border-color: var(--border-color);
+}
+
+.sidebar-capsule-pod:hover {
   border-color: var(--border-active);
 }
 
-.rail-pill {
-  width: 18px;
-  height: 28px;
-  border: 2px solid var(--text-main);
-  border-radius: 6px !important;
-  background: var(--bg-secondary);
+/* Clickable Capsule / Pill Buttons (Exact Sketch Style) */
+.sidebar-capsule-btn {
+  width: 36px;
+  height: 52px;
+  border: 2px solid var(--border-color);
+  border-radius: 999px !important;
+  background: transparent;
+  color: var(--text-muted);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   padding: 0;
-  transition: all 0.15s ease;
   position: relative;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  text-decoration: none;
+  outline: none;
 }
 
-.rail-pill:hover,
-.rail-pill.active {
+.sidebar-capsule-btn:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-main);
+  border-color: var(--border-active);
+  transform: scale(1.08);
+}
+
+.sidebar-capsule-btn:active {
+  transform: scale(0.92);
+}
+
+.sidebar-capsule-btn.active {
   background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
   border-color: var(--btn-primary-bg);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
 }
 
-.pill-dot {
-  width: 6px;
-  height: 6px;
-  background: var(--text-main);
-  display: block;
-  transition: background 0.15s ease;
+[data-theme="light"] .sidebar-capsule-btn.active {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
 }
 
-.rail-pill:hover .pill-dot,
-.rail-pill.active .pill-dot {
-  background: var(--btn-primary-text);
+.sidebar-capsule-btn svg {
+  width: 17px;
+  height: 17px;
+  stroke: currentColor;
+  transition: transform 0.15s ease;
+}
+
+.sidebar-capsule-btn:hover svg {
+  transform: scale(1.08);
+}
+
+/* Hover Tooltip */
+.sidebar-tooltip {
+  position: absolute;
+  left: calc(100% + 14px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid var(--border-active);
+  padding: 0.42rem 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+  z-index: 400;
+}
+
+.sidebar-tooltip::before {
+  content: '';
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 5px solid transparent;
+  border-right-color: var(--border-active);
+}
+
+.sidebar-capsule-btn:hover .sidebar-tooltip {
+  opacity: 1;
+  visibility: visible;
+  left: calc(100% + 12px);
+}
+
+/* Section ping highlight on click */
+@keyframes sectionPingAnimation {
+  0% {
+    box-shadow: 0 0 0 0 var(--border-active);
+  }
+  50% {
+    box-shadow: 0 0 0 3px var(--border-active);
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+.section-highlight-ping {
+  animation: sectionPingAnimation 1.1s ease-out;
+}
+
+/* Sidebar Bottom Footer */
+.sidebar-footer {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sidebar-footer-btn {
+  width: 38px;
+  height: 38px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sidebar-footer-btn:hover {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  border-color: var(--border-active);
+}
+
+@media (max-width: 680px) {
+  .sidebar-menu {
+    width: 60px;
+  }
+  .admin-main-content {
+    margin-left: 60px;
+  }
+  .sidebar-capsule-pod {
+    width: 40px;
+  }
+  .sidebar-capsule-btn {
+    width: 26px;
+    height: 38px;
+  }
 }
 

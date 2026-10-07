@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Doto:wght@300;400;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/dashboard.css?v=9">
+  <link rel="stylesheet" href="/css/dashboard.css?v=10">
   <script>
     (function() {
       const saved = localStorage.getItem('hawa_theme') || 'light';
@@ -18,82 +18,97 @@
 </head>
 <body>
 
-  <!-- 0. Edge Slide-Bar & Admin Navigation Drawer -->
-  <div class="edge-drawer-backdrop" id="edgeDrawerBackdrop"></div>
+  <div class="admin-app-layout">
+    <!-- Left Tactile Sidebar Menu (Matching User's Sketch) -->
+    <aside class="sidebar-menu" id="sidebarMenu">
+      <!-- Top Brand Mark -->
+      <a href="/" class="sidebar-brand-badge" title="HAWA Systems Fleet Console">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"></path>
+        </svg>
+      </a>
 
-  <aside class="edge-sidebar-drawer" id="edgeSidebarDrawer">
-    <div class="drawer-header">
-      <div class="drawer-brand">
-        <span class="drawer-badge">OPS</span>
-        <span class="drawer-title">HAWA ADMIN</span>
-      </div>
-      <button type="button" class="drawer-close-btn" id="drawerCloseBtn" title="Close slide-bar" aria-label="Close slide-bar">&larr;</button>
-    </div>
+      <!-- The Vertical Rail Track with Pod & Capsule Buttons -->
+      <div class="sidebar-rail-track">
+        <div class="sidebar-rail-line top"></div>
 
-    <div class="drawer-nav-section">
-      <div class="drawer-section-label">FLEET NAVIGATION</div>
-      <ul class="drawer-menu">
-        <li>
-          <button type="button" class="drawer-link active" id="drawerLinkFleet">
-            <span class="drawer-link-index">01</span>
-            <span class="drawer-link-title">FLEET MATRIX</span>
+        <!-- Primary Pod: Dual Capsule Buttons (Exact Sketch Match) -->
+        <div class="sidebar-capsule-pod" id="sidebarCapsulePod" title="Operations View Switcher">
+          <!-- Capsule 1: Fleet Matrix -->
+          <button type="button" class="sidebar-capsule-btn active" id="sideNavFleet" title="Fleet Nodes Matrix" aria-label="Fleet Matrix">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+            <span class="sidebar-tooltip">01 // FLEET MATRIX</span>
           </button>
-        </li>
-        <li>
-          <button type="button" class="drawer-link" id="drawerLinkConsole">
-            <span class="drawer-link-index">02</span>
-            <span class="drawer-link-title">SERIAL TELEMETRY</span>
+
+          <!-- Capsule 2: Live Serial Telemetry Stream -->
+          <button type="button" class="sidebar-capsule-btn" id="sideNavConsole" title="Remote Serial Telemetry Stream" aria-label="Telemetry Stream">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="4 17 10 11 4 5"></polyline>
+              <line x1="12" y1="19" x2="20" y2="19"></line>
+            </svg>
+            <span class="sidebar-tooltip">02 // SERIAL TELEMETRY</span>
           </button>
-        </li>
-        <li>
-          <button type="button" class="drawer-link" id="drawerLinkDeploy">
-            <span class="drawer-link-index">03</span>
-            <span class="drawer-link-title">OTA DEPLOYER</span>
+        </div>
+
+        <div class="sidebar-rail-line middle"></div>
+
+        <!-- Secondary Pod: Action Tools -->
+        <div class="sidebar-capsule-pod secondary" title="Admin Action Tools">
+          <!-- Capsule 3: OTA Deployer -->
+          <button type="button" class="sidebar-capsule-btn" id="sideNavDeploy" title="Deploy OTA Firmware (.bin)" aria-label="Deploy Firmware">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <span class="sidebar-tooltip">03 // DEPLOY OTA</span>
           </button>
-        </li>
-        <li>
-          <a href="/flash.html" target="_blank" class="drawer-link">
-            <span class="drawer-link-index">04</span>
-            <span class="drawer-link-title">FLASH BENCH</span>
+
+          <!-- Capsule 4: Web Flasher Bench -->
+          <a href="/flash.html" target="_blank" class="sidebar-capsule-btn" id="sideNavFlasher" title="Open Web Serial Flasher" aria-label="Web Flasher">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="16 18 22 12 16 6"></polyline>
+              <polyline points="8 6 2 12 8 18"></polyline>
+            </svg>
+            <span class="sidebar-tooltip">04 // FLASH BENCH</span>
           </a>
-        </li>
-      </ul>
-    </div>
+        </div>
 
-    <div class="drawer-nav-section">
-      <div class="drawer-section-label">SYSTEM TELEMETRY</div>
-      <div class="drawer-stat-row">
-        <span class="drawer-stat-name">ACTIVE NODES</span>
-        <span class="drawer-stat-val" id="drawerOnlineCount">0 ONLINE</span>
+        <div class="sidebar-rail-line bottom"></div>
       </div>
-      <div class="drawer-stat-row">
-        <span class="drawer-stat-name">GATEWAY TUNNEL</span>
-        <span class="drawer-stat-val monospace" id="drawerTunnelVal">LIVE</span>
+
+      <!-- Bottom Theme Toggle Button in Sidebar -->
+      <div class="sidebar-footer">
+        <button type="button" class="sidebar-footer-btn" id="sidebarThemeBtn" title="Toggle Light / Dark Theme" aria-label="Toggle Theme">
+          <span class="theme-toggle-icon">
+            <svg class="sun-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <svg class="moon-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </span>
+        </button>
       </div>
-    </div>
+    </aside>
 
-    <div class="drawer-footer">
-      <button type="button" class="btn-primary" style="width: 100%; justify-content: center;" id="drawerDeployBtn">
-        DEPLOY OTA (.BIN)
-      </button>
-    </div>
-  </aside>
+    <!-- Main Content Area -->
+    <div class="admin-main-content">
 
-  <!-- Sliding Edge Handle Rail (Exact Match to User Sketch) -->
-  <div class="edge-handle-rail" id="edgeHandleRail" title="Admin Slide-bar Rail">
-    <div class="rail-line-top"></div>
-    <div class="rail-pod" id="railPod" title="Click to toggle Admin Slide-bar">
-      <button type="button" class="rail-pill active" id="railPillFleet" title="Fleet Matrix View" aria-label="Fleet View">
-        <span class="pill-dot"></span>
-      </button>
-      <button type="button" class="rail-pill" id="railPillConsole" title="Remote Telemetry View" aria-label="Telemetry View">
-        <span class="pill-dot"></span>
-      </button>
-    </div>
-    <div class="rail-line-bottom"></div>
-  </div>
-
-  <!-- 1. Admin Operations Header -->
+      <!-- 1. Admin Operations Header -->
   <header class="navbar">
     <div class="logo-area">
       <div class="brand-badge" title="HAWA Systems Architecture">
@@ -270,7 +285,7 @@
     <div class="main-layout">
 
       <!-- Left Column: Fleet Node Cards -->
-      <section class="devices-section">
+      <section class="devices-section" id="devicesSection">
         <div id="deviceGrid" class="device-grid">
           <!-- Dynamic Device Cards injected here -->
           <div class="empty-state">
@@ -318,6 +333,9 @@
       </aside>
     </div>
   </main>
+
+  </div> <!-- .admin-main-content -->
+</div> <!-- .admin-app-layout -->
 
   <!-- 5. Modal: Deploy Firmware (.bin) -->
   <div id="deployModal" class="modal-overlay">
@@ -382,6 +400,6 @@
     </div>
   </div>
 
-  <script src="/js/dashboard.js"></script>
+  <script src="/js/dashboard.js?v=10"></script>
 </body>
 </html>

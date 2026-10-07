@@ -14,22 +14,20 @@ let searchQuery = '';
 // Theme Toggle Handler
 const themeToggleBtn = document.getElementById('themeToggleBtn');
 const themeToggleLabel = document.getElementById('themeToggleLabel');
-const sunIcon = document.querySelector('.sun-icon');
-const moonIcon = document.querySelector('.moon-icon');
 
 function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
   localStorage.setItem('hawa_theme', theme);
   if (themeToggleLabel) themeToggleLabel.textContent = (theme === 'light' ? 'DARK' : 'LIGHT');
-  if (sunIcon && moonIcon) {
-    if (theme === 'light') {
-      sunIcon.style.display = 'none';
-      moonIcon.style.display = 'inline-block';
-    } else {
-      sunIcon.style.display = 'inline-block';
-      moonIcon.style.display = 'none';
-    }
-  }
+  
+  const sunIcons = document.querySelectorAll('.sun-icon');
+  const moonIcons = document.querySelectorAll('.moon-icon');
+  sunIcons.forEach(icon => {
+    icon.style.display = (theme === 'light' ? 'none' : 'inline-block');
+  });
+  moonIcons.forEach(icon => {
+    icon.style.display = (theme === 'light' ? 'inline-block' : 'none');
+  });
 }
 
 const currentTheme = localStorage.getItem('hawa_theme') || 'light';
@@ -554,6 +552,8 @@ function openDeployModal() {
 function closeDeployModal() {
   deployModal.classList.remove('active');
   deployModal.classList.remove('open');
+  const sideNavDeploy = document.getElementById('sideNavDeploy');
+  if (sideNavDeploy) sideNavDeploy.classList.remove('active');
 }
 
 openDeployModalBtn.addEventListener('click', openDeployModal);
@@ -685,3 +685,89 @@ document.getElementById('refreshDevicesBtn').addEventListener('click', () => {
 
 // Connect WebSocket on load
 connectWebSocket();
+
+// =========================================================
+// TACTILE SIDEBAR MENU - CAPSULE BUTTON CONTROLS (USER SKETCH)
+// =========================================================
+const sideNavFleet = document.getElementById('sideNavFleet');
+const sideNavConsole = document.getElementById('sideNavConsole');
+const sideNavDeploy = document.getElementById('sideNavDeploy');
+const sideNavFlasher = document.getElementById('sideNavFlasher');
+const sidebarThemeBtn = document.getElementById('sidebarThemeBtn');
+const devicesSection = document.getElementById('devicesSection') || document.querySelector('.devices-section');
+const consolePanelEl = document.getElementById('consolePanel');
+
+function setActiveNavCapsule(activeBtn) {
+  [sideNavFleet, sideNavConsole].forEach(btn => {
+    if (btn) btn.classList.remove('active');
+  });
+  if (activeBtn) activeBtn.classList.add('active');
+}
+
+// 1. Fleet Matrix Capsule Click
+if (sideNavFleet) {
+  sideNavFleet.addEventListener('click', () => {
+    setActiveNavCapsule(sideNavFleet);
+    if (devicesSection) {
+      devicesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      devicesSection.classList.add('section-highlight-ping');
+      setTimeout(() => devicesSection.classList.remove('section-highlight-ping'), 1200);
+    }
+  });
+}
+
+// 2. Serial Telemetry Stream Capsule Click
+if (sideNavConsole) {
+  sideNavConsole.addEventListener('click', () => {
+    setActiveNavCapsule(sideNavConsole);
+    if (consolePanelEl) {
+      consolePanelEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const consoleInputEl = document.getElementById('consoleInput');
+      if (consoleInputEl) setTimeout(() => consoleInputEl.focus(), 350);
+      consolePanelEl.classList.add('section-highlight-ping');
+      setTimeout(() => consolePanelEl.classList.remove('section-highlight-ping'), 1200);
+    }
+  });
+}
+
+// 3. OTA Deployer Capsule Click
+if (sideNavDeploy) {
+  sideNavDeploy.addEventListener('click', () => {
+    openDeployModal();
+    sideNavDeploy.classList.add('active');
+  });
+}
+
+// 4. Web Flasher Bench Capsule Click
+if (sideNavFlasher) {
+  sideNavFlasher.addEventListener('click', () => {
+    sideNavFlasher.classList.add('active');
+    setTimeout(() => sideNavFlasher.classList.remove('active'), 500);
+  });
+}
+
+// 5. Sidebar Bottom Theme Toggle Click
+if (sidebarThemeBtn) {
+  sidebarThemeBtn.addEventListener('click', () => {
+    const active = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    applyTheme(active);
+  });
+}
+
+// 6. ScrollSpy: Auto-illuminate active capsule as operator scrolls views
+if (window.IntersectionObserver && devicesSection && consolePanelEl) {
+  const scrollSpyObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && entry.intersectionRatio > 0.35) {
+        if (entry.target === devicesSection) {
+          setActiveNavCapsule(sideNavFleet);
+        } else if (entry.target === consolePanelEl) {
+          setActiveNavCapsule(sideNavConsole);
+        }
+      }
+    });
+  }, { threshold: [0.35, 0.7] });
+
+  scrollSpyObserver.observe(devicesSection);
+  scrollSpyObserver.observe(consolePanelEl);
+}
