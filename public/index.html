@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Doto:wght@300;400;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/dashboard.css?v=10">
+  <link rel="stylesheet" href="/css/dashboard.css?v=11">
   <script>
     (function() {
       const saved = localStorage.getItem('hawa_theme') || 'light';
@@ -57,25 +57,39 @@
 
         <div class="sidebar-rail-line middle"></div>
 
-        <!-- Secondary Pod: Action Tools -->
-        <div class="sidebar-capsule-pod secondary" title="Admin Action Tools">
-          <!-- Capsule 3: OTA Deployer -->
+        <!-- Secondary Pod: Firmware Management Tools -->
+        <div class="sidebar-capsule-pod secondary" title="Firmware Pipeline Tools">
+          <!-- Capsule 3: Firmware Library & Rollback -->
+          <button type="button" class="sidebar-capsule-btn" id="sideNavLibrary" title="Firmware Binary Library & Rollback" aria-label="Firmware Library">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </svg>
+            <span class="sidebar-tooltip">03 // FIRMWARE LIBRARY</span>
+          </button>
+
+          <!-- Capsule 4: OTA Deployer -->
           <button type="button" class="sidebar-capsule-btn" id="sideNavDeploy" title="Deploy OTA Firmware (.bin)" aria-label="Deploy Firmware">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
               <polyline points="17 8 12 3 7 8"></polyline>
               <line x1="12" y1="3" x2="12" y2="15"></line>
             </svg>
-            <span class="sidebar-tooltip">03 // DEPLOY OTA</span>
+            <span class="sidebar-tooltip">04 // DEPLOY OTA</span>
           </button>
+        </div>
 
-          <!-- Capsule 4: Web Flasher Bench -->
+        <div class="sidebar-rail-line middle"></div>
+
+        <!-- Tertiary Pod: External Bench -->
+        <div class="sidebar-capsule-pod tertiary" title="External Hardware Workbench">
+          <!-- Capsule 5: Web Flasher Bench -->
           <a href="/flash.html" target="_blank" class="sidebar-capsule-btn" id="sideNavFlasher" title="Open Web Serial Flasher" aria-label="Web Flasher">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="16 18 22 12 16 6"></polyline>
               <polyline points="8 6 2 12 8 18"></polyline>
             </svg>
-            <span class="sidebar-tooltip">04 // FLASH BENCH</span>
+            <span class="sidebar-tooltip">05 // FLASH BENCH</span>
           </a>
         </div>
 
@@ -154,6 +168,13 @@
       </div>
 
       <!-- Quick Links -->
+      <button type="button" class="btn-secondary" id="openLibraryBtn" title="Open saved firmware library & rollbacks">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+        </svg>
+        FIRMWARE LIBRARY
+      </button>
       <a href="/flash.html" target="_blank" class="btn-secondary" id="openFlasherBtn">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="16 18 22 12 16 6"></polyline>
@@ -268,7 +289,7 @@
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
-          <input type="text" id="fleetSearchInput" class="search-input" placeholder="SEARCH DEVICE ID...">
+          <input type="text" id="fleetSearchInput" class="search-input" placeholder="SEARCH DEVICE ID, NICKNAME, TAG...">
         </div>
         <button type="button" class="btn-secondary btn-sm" id="refreshDevicesBtn" title="Sync fleet state">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -279,6 +300,38 @@
           SYNC FLEET
         </button>
       </div>
+    </div>
+
+    <!-- Batch Action Controls Bar (Appears when checkboxes selected) -->
+    <div class="batch-bar" id="batchBar" style="display: none;">
+      <div class="batch-bar-left">
+        <label class="batch-select-all-label">
+          <input type="checkbox" id="selectAllCheckbox" class="batch-checkbox">
+          <span>SELECT ALL</span>
+        </label>
+        <span class="batch-count-tag" id="batchCountTag">0 NODES SELECTED</span>
+      </div>
+      <div class="batch-actions-group">
+        <button type="button" class="btn-secondary btn-sm" id="batchRebootBtn">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"></path></svg>
+          BATCH REBOOT
+        </button>
+        <button type="button" class="btn-secondary btn-sm" id="batchPingBtn">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+          BATCH PING
+        </button>
+        <button type="button" class="btn-primary btn-sm" id="batchDeployBtn">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+          BATCH OTA DEPLOY
+        </button>
+        <button type="button" class="btn-text btn-sm" id="clearBatchSelectionBtn">CANCEL</button>
+      </div>
+    </div>
+
+    <!-- Tag Filter Chips Bar -->
+    <div class="tag-chips-bar" id="tagChipsBar" style="display: none;">
+      <span class="tag-bar-label">PROJECT TAGS:</span>
+      <div class="tag-chips-list" id="tagChipsList"></div>
     </div>
 
     <!-- 4. Two-Column Workspace Layout -->
@@ -317,9 +370,39 @@
             <span class="console-title">REMOTE TELEMETRY STREAM</span>
           </div>
 
-          <select id="consoleDeviceSelect" class="device-selector-dropdown">
-            <option value="">ALL FLEET NODES</option>
-          </select>
+          <div class="console-header-actions">
+            <select id="consoleDeviceSelect" class="device-selector-dropdown">
+              <option value="">ALL FLEET NODES</option>
+            </select>
+            <button type="button" class="btn-secondary btn-xs" id="exportLogsBtn" title="Download serial telemetry stream as text file">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              EXPORT .TXT
+            </button>
+          </div>
+        </div>
+
+        <!-- Telemetry Log Level Filter Toolbar -->
+        <div class="console-filter-toolbar">
+          <div class="log-level-pills">
+            <span class="filter-label">LEVEL:</span>
+            <button type="button" class="log-level-btn active" data-level="all">ALL</button>
+            <button type="button" class="log-level-btn" data-level="info">INFO</button>
+            <button type="button" class="log-level-btn" data-level="warn">WARN</button>
+            <button type="button" class="log-level-btn" data-level="error">ERROR</button>
+          </div>
+          <button type="button" class="btn-text btn-xs auto-scroll-btn active" id="toggleAutoScrollBtn" title="Toggle Auto-Scroll">
+            AUTO-SCROLL: ON
+          </button>
+        </div>
+
+        <!-- Command Quick Macros Bar -->
+        <div class="console-macro-bar">
+          <span class="macro-label">MACROS:</span>
+          <button type="button" class="macro-btn" data-cmd="ping">PING</button>
+          <button type="button" class="macro-btn" data-cmd="status">STATUS</button>
+          <button type="button" class="macro-btn" data-cmd="heap">HEAP</button>
+          <button type="button" class="macro-btn" data-cmd="reboot">REBOOT</button>
+          <button type="button" class="macro-btn" data-cmd="toggle_led">LED</button>
         </div>
 
         <div id="consoleLogs" class="console-logs">
@@ -400,6 +483,73 @@
     </div>
   </div>
 
-  <script src="/js/dashboard.js?v=10"></script>
+  <!-- 6. Modal: Firmware Library & Rollback Pipeline -->
+  <div id="firmwareLibraryModal" class="modal-overlay">
+    <div class="modal-content modal-large">
+      <button type="button" class="modal-close" id="closeLibraryModalBtn" aria-label="Close modal">&times;</button>
+      
+      <div class="modal-header-tag">FIRMWARE REPOSITORY // ROLLBACK ENGINE</div>
+      <h2 class="modal-title">FIRMWARE BINARY LIBRARY</h2>
+      <p class="modal-desc">
+        Persistent compiled binaries stored on disk. 1-click redeploy to nodes, trigger rollbacks, or execute batch fleet updates.
+      </p>
+
+      <div class="library-toolbar">
+        <button type="button" class="btn-primary btn-sm" id="libraryUploadBtn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          UPLOAD NEW BINARY (.BIN)
+        </button>
+        <span class="library-count-tag" id="libraryCountTag">0 BINARIES STORED</span>
+      </div>
+
+      <div class="firmware-list" id="firmwareLibraryList">
+        <div class="empty-state">
+          <div class="empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+          </div>
+          <h3>NO BINARIES IN LIBRARY</h3>
+          <p>Deploy a firmware binary or upload one above to persist it for fast rollback and redeployment.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. Modal: Edit Device Metadata (Nickname & Tags) -->
+  <div id="deviceEditModal" class="modal-overlay">
+    <div class="modal-content">
+      <button type="button" class="modal-close" id="closeDeviceEditModalBtn" aria-label="Close modal">&times;</button>
+      
+      <div class="modal-header-tag">NODE CONFIGURATION</div>
+      <h2 class="modal-title">EDIT HARDWARE METADATA</h2>
+      <p class="modal-desc" id="editModalSubtitle">
+        Configure custom nickname and operational project tags for this node.
+      </p>
+
+      <form id="deviceEditForm">
+        <input type="hidden" id="editDeviceIdHidden">
+        
+        <div class="form-group">
+          <label class="form-label" for="editNicknameInput">DEVICE NICKNAME / LOCATION</label>
+          <input type="text" id="editNicknameInput" class="form-input" placeholder="e.g. Living Room Node, Sensor Hub 01">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="editTagsInput">PROJECT TAGS (COMMA SEPARATED)</label>
+          <input type="text" id="editTagsInput" class="form-input" placeholder="e.g. PROD, LAB, SENSORS, OFFICE">
+          <div class="form-hint">Tags will be displayed on the node card and used for filter chips.</div>
+        </div>
+
+        <div class="modal-actions-row">
+          <button type="button" class="btn-secondary" id="cancelDeviceEditBtn">CANCEL</button>
+          <button type="submit" class="btn-primary" id="saveDeviceMetaBtn">SAVE METADATA</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 8. Floating Toast Notifications Container -->
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <script src="/js/dashboard.js?v=11"></script>
 </body>
 </html>

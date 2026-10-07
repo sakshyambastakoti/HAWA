@@ -67,6 +67,29 @@ function saveDevices() {
 }
 loadDevices();
 
+// Firmware Library Store (Persistent)
+let firmwares = [];
+function loadFirmwares() {
+  try {
+    if (fs.existsSync(config.FIRMWARES_FILE)) {
+      firmwares = JSON.parse(fs.readFileSync(config.FIRMWARES_FILE, 'utf8'));
+    } else {
+      firmwares = [];
+    }
+  } catch (err) {
+    console.error('[Store] Error loading firmwares:', err.message);
+    firmwares = [];
+  }
+}
+function saveFirmwares() {
+  try {
+    fs.writeFileSync(config.FIRMWARES_FILE, JSON.stringify(firmwares, null, 2), 'utf8');
+  } catch (err) {
+    console.error('[Store] Error saving firmwares:', err.message);
+  }
+}
+loadFirmwares();
+
 // In-Memory Connection Tracking
 const activeEspSockets = new Map(); // deviceId -> WebSocket
 const activeDashboardSockets = new Set(); // Set of WebSockets
@@ -151,7 +174,12 @@ app.get('/api/devices/:id/logs', (req, res) => {
   res.json(logs);
 });
 
-// Upload Firmware (.bin)
+// List saved firmware binaries in library
+app.get('/api/firmwares', (req, res) => {
+  res.json(firmwares);
+});
+
+// Upload Firmware (.bin) & save to Library
 app.post('/api/firmware/upload', upload.single('firmware'), async (req, res) => {
   try {
     if (!req.file) {
@@ -159,20 +187,57 @@ app.post('/api/firmware/upload', upload.single('firmware'), async (req, res) => 
     }
 
     const md5 = await calculateMD5(req.file.path);
+    const targetVersion = req.body.targetVersion || req.body.version || 'v_latest';
     const fileInfo = {
+      id: `fw_${Date.now()}`,
       filename: req.file.filename,
       originalName: req.file.originalname,
+      version: targetVersion,
       size: req.file.size,
       md5,
       downloadUrl: `${config.PUBLIC_URL}/api/firmware/download/${req.file.filename}`,
       uploadedAt: new Date().toISOString()
     };
 
-    console.log(`[Firmware] Uploaded: ${fileInfo.originalName} (${(fileInfo.size / 1024).toFixed(1)} KB) MD5: ${md5}`);
+    // Save to library
+    const existingIdx = firmwares.findIndex(f => f.filename === fileInfo.filename);
+    if (existingIdx !== -1) {
+      firmwares[existingIdx] = fileInfo;
+    } else {
+      firmwares.unshift(fileInfo);
+    }
+    saveFirmwares();
+
+    broadcastToDashboards({
+      type: 'FIRMWARE_LIBRARY_UPDATED',
+      firmwares
+    });
+
+    console.log(`[Firmware] Uploaded & Indexed: ${fileInfo.originalName} (${(fileInfo.size / 1024).toFixed(1)} KB) MD5: ${md5}`);
     res.json(fileInfo);
   } catch (err) {
     console.error('[Firmware] Upload error:', err);
     res.status(500).json({ error: err.message });
+  }
+});
+
+// Delete Firmware from Library
+app.delete('/api/firmware/:filename', (req, res) => {
+  const { filename } = req.params;
+  const filePath = path.join(config.UPLOADS_DIR, filename);
+  try {
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+    firmwares = firmwares.filter(f => f.filename !== filename);
+    saveFirmwares();
+    broadcastToDashboards({
+      type: 'FIRMWARE_LIBRARY_UPDATED',
+      firmwares
+    });
+    res.json({ success: true, message: `Firmware ${filename} removed` });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete firmware: ' + err.message });
   }
 });
 
@@ -277,6 +342,120 @@ app.post('/api/device/:id/toggle-led', (req, res) => {
   res.json({ success: true, message: `Toggle LED command sent to ${id}` });
 });
 
+// Trigger Batch OTA Update to multiple devices
+app.post('/api/ota/deploy-batch', (req, res) => {
+  const { targetDeviceIds, filename, targetVersion } = req.body;
+  if (!Array.isArray(targetDeviceIds) || targetDeviceIds.length === 0 || !filename) {
+    return res.status(400).json({ error: 'targetDeviceIds array and filename are required' });
+  }
+
+  const filePath = path.join(config.UPLOADS_DIR, filename);
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ error: 'Firmware binary not found on server' });
+  }
+
+  const stat = fs.statSync(filePath);
+  calculateMD5(filePath).then(md5 => {
+    const downloadUrl = `${config.PUBLIC_URL}/api/firmware/download/${filename}`;
+    let dispatched = 0;
+
+    targetDeviceIds.forEach(devId => {
+      const ws = activeEspSockets.get(devId);
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        const otaId = `ota_${Date.now()}_${devId}`;
+        const otaPayload = {
+          type: 'OTA_START',
+          otaId,
+          downloadUrl,
+          size: stat.size,
+          md5,
+          version: targetVersion || 'v_latest'
+        };
+        ws.send(JSON.stringify(otaPayload));
+
+        if (devices[devId]) {
+          devices[devId].status = 'updating';
+          devices[devId].lastOta = {
+            otaId,
+            startedAt: Date.now(),
+            filename,
+            progress: 0,
+            status: 'in_progress'
+          };
+        }
+        dispatched++;
+      }
+    });
+
+    saveDevices();
+    broadcastToDashboards({
+      type: 'INIT_STATE',
+      devices: Object.values(devices).map(dev => ({
+        ...dev,
+        isOnline: activeEspSockets.has(dev.deviceId)
+      }))
+    });
+
+    res.json({ success: true, count: dispatched, totalTargets: targetDeviceIds.length });
+  }).catch(err => {
+    res.status(500).json({ error: 'Failed to prepare batch OTA package: ' + err.message });
+  });
+});
+
+// Update Device Metadata (Nickname and Tags)
+app.post('/api/device/:id/meta', (req, res) => {
+  const { id } = req.params;
+  const { nickname, tags } = req.body;
+
+  if (!devices[id]) {
+    return res.status(404).json({ error: `Device ${id} not found` });
+  }
+
+  if (typeof nickname === 'string') devices[id].nickname = nickname.trim();
+  if (Array.isArray(tags)) devices[id].tags = tags.map(t => String(t).trim().toUpperCase()).filter(Boolean);
+
+  saveDevices();
+
+  const updatedDev = {
+    ...devices[id],
+    isOnline: activeEspSockets.has(id)
+  };
+
+  broadcastToDashboards({
+    type: 'DEVICE_UPDATED',
+    device: updatedDev
+  });
+
+  res.json({ success: true, device: updatedDev });
+});
+
+// Broadcast Batch Action (Reboot, Ping, LED toggle) to multiple devices
+app.post('/api/devices/batch-action', (req, res) => {
+  const { action, targetDeviceIds } = req.body;
+  if (!action || !Array.isArray(targetDeviceIds)) {
+    return res.status(400).json({ error: 'Action and targetDeviceIds required' });
+  }
+
+  let count = 0;
+  targetDeviceIds.forEach(id => {
+    const ws = activeEspSockets.get(id);
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      if (action === 'reboot') {
+        ws.send(JSON.stringify({ type: 'COMMAND', action: 'REBOOT' }));
+        count++;
+      } else if (action === 'toggle-led') {
+        ws.send(JSON.stringify({ type: 'COMMAND', action: 'TOGGLE_LED' }));
+        count++;
+      } else if (action === 'ping') {
+        ws.send(JSON.stringify({ type: 'COMMAND', action: 'PING' }));
+        count++;
+      }
+    }
+  });
+
+  res.json({ success: true, action, dispatchedCount: count });
+});
+
 // ==========================================
 // WEBSOCKET COMMUNICATION HUB
 // ==========================================
@@ -311,6 +490,7 @@ wss.on('connection', (ws, req) => {
             ...dev,
             isOnline: activeEspSockets.has(dev.deviceId)
           })),
+          firmwares,
           publicUrl: config.PUBLIC_URL
         }));
         break;
@@ -330,6 +510,8 @@ wss.on('connection', (ws, req) => {
         devices[clientDeviceId] = {
           deviceId: clientDeviceId,
           name: msg.name || existing.name || clientDeviceId,
+          nickname: existing.nickname || null,
+          tags: existing.tags || [],
           chip: msg.chip || 'ESP32/ESP8266',
           mac: msg.mac || 'Unknown',
           ip: msg.ip || 'Unknown',
@@ -339,7 +521,8 @@ wss.on('connection', (ws, req) => {
           uptime: msg.uptime || 0,
           status: 'online',
           lastSeen: now,
-          firstSeen: existing.firstSeen || now
+          firstSeen: existing.firstSeen || now,
+          metrics: existing.metrics || null
         };
 
         saveDevices();
@@ -356,6 +539,14 @@ wss.on('connection', (ws, req) => {
         broadcastToDashboards({
           type: 'DEVICE_UPDATED',
           device: { ...devices[clientDeviceId], isOnline: true }
+        });
+
+        // Broadcast Fleet Alert
+        broadcastToDashboards({
+          type: 'FLEET_ALERT',
+          alertType: 'ONLINE',
+          deviceId: clientDeviceId,
+          message: `Hardware node [${devices[clientDeviceId].nickname || clientDeviceId}] connected to fleet`
         });
         break;
       }
@@ -437,6 +628,13 @@ wss.on('connection', (ws, req) => {
             status: msg.status,
             message: msg.message || (isSuccess ? 'OTA Complete' : 'OTA Failed')
           });
+
+          broadcastToDashboards({
+            type: 'FLEET_ALERT',
+            alertType: isSuccess ? 'OTA_SUCCESS' : 'OTA_FAIL',
+            deviceId: clientDeviceId,
+            message: `Node [${devices[clientDeviceId].nickname || clientDeviceId}] firmware update ${isSuccess ? 'successful' : 'failed: ' + (msg.error || 'error')}`
+          });
         }
         break;
       }
@@ -460,6 +658,13 @@ wss.on('connection', (ws, req) => {
         broadcastToDashboards({
           type: 'DEVICE_UPDATED',
           device: { ...devices[clientDeviceId], isOnline: false }
+        });
+
+        broadcastToDashboards({
+          type: 'FLEET_ALERT',
+          alertType: 'OFFLINE',
+          deviceId: clientDeviceId,
+          message: `Node [${devices[clientDeviceId].nickname || clientDeviceId}] dropped connection`
         });
       }
     }
