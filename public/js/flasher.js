@@ -58,7 +58,7 @@ if (!('serial' in navigator)) {
   if (browserWarning) browserWarning.style.display = 'block';
   if (startFlashHawaBtn) startFlashHawaBtn.disabled = true;
   if (startFlashCustomBtn) startFlashCustomBtn.disabled = true;
-  logToConsole('❌ Error: Web Serial API is not supported in this browser. Please use Chrome, Edge, or Brave.');
+  logToConsole('[ERROR] Web Serial API not supported in this browser. Please use Chrome, Edge, or Brave.');
 }
 
 // Auto-fill Server URL from backend config
@@ -136,7 +136,7 @@ function switchTab(tab) {
     if (stepName2) stepName2.textContent = 'Wi-Fi & Config';
     if (stepName3) stepName3.textContent = 'Flash & Link';
 
-    logToConsole('👉 [Mode: HAWA OTA Platform] Ready to connect your board to the global wireless fleet.');
+    logToConsole('[MODE: HAWA OTA] Ready to provision and link board.');
   } else {
     tabCustomBin.classList.add('active');
     tabCustomBin.setAttribute('aria-selected', 'true');
@@ -150,7 +150,7 @@ function switchTab(tab) {
     if (stepName2) stepName2.textContent = 'Flash Settings';
     if (stepName3) stepName3.textContent = 'Flash & Monitor';
 
-    logToConsole('👉 [Mode: Custom Firmware] Select or drop your compiled .bin file from your PC.');
+    logToConsole('[MODE: CUSTOM FIRMWARE] Select or drop your compiled .bin file.');
   }
 }
 
@@ -203,7 +203,7 @@ function handleCustomFile(file) {
   if (binFileSize) binFileSize.textContent = formatBytes(file.size);
   if (dropzonePrompt) dropzonePrompt.style.display = 'none';
   if (selectedBinInfo) selectedBinInfo.style.display = 'flex';
-  logToConsole(`📦 Selected custom binary: "${file.name}" (${formatBytes(file.size)})`);
+  logToConsole(`[FILE] Loaded "${file.name}" (${formatBytes(file.size)})`);
 }
 
 if (binDropzone && customBinInput) {
@@ -245,7 +245,7 @@ if (removeBinFileBtn) {
     if (customBinInput) customBinInput.value = '';
     if (dropzonePrompt) dropzonePrompt.style.display = 'flex';
     if (selectedBinInfo) selectedBinInfo.style.display = 'none';
-    logToConsole('ℹ️ Custom binary selection cleared.');
+    logToConsole('[FILE] Selection cleared.');
   });
 }
 
@@ -260,7 +260,7 @@ document.querySelectorAll('.toggle-password-btn').forEach(btn => {
       btn.innerHTML = `
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-          <line x1="1" y1="1" x2="23" y2="23"></line>
+          <line x1="1" y1="23" x2="23" y2="23"></line>
         </svg>`;
     } else {
       input.type = 'password';
@@ -350,7 +350,7 @@ async function executeFlash(params) {
   updateStep(2);
 
   try {
-    logToConsole('👉 Requesting USB Serial Port access... (Please select your board in the popup)');
+    logToConsole('[SERIAL] Requesting USB port access (select your board in browser dialog)...');
     port = await navigator.serial.requestPort();
 
     transport = new Transport(port);
@@ -360,18 +360,18 @@ async function executeFlash(params) {
       terminal: espTerminal
     });
 
-    logToConsole('⚡ Connecting to ESP ROM bootloader...');
+    logToConsole('[BOOT] Connecting to ESP ROM bootloader at 115200 baud...');
     if (flasherStatusText) flasherStatusText.textContent = 'Connecting to ROM bootloader...';
 
     const chip = await esploader.main();
-    logToConsole(`✅ Connected to ${chip}! Preparing flash write...`);
+    logToConsole(`[CHIP] Detected: ${chip}. Initializing flash parameters...`);
 
     let fileArray = [];
 
     if (mode === 'custom') {
       if (flasherStatusText) flasherStatusText.textContent = `Reading custom binary (${customFile.name})...`;
-      logToConsole(`📦 Reading "${customFile.name}" (${formatBytes(customFile.size)})...`);
-      logToConsole(`📍 Target flash offset: 0x${offset.toString(16).toUpperCase()}${eraseAll ? ' [Full chip erase]' : ''}`);
+      logToConsole(`[FILE] Reading "${customFile.name}" (${formatBytes(customFile.size)})...`);
+      logToConsole(`[FLASH] Target offset: 0x${offset.toString(16).toUpperCase()}${eraseAll ? ' [full chip erase]' : ''}`);
 
       const binBuffer = await customFile.arrayBuffer();
       fileArray = [{
@@ -384,8 +384,8 @@ async function executeFlash(params) {
       const binResponse = await fetch(binUrl);
 
       if (!binResponse.ok) {
-        logToConsole(`ℹ️ Precompiled image ${binUrl} not found on server.`);
-        logToConsole(`ℹ️ Switching to Direct Serial Provisioning mode...`);
+        logToConsole(`[WARN] Precompiled image ${binUrl} not found on server.`);
+        logToConsole(`[INFO] Switching to direct serial provisioning mode...`);
         if (flasherStatusText) flasherStatusText.textContent = 'Configuring Wi-Fi via Serial...';
 
         await transport.disconnect();
@@ -419,27 +419,27 @@ async function executeFlash(params) {
       }
     });
 
-    logToConsole('✅ Flash writing complete! Resetting board...');
+    logToConsole('[FLASH] Write complete. Resetting board...');
     await transport.disconnect();
     await new Promise(r => setTimeout(r, 1200));
 
     if (ssid) {
       if (flasherStatusText) flasherStatusText.textContent = 'Provisioning Wi-Fi credentials...';
-      logToConsole('📡 Sending Wi-Fi credentials over serial...');
+      logToConsole('[SERIAL] Sending network credentials over serial...');
       await performSerialProvisioning(port, ssid, pass, server, name, activeBtn);
     } else {
       if (flasherPercent) flasherPercent.textContent = '100%';
       if (flasherBarFill) flasherBarFill.style.width = '100%';
-      if (flasherStatusText) flasherStatusText.textContent = '🎉 Complete! Custom firmware running!';
+      if (flasherStatusText) flasherStatusText.textContent = 'Complete! Custom firmware running!';
       if (bubble3) bubble3.classList.add('done');
 
-      logToConsole('\n======================================================');
-      logToConsole(`🎉 SUCCESS! Custom firmware flashed to ${chip}.`);
-      logToConsole('Board has rebooted and is now running your firmware!');
-      logToConsole('======================================================');
+      logToConsole('\n------------------------------------------------------');
+      logToConsole(`[SUCCESS] Custom firmware written to ${chip}.`);
+      logToConsole('Board rebooted. Application running.');
+      logToConsole('------------------------------------------------------');
 
       if (activeBtn) activeBtn.disabled = false;
-      alert('🎉 Success! Your custom firmware has been written and the board is running.');
+      alert('Success: Custom firmware flashed to board.');
 
       await new Promise(r => setTimeout(r, 600));
       startLiveSerialMonitoring(port);
@@ -447,7 +447,7 @@ async function executeFlash(params) {
 
   } catch (err) {
     console.error(err);
-    logToConsole(`❌ Error: ${err.message}`);
+    logToConsole(`[ERROR] ${err.message}`);
     if (flasherStatusText) flasherStatusText.textContent = 'Error during setup';
     if (activeBtn) activeBtn.disabled = false;
   }
@@ -456,7 +456,7 @@ async function executeFlash(params) {
 // Serial provisioning
 async function performSerialProvisioning(serialPort, ssid, pass, server, name, activeBtn) {
   try {
-    logToConsole('📡 Opening Serial port at 115200 baud to inject Wi-Fi config...');
+    logToConsole('[SERIAL] Opening port at 115200 baud to inject configuration...');
     await serialPort.open({ baudRate: 115200 });
 
     const textEncoder = new TextEncoderStream();
@@ -471,7 +471,7 @@ async function performSerialProvisioning(serialPort, ssid, pass, server, name, a
     });
 
     const configCommand = `HAWA_CONFIG:${configPayload}\n`;
-    logToConsole(`📤 Sending Config: SSID "${ssid}", Server "${server}"...`);
+    logToConsole(`[CONFIG] Sending: SSID "${ssid}", Server "${server}"...`);
 
     await new Promise(r => setTimeout(r, 1000));
     await writer.write(configCommand);
@@ -483,22 +483,21 @@ async function performSerialProvisioning(serialPort, ssid, pass, server, name, a
 
     if (flasherPercent) flasherPercent.textContent = '100%';
     if (flasherBarFill) flasherBarFill.style.width = '100%';
-    if (flasherStatusText) flasherStatusText.textContent = '🎉 Complete! Board Connected to Hawa!';
+    if (flasherStatusText) flasherStatusText.textContent = 'Complete! Board Connected to Hawa!';
     if (bubble3) bubble3.classList.add('done');
 
-    logToConsole('\n======================================================');
-    logToConsole('🎉 SUCCESS! Wi-Fi & Hawa configuration saved to your board.');
-    logToConsole('Your board will now connect to Wi-Fi and reach your friend.');
-    logToConsole('They can now remotely program and monitor this board wirelessly!');
-    logToConsole('======================================================');
+    logToConsole('\n------------------------------------------------------');
+    logToConsole('[SUCCESS] Wi-Fi and Hawa Hub configuration saved.');
+    logToConsole('Board connecting to network and linking to hub.');
+    logToConsole('------------------------------------------------------');
 
-    alert('🎉 Success! Your ESP board is now configured and connected to Hawa. You can now unplug it or leave it running!');
+    alert('Success: Your board is configured and linked to Hawa.');
 
     await new Promise(r => setTimeout(r, 600));
     startLiveSerialMonitoring(serialPort);
 
   } catch (err) {
-    logToConsole(`⚠️ Serial configuration note: ${err.message}`);
+    logToConsole(`[WARN] Serial configuration note: ${err.message}`);
     if (flasherStatusText) flasherStatusText.textContent = 'Board flashed! Please restart board.';
   } finally {
     if (activeBtn) activeBtn.disabled = false;
@@ -508,12 +507,12 @@ async function performSerialProvisioning(serialPort, ssid, pass, server, name, a
 // Live serial stream listener
 async function startLiveSerialMonitoring(serialPort) {
   try {
-    logToConsole('📡 Opening Live Serial Monitor at 115200 baud...');
+    logToConsole('[MONITOR] Starting live serial stream at 115200 baud...');
     await serialPort.open({ baudRate: 115200 });
     const textDecoder = new TextDecoderStream();
     serialPort.readable.pipeTo(textDecoder.writable);
     const reader = textDecoder.readable.getReader();
-    logToConsole('🟢 [Serial Monitor Stream Active] Listening for board output...\n');
+    logToConsole('[SERIAL STREAM ACTIVE] Ready for incoming data:\n');
     while (true) {
       const { value, done } = await reader.read();
       if (done) break;

@@ -7,8 +7,8 @@
   <meta name="description" content="Connect, flash, and remotely program ESP32 and ESP8266 microcontrollers directly from your browser. Zero software or driver installation needed.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/flasher.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Fira+Code:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/flasher.css?v=3">
 </head>
 <body>
 
@@ -443,12 +443,20 @@
           <div class="flasher-terminal-col">
             <div class="terminal-wrapper">
               <div class="terminal-header">
+                <div class="terminal-window-controls">
+                  <span class="term-dot term-dot-red"></span>
+                  <span class="term-dot term-dot-yellow"></span>
+                  <span class="term-dot term-dot-green"></span>
+                  <span class="term-prompt-label">esp-serial@ttyUSB0</span>
+                </div>
                 <div class="terminal-actions">
                   <button type="button" class="terminal-mini-btn" id="copyConsoleBtn">Copy Logs</button>
                   <button type="button" class="terminal-mini-btn" id="clearConsoleBtn">Clear</button>
                 </div>
               </div>
-              <div id="serialConsole" class="serial-console">[Ready] Connect your ESP board to your computer's USB port, then click "Connect USB & Flash Board" to start flashing and streaming serial output.</div>
+              <div id="serialConsole" class="serial-console">[SYSTEM] Web Serial engine initialized.
+[SYSTEM] Waiting for ESP board on USB / COM port...
+[READY] Connect your board and click flash to start.</div>
               <div class="terminal-footer-bar">
                 <span>Baud: 115200 · RTS/DTR Auto</span>
                 <span>Live Serial Stream</span>
@@ -693,7 +701,7 @@
     </div>
   </footer>
 
-  <script type="module" src="/js/flasher.js"></script>
+  <script type="module" src="/js/flasher.js?v=3"></script>
 
   <!-- Clean UI interactivity script without emojis or board cards -->
   <script>
@@ -737,7 +745,7 @@
     const clearBtn = document.getElementById('clearConsoleBtn');
     if (clearBtn && consoleEl) {
       clearBtn.addEventListener('click', () => {
-        consoleEl.textContent = '[Cleared] Ready for connection.';
+        consoleEl.textContent = '[SYSTEM] Terminal logs cleared.\n[READY] Ready for connection.';
       });
     }
 
