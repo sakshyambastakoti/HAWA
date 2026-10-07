@@ -27,7 +27,7 @@ function applyTheme(theme) {
   }
 }
 
-const currentTheme = localStorage.getItem('hawa_theme') || 'dark';
+const currentTheme = localStorage.getItem('hawa_theme') || 'light';
 applyTheme(currentTheme);
 
 if (themeToggleBtn) {

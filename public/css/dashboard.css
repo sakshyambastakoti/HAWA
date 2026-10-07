@@ -642,25 +642,25 @@ body {
 
 /* Light Theme Overrides for Dashboard */
 [data-theme="light"] {
-  --bg-primary: #f5f5f7;
-  --bg-secondary: #ffffff;
-  --bg-card: #ffffff;
-  --bg-card-hover: #fafafa;
-  --border-color: rgba(0, 0, 0, 0.12);
+  --bg-primary: #e7e5d6;
+  --bg-secondary: #eeece1;
+  --bg-card: #f4f2e8;
+  --bg-card-hover: #faf9f3;
+  --border-color: rgba(0, 0, 0, 0.14);
   --border-glow: rgba(0, 0, 0, 0.25);
   --text-main: #000000;
   --text-muted: #52525b;
 }
 
 [data-theme="light"] body {
-  background-color: #f5f5f7;
-  background-image: radial-gradient(rgba(0, 0, 0, 0.08) 1px, transparent 1px);
+  background-color: #e7e5d6;
+  background-image: radial-gradient(rgba(0, 0, 0, 0.09) 1px, transparent 1px);
   background-size: 24px 24px;
 }
 
 [data-theme="light"] .navbar {
-  background: rgba(245, 245, 247, 0.9);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(231, 229, 214, 0.94);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.14);
 }
 
 [data-theme="light"] .logo-text h1 {
