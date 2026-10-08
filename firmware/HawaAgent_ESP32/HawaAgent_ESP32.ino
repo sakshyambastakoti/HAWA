@@ -305,7 +305,7 @@ void setup() {
         }
 
         // Parse protocol, host, port
-        bool isSSL = server.startsWith("wss://");
+        bool isSSL = server.startsWith("wss://") || server.startsWith("https://");
         server.replace("wss://", "");
         server.replace("ws://", "");
         server.replace("https://", "");

@@ -199,7 +199,7 @@ void setup() {
         String server = config.serverUrl;
         if (server.length() == 0) server = "ws://192.168.1.100:3000";
 
-        bool isSSL = server.startsWith("wss://");
+        bool isSSL = server.startsWith("wss://") || server.startsWith("https://");
         server.replace("wss://", "");
         server.replace("ws://", "");
         server.replace("https://", "");
