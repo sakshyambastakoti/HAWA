@@ -34,6 +34,7 @@
         <ul class="nav-links">
           <li><a href="#flasher" class="nav-link">Web Flasher</a></li>
           <li><a href="#excel-features" class="nav-link">Features</a></li>
+          <li><a href="#docs" class="nav-link">Documentation</a></li>
         </ul>
       </nav>
 
@@ -632,6 +633,293 @@
   </section>
 
   <!-- =========================================================
+       SYSTEM DOCUMENTATION SECTION (Nothing OS Theme)
+       Covers Web Flasher onboarding, Hawa Arduino Library, & OTA Workflow
+       ========================================================= -->
+  <section class="docs-section" id="docs">
+    <div class="docs-inner-container">
+      <div class="docs-header-group">
+        <div class="docs-pill-badge">
+          <span>KNOWLEDGE BASE · QUICKSTART &amp; API GUIDE</span>
+        </div>
+        <h2 class="docs-main-title">System Documentation</h2>
+        <p class="docs-subtitle">
+          Everything you need to know about in-browser Web Serial onboarding, integrating the official Hawa Arduino Library (<code>Hawa.h</code>), and streaming wireless Over-The-Air firmware updates.
+        </p>
+      </div>
+
+      <!-- Tab Navigator -->
+      <div class="docs-tab-nav" role="tablist">
+        <button type="button" class="docs-tab-btn active" data-tab="tab-doc-flasher">01. WEB SERIAL ONBOARDING</button>
+        <button type="button" class="docs-tab-btn" data-tab="tab-doc-library">02. ARDUINO LIBRARY (HAWA.H)</button>
+        <button type="button" class="docs-tab-btn" data-tab="tab-doc-ota">03. OVER-THE-AIR (OTA) WORKFLOW</button>
+        <button type="button" class="docs-tab-btn" data-tab="tab-doc-example">04. COMPLETE SKETCH EXAMPLE</button>
+      </div>
+
+      <!-- Tab 1: Web Serial Onboarding -->
+      <div class="docs-tab-panel active" id="tab-doc-flasher">
+        <div class="docs-grid">
+          <!-- Step 1 -->
+          <div class="docs-card">
+            <span class="docs-step-num">STEP 01</span>
+            <h3 class="docs-card-title">Connect Hardware via USB</h3>
+            <p class="docs-card-desc">
+              Connect your ESP32 or ESP8266 development board to your computer using a data-capable micro-USB or USB-C cable. Open this page in Google Chrome, Microsoft Edge, Brave, or Opera.
+            </p>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="docs-card">
+            <span class="docs-step-num">STEP 02</span>
+            <h3 class="docs-card-title">Select Architecture</h3>
+            <p class="docs-card-desc">
+              Scroll up to the <strong>Web Flasher Workbench</strong>. Choose your chip type (<code>ESP32 Standard DevKit</code> or <code>ESP8266 NodeMCU</code>) under the <em>HAWA Agent Bootstrap</em> tab.
+            </p>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="docs-card">
+            <span class="docs-step-num">STEP 03</span>
+            <h3 class="docs-card-title">Enter Wi-Fi Credentials</h3>
+            <p class="docs-card-desc">
+              Type the Wi-Fi Network Name (SSID) and Password your board should connect to. The Gateway Server URL is automatically populated with your cloud endpoint.
+            </p>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="docs-card">
+            <span class="docs-step-num">STEP 04</span>
+            <h3 class="docs-card-title">Authorize Web Serial Port</h3>
+            <p class="docs-card-desc">
+              Click <strong>Connect USB &amp; Flash Board</strong>. Your browser displays a native port selector prompt. Select your board's USB-UART port (e.g. <code>CP2102</code> or <code>CH340</code>) and click Connect.
+            </p>
+          </div>
+
+          <!-- Step 5 -->
+          <div class="docs-card">
+            <span class="docs-step-num">STEP 05</span>
+            <h3 class="docs-card-title">Automatic ROM Burning</h3>
+            <p class="docs-card-desc">
+              The in-browser engine resets the board into ROM bootloader mode, writes the bootstrap agent binary, and provisions network parameters into Non-Volatile Storage (NVS).
+            </p>
+          </div>
+
+          <!-- Step 6 -->
+          <div class="docs-card">
+            <span class="docs-step-num">STEP 06</span>
+            <h3 class="docs-card-title">Autonomous Cloud Link</h3>
+            <p class="docs-card-desc">
+              The board automatically soft-reboots, joins your local Wi-Fi, and establishes a secure TLS WebSocket connection to the Hawa Command Center. Your hardware is now managed wirelessly.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Arduino Library (Hawa.h) -->
+      <div class="docs-tab-panel" id="tab-doc-library">
+        <div class="docs-grid-2col" style="margin-bottom: 1.5rem;">
+          <!-- Installation Card -->
+          <div class="docs-card" style="width: 100%;">
+            <span class="docs-step-num">INSTALLATION</span>
+            <h3 class="docs-card-title">Arduino IDE Library Manager</h3>
+            <p class="docs-card-desc">
+              Open <strong>Arduino IDE</strong>, navigate to <code>Sketch</code> &rarr; <code>Include Library</code> &rarr; <code>Manage Libraries...</code> (or press <code>Ctrl+Shift+I</code>). Search for <strong>Hawa</strong> and click <strong>Install</strong>. When prompted, install all required dependencies (<code>ArduinoJson</code> and <code>WebSockets</code>).
+            </p>
+            <div class="docs-code-container">
+              <div class="docs-code-header">
+                <span class="docs-code-title">PLATFORMIO CONFIG (platformio.ini)</span>
+                <button type="button" class="docs-copy-btn" data-target="code-platformio">COPY</button>
+              </div>
+              <pre class="docs-code-body"><code id="code-platformio">lib_deps =
+    https://github.com/sakshyambastakoti/Hawa-Arduino-Library.git
+    bblanchon/ArduinoJson @ ^6.21.3
+    links2004/WebSockets @ ^2.4.1</code></pre>
+            </div>
+          </div>
+
+          <!-- Core Philosophy Card -->
+          <div class="docs-card" style="width: 100%;">
+            <span class="docs-step-num">CORE PRINCIPLE</span>
+            <h3 class="docs-card-title">Zero-Credential Sketches</h3>
+            <p class="docs-card-desc">
+              Never hardcode plaintext Wi-Fi passwords or gateway URLs inside your sketches! When you call <code>Hawa.begin()</code>, the library automatically reads credentials previously burned into flash via the Web Flasher.
+            </p>
+            <p class="docs-card-desc" style="margin-top: 0.75rem;">
+              If the device is given to a friend or moved to a new router, they re-provision it via the browser flasher without touching your sketch code or recompiling.
+            </p>
+          </div>
+        </div>
+
+        <!-- API Reference Grid -->
+        <div class="docs-api-grid">
+          <div class="docs-api-item">
+            <code class="docs-api-signature">void Hawa.begin()</code>
+            <p class="docs-api-desc">
+              Initializes hardware, loads saved Wi-Fi credentials and cloud gateway endpoint from NVS / EEPROM, connects to the local wireless access point, and starts the background WebSocket link.
+            </p>
+          </div>
+
+          <div class="docs-api-item">
+            <code class="docs-api-signature">void Hawa.loop()</code>
+            <p class="docs-api-desc">
+              Must be called continuously inside <code>loop()</code>. Handles WebSocket keep-alive pings, answers server commands, streams live logs, and processes chunked Over-The-Air firmware updates. Ensure your loop contains no blocking <code>delay()</code> calls.
+            </p>
+          </div>
+
+          <div class="docs-api-item">
+            <code class="docs-api-signature">void Hawa.log(const String&amp; message)</code>
+            <p class="docs-api-desc">
+              Replaces standard <code>Serial.println()</code>. Prints the message locally to the hardware UART Serial Monitor at 115200 baud AND streams it live across WebSockets to your browser Command Center.
+            </p>
+          </div>
+
+          <div class="docs-api-item">
+            <code class="docs-api-signature">void Hawa.sendData(const String&amp; key, float value)</code>
+            <p class="docs-api-desc">
+              Transmits numerical sensor telemetry (e.g. temperature, humidity, voltage) directly to the web dashboard telemetry engine in real time. Also supports string values via <code>Hawa.sendData(key, stringVal)</code>.
+            </p>
+          </div>
+
+          <div class="docs-api-item">
+            <code class="docs-api-signature">void Hawa.onCommand(const String&amp; command, HawaCommandCallback callback)</code>
+            <p class="docs-api-desc">
+              Registers a remote callback executed when an operator dispatches a custom action from the Hawa dashboard. Useful for triggering relays, changing operational modes, or toggling GPIO pins.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 3: OTA Updates Workflow -->
+      <div class="docs-tab-panel" id="tab-doc-ota">
+        <div class="docs-grid">
+          <!-- Step 1 -->
+          <div class="docs-card">
+            <span class="docs-step-num">STEP 01</span>
+            <h3 class="docs-card-title">Export Binary from IDE</h3>
+            <p class="docs-card-desc">
+              Write or modify your sketch in Arduino IDE. In the top menu, click <code>Sketch</code> &rarr; <code>Export Compiled Binary</code> (or press <code>Ctrl+Alt+S</code>). Arduino compiles the code and saves a clean <code>.bin</code> file inside your sketch folder.
+            </p>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="docs-card">
+            <span class="docs-step-num">STEP 02</span>
+            <h3 class="docs-card-title">Open Fleet Command Center</h3>
+            <p class="docs-card-desc">
+              Open the Hawa Command Center dashboard (click <strong>Command Center</strong> in the top navbar or navigate to <code>/</code>). Verify that your board is displayed with a green <strong>ONLINE</strong> status badge.
+            </p>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="docs-card">
+            <span class="docs-step-num">STEP 03</span>
+            <h3 class="docs-card-title">Upload Binary Package</h3>
+            <p class="docs-card-desc">
+              Drag and drop your exported <code>.bin</code> file into the <strong>Deploy Firmware</strong> dropzone. The server automatically inspects the binary header (extracting app offsets if merged) and computes the MD5 cryptographic checksum.
+            </p>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="docs-card">
+            <span class="docs-step-num">STEP 04</span>
+            <h3 class="docs-card-title">Dispatch Wireless Update</h3>
+            <p class="docs-card-desc">
+              Select your target board from the device dropdown list and click <strong>Push Firmware Wirelessly</strong>. The server sends an <code>OTA_START</code> frame to the board over WebSockets.
+            </p>
+          </div>
+
+          <!-- Step 5 -->
+          <div class="docs-card">
+            <span class="docs-step-num">STEP 05</span>
+            <h3 class="docs-card-title">High-Speed Streaming</h3>
+            <p class="docs-card-desc">
+              The microcontroller streams binary chunks directly over HTTP/HTTPS. Watch the live progress bar in your dashboard tick from <code>0% &rarr; 100%</code> in real time.
+            </p>
+          </div>
+
+          <!-- Step 6 -->
+          <div class="docs-card">
+            <span class="docs-step-num">STEP 06</span>
+            <h3 class="docs-card-title">MD5 Verification &amp; Reboot</h3>
+            <p class="docs-card-desc">
+              The board validates the binary checksum, marks the application partition as valid, and triggers an autonomous reboot. The new firmware is now running without ever touching a USB cable.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 4: Complete Code Example -->
+      <div class="docs-tab-panel" id="tab-doc-example">
+        <div class="docs-card" style="width: 100%;">
+          <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; flex-wrap: wrap; gap: 1rem; margin-bottom: 0.5rem;">
+            <div>
+              <span class="docs-step-num">PRODUCTION TEMPLATE</span>
+              <h3 class="docs-card-title" style="margin-bottom: 0.25rem;">Full Working Arduino Sketch</h3>
+              <p class="docs-card-desc">Complete boilerplate featuring zero-credential booting, periodic sensor telemetry, live logging, and cloud command handling.</p>
+            </div>
+            <button type="button" class="docs-copy-btn" data-target="code-full-sketch" style="padding: 0.5rem 1rem;">COPY FULL SKETCH</button>
+          </div>
+
+          <div class="docs-code-container" style="margin-top: 1rem;">
+            <div class="docs-code-header">
+              <span class="docs-code-title">HAWA_ESP32_QUICKSTART.INO</span>
+              <span class="docs-code-title" style="color: var(--text-subtle);">ARDUINO C++ / ESP32</span>
+            </div>
+            <pre class="docs-code-body"><code id="code-full-sketch">#include &lt;Arduino.h&gt;
+#include &lt;Hawa.h&gt;
+
+#define RELAY_PIN 2 // Built-in LED on most ESP32 Dev modules
+
+void setup() {
+    Serial.begin(115200);
+    pinMode(RELAY_PIN, OUTPUT);
+    digitalWrite(RELAY_PIN, LOW);
+
+    // 1. Initialize Hawa agent:
+    // Credentials &amp; gateway URL are automatically loaded from flash memory (NVS)
+    // No hardcoded passwords needed in your code!
+    Hawa.begin();
+
+    // 2. Register remote commands dispatched from the web dashboard
+    Hawa.onCommand("toggle_relay", [](const String&amp; state) {
+        if (state == "ON" || state == "1") {
+            digitalWrite(RELAY_PIN, HIGH);
+            Hawa.log("[COMMAND] Relay toggled to: ON");
+        } else {
+            digitalWrite(RELAY_PIN, LOW);
+            Hawa.log("[COMMAND] Relay toggled to: OFF");
+        }
+    });
+
+    Hawa.log("[SYSTEM] Node initialization completed successfully.");
+}
+
+void loop() {
+    // 3. Keep WebSocket link, heartbeats, and OTA listeners responsive
+    Hawa.loop();
+
+    // 4. Periodically stream live telemetry to the web dashboard
+    static unsigned long lastTelemetry = 0;
+    if (millis() - lastTelemetry &gt; 5000) {
+        lastTelemetry = millis();
+
+        float simulatedTemp = 24.5 + (random(-15, 15) / 10.0);
+        uint32_t freeHeap = ESP.getFreeHeap();
+
+        Hawa.sendData("temperature", simulatedTemp);
+        Hawa.sendData("free_heap", freeHeap);
+
+        Hawa.log("[TELEMETRY] Temp: " + String(simulatedTemp, 1) + " C | Heap: " + String(freeHeap) + " bytes");
+    }
+}</code></pre>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =========================================================
        SLEEK DARK FOOTER
        Tailored specifically for HAWA Global OTA Platform
        ========================================================= -->
@@ -673,6 +961,7 @@
           <h4 class="footer-col-title">Platform</h4>
           <ul class="footer-links-list">
             <li><a href="#flasher" class="footer-text-link">Web Serial Flasher</a></li>
+            <li><a href="#docs" class="footer-text-link">Documentation</a></li>
             <li><a href="/" class="footer-text-link">Fleet Dashboard</a></li>
             <li><a href="/" class="footer-text-link">OTA Binary Deployer</a></li>
             <li><a href="/" class="footer-text-link">Live Remote Logs</a></li>
@@ -888,6 +1177,38 @@
     if (b1) observer.observe(b1, { attributes: true, attributeFilter: ['class'] });
     if (b2) observer.observe(b2, { attributes: true, attributeFilter: ['class'] });
     if (b3) observer.observe(b3, { attributes: true, attributeFilter: ['class'] });
+
+    // Documentation Tab Switching
+    const docsTabBtns = document.querySelectorAll('.docs-tab-btn');
+    const docsTabPanels = document.querySelectorAll('.docs-tab-panel');
+
+    docsTabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetId = btn.getAttribute('data-tab');
+        docsTabBtns.forEach(b => b.classList.remove('active'));
+        docsTabPanels.forEach(p => p.classList.remove('active'));
+
+        btn.classList.add('active');
+        const targetPanel = document.getElementById(targetId);
+        if (targetPanel) targetPanel.classList.add('active');
+      });
+    });
+
+    // Documentation Code Copy Handler
+    const docsCopyBtns = document.querySelectorAll('.docs-copy-btn');
+    docsCopyBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetId = btn.getAttribute('data-target');
+        const codeEl = document.getElementById(targetId);
+        if (codeEl) {
+          navigator.clipboard.writeText(codeEl.textContent).then(() => {
+            const original = btn.textContent;
+            btn.textContent = 'COPIED!';
+            setTimeout(() => { btn.textContent = original; }, 1600);
+          });
+        }
+      });
+    });
   </script>
 </body>
 </html>
